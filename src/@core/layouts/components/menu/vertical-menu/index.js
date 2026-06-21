@@ -8,6 +8,7 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 // ** Vertical Menu Components
 import VerticalMenuHeader from "./VerticalMenuHeader";
 import VerticalNavMenuItems from "./VerticalNavMenuItems";
+import i18n from "../../../../../configs/i18n";
 
 const Sidebar = (props) => {
   // ** Props
@@ -52,7 +53,7 @@ const Sidebar = (props) => {
             expanded: menuHover || menuCollapsed === false,
             "menu-light": skin !== "semi-dark" && skin !== "dark",
             "menu-dark": skin === "semi-dark" || skin === "dark",
-          }
+          },
         )}
         onMouseEnter={onMouseEnter}
         onMouseLeave={() => setMenuHover(false)}
@@ -75,7 +76,11 @@ const Sidebar = (props) => {
               options={{ wheelPropagation: false }}
               onScrollY={(container) => scrollMenu(container)}
             >
-              <ul className="navigation navigation-main">
+              <ul
+                className={`navigation navigation-main ${
+                  i18n.language === "en" ? null : "iranYekan"
+                }`}
+              >
                 <VerticalNavMenuItems
                   items={menuData}
                   menuData={menuData}

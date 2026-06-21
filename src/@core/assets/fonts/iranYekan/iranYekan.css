@@ -1,0 +1,65 @@
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 100;
+  src: url("./fonts/IRANYekanXFaNum-Thin.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 200;
+  src: url("./fonts/IRANYekanXFaNum-UltraLight.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 300;
+  src: url("./fonts/IRANYekanXFaNum-Light.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 400;
+  src: url("./fonts/IRANYekanXFaNum-Regular.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 500;
+  src: url("./fonts/IRANYekanXFaNum-Medium.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 600;
+  src: url("./fonts/IRANYekanXFaNum-DemiBold.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 700;
+  src: url("./fonts/IRANYekanXFaNum-Bold.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 800;
+  src: url("./fonts/IRANYekanXFaNum-ExtraBold.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 900;
+  src: url("./fonts/IRANYekanXFaNum-Black.woff") format("woff");
+}
+@font-face {
+  font-family: IRANYekanXFaNum;
+  font-style: normal;
+  font-weight: 950;
+  src: url("./fonts/IRANYekanXFaNum-ExtraBlack.woff") format("woff");
+}
+
+.iranYekan {
+  font-family: IRANYekanXFaNum !important;
+  font-weight: 600;
+}

@@ -39,6 +39,7 @@ import { useNavbarColor } from "@hooks/useNavbarColor";
 // ** Styles
 import "@styles/base/core/menu/menu-types/vertical-menu.scss";
 import "@styles/base/core/menu/menu-types/vertical-overlay-menu.scss";
+import i18n from "../../configs/i18n";
 
 const VerticalLayout = (props) => {
   // ** Props
@@ -133,8 +134,10 @@ const VerticalLayout = (props) => {
     <div
       className={classnames(
         `wrapper vertical-layout ${
-          navbarWrapperClasses[navbarType] || "navbar-floating"
-        } ${footerClasses[footerType] || "footer-static"}`,
+          i18n.language === "en" ? null : "iranYekan"
+        } ${navbarWrapperClasses[navbarType] || "navbar-floating"} ${
+          footerClasses[footerType] || "footer-static"
+        }`,
         {
           // Modern Menu
           "vertical-menu-modern": windowWidth >= 1200,
@@ -145,7 +148,7 @@ const VerticalLayout = (props) => {
           "vertical-overlay-menu": windowWidth < 1200,
           "menu-hide": !menuVisibility && windowWidth < 1200,
           "menu-open": menuVisibility && windowWidth < 1200,
-        }
+        },
       )}
       {...(isHidden ? { "data-col": "1-column" } : {})}
     >
@@ -170,7 +173,7 @@ const VerticalLayout = (props) => {
         className={classnames(
           `header-navbar navbar align-items-center ${
             navbarClasses[navbarType] || "floating-nav"
-          } navbar-shadow`
+          } navbar-shadow`,
         )}
       >
         <div className="navbar-container d-flex content">
@@ -225,7 +228,7 @@ const VerticalLayout = (props) => {
           `footer footer-light ${footerClasses[footerType] || "footer-static"}`,
           {
             "d-none": footerType === "hidden",
-          }
+          },
         )}
       >
         {footer ? (

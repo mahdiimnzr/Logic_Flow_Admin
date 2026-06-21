@@ -17,6 +17,9 @@ import themeConfig from "./configs/themeConfig";
 // ** Toast
 import { Toaster } from "react-hot-toast";
 
+// ** i18n
+import "./configs/i18n";
+
 // ** Spinner (Splash Screen)
 import Spinner from "./@core/components/spinner/Fallback-spinner";
 
@@ -36,11 +39,14 @@ import "@styles/react/libs/react-hot-toasts/react-hot-toasts.scss";
 
 // ** Core styles
 import "./@core/assets/fonts/feather/iconfont.css";
+import "./@core/assets/fonts/iranYekan/iranYekan.css";
 import "./@core/scss/core.scss";
 import "./assets/scss/style.scss";
 
 // ** Service Worker
 import * as serviceWorker from "./serviceWorker";
+import queryClient from "./configs/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 // ** Lazy load app
 const LazyApp = lazy(() => import("./App"));
@@ -51,17 +57,19 @@ const root = createRoot(container);
 root.render(
   <BrowserRouter>
     <Provider store={store}>
-      <Suspense fallback={<Spinner />}>
-        <ThemeContext>
-          <LazyApp />
-          <Toaster
-            position={themeConfig.layout.toastPosition}
-            toastOptions={{ className: "react-hot-toast" }}
-          />
-        </ThemeContext>
-      </Suspense>
+      <QueryClientProvider client={queryClient}>
+        <Suspense fallback={<Spinner />}>
+          <ThemeContext>
+            <LazyApp />
+            <Toaster
+              position={themeConfig.layout.toastPosition}
+              toastOptions={{ className: "react-hot-toast" }}
+            />
+          </ThemeContext>
+        </Suspense>
+      </QueryClientProvider>
     </Provider>
-  </BrowserRouter>
+  </BrowserRouter>,
 );
 
 // If you want your app to work offline and load faster, you can change

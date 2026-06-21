@@ -1,4 +1,4 @@
-import { Mail, Home, Airplay, Circle } from "react-feather";
+import { Home, Airplay, Circle, Users } from "react-feather";
 
 export default [
   {
@@ -6,12 +6,6 @@ export default [
     title: "Home",
     icon: <Home size={20} />,
     navLink: "/home",
-  },
-  {
-    id: "secondPage",
-    title: "Second Page",
-    icon: <Mail size={20} />,
-    navLink: "/second-page",
   },
   {
     id: "smaplePage",
@@ -26,5 +20,11 @@ export default [
         navLink: "/apps/invoice/list",
       },
     ],
+  },
+  {
+    id: "usersPage",
+    title: "Users",
+    icon: <Users size={20} />,
+    navLink: "/Users",
   },
 ];
