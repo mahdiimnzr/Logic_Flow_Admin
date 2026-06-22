@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useMemo } from "react";
 
 // ** Invoice List Sidebar
 // import Sidebar from "./Sidebar";
@@ -7,21 +7,14 @@ import { Fragment, useState, useEffect } from "react";
 // ** Table Columns
 import { columns } from "./Columns";
 
-// ** Store & Actions
+// ** Debounce Search
+import debounce from "debounce";
 
 // ** Third Party Components
 import Select from "react-select";
 import ReactPaginate from "react-paginate";
 import DataTable from "react-data-table-component";
-import {
-  ChevronDown,
-  Share,
-  Printer,
-  FileText,
-  File,
-  Grid,
-  Copy,
-} from "react-feather";
+import { ChevronDown } from "react-feather";
 
 // ** Utils
 import { selectThemeColors } from "@utils";
@@ -37,16 +30,14 @@ import {
   CardBody,
   CardTitle,
   CardHeader,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
 } from "reactstrap";
 
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
 import { useTranslation } from "react-i18next";
+import { updateParams } from "../../redux/actions";
+import { useDispatch } from "react-redux";
 
 // ** Table Header
 const CustomHeader = ({
@@ -56,6 +47,9 @@ const CustomHeader = ({
   handleFilter,
   searchTerm,
 }) => {
+  // ** I18n
+  const { t } = useTranslation();
+
   // ** Converts table to CSV
   function convertArrayOfObjectsToCSV(array) {
     let result;
@@ -104,7 +98,7 @@ const CustomHeader = ({
       <Row>
         <Col xl="6" className="d-flex align-items-center p-0">
           <div className="d-flex align-items-center w-100">
-            <label htmlFor="rows-per-page">Show</label>
+            <label htmlFor="rows-per-page">{t("Show")}</label>
             <Input
               className="mx-50"
               type="select"
@@ -117,7 +111,7 @@ const CustomHeader = ({
               <option value="25">25</option>
               <option value="50">50</option>
             </Input>
-            <label htmlFor="rows-per-page">Entries</label>
+            <label htmlFor="rows-per-page">{t("Entries")}</label>
           </div>
         </Col>
         <Col
@@ -126,7 +120,7 @@ const CustomHeader = ({
         >
           <div className="d-flex align-items-center mb-sm-0 mb-1 me-1">
             <label className="mb-0" htmlFor="search-invoice">
-              Search:
+              {t("Search")}
             </label>
             <Input
               id="search-invoice"
@@ -138,38 +132,6 @@ const CustomHeader = ({
           </div>
 
           <div className="d-flex align-items-center table-header-actions">
-            <UncontrolledDropdown className="me-1">
-              <DropdownToggle color="secondary" caret outline>
-                <Share className="font-small-4 me-50" />
-                <span className="align-middle">Export</span>
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem className="w-100">
-                  <Printer className="font-small-4 me-50" />
-                  <span className="align-middle">Print</span>
-                </DropdownItem>
-                <DropdownItem
-                  className="w-100"
-                  onClick={() => downloadCSV(store.data)}
-                >
-                  <FileText className="font-small-4 me-50" />
-                  <span className="align-middle">CSV</span>
-                </DropdownItem>
-                <DropdownItem className="w-100">
-                  <Grid className="font-small-4 me-50" />
-                  <span className="align-middle">Excel</span>
-                </DropdownItem>
-                <DropdownItem className="w-100">
-                  <File className="font-small-4 me-50" />
-                  <span className="align-middle">PDF</span>
-                </DropdownItem>
-                <DropdownItem className="w-100">
-                  <Copy className="font-small-4 me-50" />
-                  <span className="align-middle">Copy</span>
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-
             <Button
               className="add-new-user"
               color="primary"
@@ -185,6 +147,9 @@ const CustomHeader = ({
 };
 
 const UsersList = ({ usersList }) => {
+  // ** Redux
+  const dispatch = useDispatch();
+
   // ** I18n
   const { t } = useTranslation();
 
@@ -204,84 +169,67 @@ const UsersList = ({ usersList }) => {
     label: t("StatusSelection"),
   });
 
+  // ** Page Count
+  const count = Number(Math.ceil(usersList?.totalCount / rowsPerPage));
+
   // ** Function to toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // ** Get data on mount
+  // ** Handle Search
+  const handleSearch = useMemo(
+    () =>
+      debounce((value) => {
+        const search = value.trim() === "" ? null : value.trim();
+        dispatch(updateParams({ key: "Query", value: search }));
+      }, 1000),
+    [dispatch],
+  );
 
   // ** User filter options
-  const rolesList = usersList.roles.map((value) => {
+  const rolesList = usersList?.roles?.map((value) => {
     const roles = { value: value.id, label: value.name };
     return roles;
   });
 
   const roleOptions = [
-    { value: "", label: t("RolesSelection"), number: 0 },
-    ...rolesList,
+    { value: null, label: t("RolesSelection"), number: 0 },
+    ...(rolesList ?? {}),
   ];
-
   const statusOptions = [
-    { value: "", label: t("StatusSelection") },
+    { value: null, label: t("StatusSelection") },
     { value: "active", label: t("Active") },
     { value: "deActive", label: t("DeActive") },
   ];
 
   // ** Function in get data on page change
   const handlePagination = (page) => {
-    dispatch(
-      getData({
-        sort,
-        sortColumn,
-        q: searchTerm,
-        perPage: rowsPerPage,
-        page: page.selected + 1,
-        role: currentRole.value,
-        status: currentStatus.value,
-        currentPlan: currentPlan.value,
-      }),
-    );
+    dispatch(updateParams({ key: "PageNumber", value: page.selected + 1 }));
     setCurrentPage(page.selected + 1);
   };
 
   // ** Function in get data on rows per page
   const handlePerPage = (e) => {
     const value = parseInt(e.currentTarget.value);
-    dispatch(
-      getData({
-        sort,
-        sortColumn,
-        q: searchTerm,
-        perPage: value,
-        page: currentPage,
-        role: currentRole.value,
-        currentPlan: currentPlan.value,
-        status: currentStatus.value,
-      }),
-    );
+    dispatch(updateParams({ key: "RowsOfPage", value: e.currentTarget.value }));
     setRowsPerPage(value);
   };
 
   // ** Function in get data on search query change
   const handleFilter = (val) => {
     setSearchTerm(val);
-    dispatch(
-      getData({
-        sort,
-        q: val,
-        sortColumn,
-        page: currentPage,
-        perPage: rowsPerPage,
-        role: currentRole.value,
-        status: currentStatus.value,
-        currentPlan: currentPlan.value,
-      }),
-    );
+    handleSearch(val);
   };
+
+  // ** Update Current Page If That Page Doesn`t Exist
+  useEffect(() => {
+    if (currentPage > count) {
+      dispatch(updateParams({ key: "PageNumber", value: count || 1 }));
+      setCurrentPage(count || 1);
+    }
+  }, [count]);
 
   // ** Custom Pagination
   const CustomPagination = () => {
-    const count = Number(Math.ceil(usersList?.totalCount / rowsPerPage));
-
     return (
       <ReactPaginate
         previousLabel={""}
@@ -303,28 +251,6 @@ const UsersList = ({ usersList }) => {
     );
   };
 
-  // ** Table data to render
-  const dataToRender = () => {
-    const filters = {
-      role: currentRole.value,
-      currentPlan: currentPlan.value,
-      status: currentStatus.value,
-      q: searchTerm,
-    };
-
-    const isFiltered = Object.keys(filters).some(function (k) {
-      return filters[k].length > 0;
-    });
-
-    // if (store.data.length > 0) {
-    //   return store.data;
-    // } else if (store.data.length === 0 && isFiltered) {
-    //   return [];
-    // } else {
-    //   return store.allData.slice(0, rowsPerPage);
-    // }
-  };
-
   return (
     <Fragment>
       <Card>
@@ -344,18 +270,7 @@ const UsersList = ({ usersList }) => {
                 theme={selectThemeColors}
                 onChange={(data) => {
                   setCurrentRole(data);
-                  dispatch(
-                    getData({
-                      sort,
-                      sortColumn,
-                      q: searchTerm,
-                      role: data.value,
-                      page: currentPage,
-                      perPage: rowsPerPage,
-                      status: currentStatus.value,
-                      currentPlan: currentPlan.value,
-                    }),
-                  );
+                  dispatch(updateParams({ key: "roleId", value: data.value }));
                 }}
               />
             </Col>
@@ -370,6 +285,13 @@ const UsersList = ({ usersList }) => {
                 value={currentStatus}
                 onChange={(data) => {
                   setCurrentStatus(data);
+                  const value =
+                    data.value === "active"
+                      ? true
+                      : data.value === "deActive"
+                      ? false
+                      : data.value;
+                  dispatch(updateParams({ key: "IsActiveUser", value: value }));
                 }}
               />
             </Col>
@@ -391,7 +313,7 @@ const UsersList = ({ usersList }) => {
             data={usersList?.listUser}
             subHeaderComponent={
               <CustomHeader
-                // store={store}
+                store={usersList}
                 searchTerm={searchTerm}
                 rowsPerPage={rowsPerPage}
                 handleFilter={handleFilter}
