@@ -1,6 +1,6 @@
 // ** React Imports
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 // ** Table Columns
 import { columns } from "./columns";
@@ -20,6 +20,9 @@ import { Button, Input, Row, Col, Card } from "reactstrap";
 // ** Styles
 import "@styles/react/apps/app-invoice.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
+import { useDispatch } from "react-redux";
+import debounce from "debounce";
+import { updateCourseListParams } from "../../../redux/actions";
 
 const CustomHeader = ({
   handleFilter,
@@ -33,9 +36,7 @@ const CustomHeader = ({
     <div className="invoice-list-table-header w-100 py-2">
       <Row>
         <Col lg="6" className="d-flex align-items-center ">
-          <span>همه دوره ها</span>
-
-          {/* <div className="d-flex align-items-center me-2">
+          <div className="d-flex align-items-center me-2">
             <label htmlFor="rows-per-page">Show</label>
             <Input
               type="select"
@@ -48,7 +49,10 @@ const CustomHeader = ({
               <option value="25">25</option>
               <option value="50">50</option>
             </Input>
-          </div> */}
+          </div>
+          <Button tag={Link} to="/apps/invoice/add" color="primary">
+            Add Record
+          </Button>
         </Col>
         <Col
           lg="6"
@@ -61,27 +65,22 @@ const CustomHeader = ({
               className="ms-50 me-2 w-100"
               type="text"
               value={value}
-              onChange={(e) => handleFilter(e.target.value)}
+              onChange={(event) => {
+                handleFilter(event.target.value);
+              }}
               placeholder="جستجو دوره ها..."
             />
           </div>
           <Input
-            className="w-auto "
+            className="w-auto px-3"
             type="select"
             value={statusValue}
             onChange={handleStatusValue}
           >
-            <option value="">Select Status</option>
-            <option value="downloaded">Downloaded</option>
-            {/* <option value="draft">Draft</option>
-            <option value="paid">Paid</option>
-            <option value="partial payment">Partial Payment</option>
-            <option value="past due">Past Due</option>
-            <option value="sent">Sent</option> */}
+            <option value={null}>انتخاب کنید</option>
+            <option value="costUp"> گران ترین</option>
+            <option value="costDown"> ارزان ترین</option>
           </Input>
-          <Button tag={Link} to="/apps/invoice/add" color="primary">
-            Add Record
-          </Button>
         </Col>
       </Row>
     </div>
@@ -89,90 +88,70 @@ const CustomHeader = ({
 };
 
 const InvoiceList = ({ courseList }) => {
-  // ** Store vars
-  // const dispatch = useDispatch();
-  // const store = useSelector((state) => state.invoice);
+  // ** Redux
+  const dispatch = useDispatch();
 
   // ** States
   const [value, setValue] = useState("");
   const [sort, setSort] = useState("desc");
   const [sortColumn, setSortColumn] = useState("id");
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusValue, setStatusValue] = useState("");
+  const [statusValue, setStatusValue] = useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // useEffect(() => {
-  // dispatch(
-  //   getData({
-  //     sort,
-  //     q: value,
-  //     sortColumn,
-  //     page: currentPage,
-  //     perPage: rowsPerPage,
-  //     status: statusValue
-  //   })
-  // )
-  // }, [dispatch, store.data.length]);
+  // ** Page Count
+  const count = Number(Math.ceil(courseList?.totalCount / rowsPerPage));
 
+  // ** Handle Search
+  const handleSearch = useMemo(
+    () =>
+      debounce((value) => {
+        const search = value.trim() === "" ? null : value.trim();
+        dispatch(updateCourseListParams({ key: "Query", value: search }));
+      }, 1000),
+    [dispatch],
+  );
   const handleFilter = (val) => {
     setValue(val);
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: val,
-    //     sortColumn,
-    //     page: currentPage,
-    //     perPage: rowsPerPage,
-    //     status: statusValue
-    //   })
-    // )
+    handleSearch(val);
   };
 
+  // ** Function in get data on rows per page
   const handlePerPage = (e) => {
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: value,
-    //     sortColumn,
-    //     page: currentPage,
-    //     status: statusValue,
-    //     perPage: parseInt(e.target.value)
-    //   })
-    // )
-    setRowsPerPage(parseInt(e.target.value));
+    const value = parseInt(e.currentTarget.value);
+    dispatch(
+      updateCourseListParams({
+        key: "RowsOfPage",
+        value: e.currentTarget.value,
+      }),
+    );
+    setRowsPerPage(value);
   };
 
   const handleStatusValue = (e) => {
+    if (e.target.value === "costUp") {
+      dispatch(updateCourseListParams({ key: "SortingCol", value: "cost" }));
+      dispatch(updateCourseListParams({ key: "SortType", value: "desc" }));
+    } else if (e.target.value === "costDown") {
+      dispatch(updateCourseListParams({ key: "SortingCol", value: "cost" }));
+      dispatch(updateCourseListParams({ key: "SortType", value: "asc" }));
+    } else {
+      dispatch(
+        updateCourseListParams({ key: "SortingCol", value: "lastUpdate" }),
+      );
+      dispatch(updateCourseListParams({ key: "SortType", value: "desc" }));
+    }
     setStatusValue(e.target.value);
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: value,
-    //     sortColumn,
-    //     page: currentPage,
-    //     perPage: rowsPerPage,
-    //     status: e.target.value
-    //   })
-    // )
   };
 
+  // ** Function in get data on page change
   const handlePagination = (page) => {
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: value,
-    //     sortColumn,
-    //     status: statusValue,
-    //     perPage: rowsPerPage,
-    //     page: page.selected + 1
-    //   })
-    // )
+    dispatch(
+      updateCourseListParams({ key: "PageNumber", value: page.selected + 1 }),
+    );
     setCurrentPage(page.selected + 1);
   };
-
   const CustomPagination = () => {
-    const count = Number((20 / rowsPerPage).toFixed(0));
-
     return (
       <ReactPaginate
         nextLabel=""
