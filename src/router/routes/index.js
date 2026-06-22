@@ -14,6 +14,7 @@ import PublicRoute from "@components/routes/PublicRoute";
 import { isObjEmpty } from "@utils";
 import UsersRoute from "./Users";
 import AuthRoute from "./Auth";
+import CoursesRoute from "./Courses";
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -47,6 +48,7 @@ const Routes = [
     element: <Sample />,
   },
   ...AuthRoute,
+  ...CoursesRoute,
   ...UsersRoute,
   {
     path: "/error",
