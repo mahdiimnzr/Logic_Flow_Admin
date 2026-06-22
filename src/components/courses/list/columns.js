@@ -36,6 +36,7 @@ import {
   ArrowDownCircle,
 } from "react-feather";
 import formatPrice from "../../../core/utils/formatPrice";
+import formatTime from "../../../core/utils/formatTime";
 
 // ** Vars
 const invoiceStatusObj = {
@@ -151,14 +152,14 @@ export const columns = [
     // selector: row => row.total,
     cell: (row) => <span>{formatPrice(row.cost) || 0} تومان</span>,
   },
-  // {
-  //   sortable: true,
-  //   minWidth: "200px",
-  //   name: "Issued Date",
-  //   sortField: "dueDate",
-  //   cell: (row) => row.dueDate,
-  //   // selector: row => row.dueDate
-  // },
+  {
+    sortable: true,
+    minWidth: "200px",
+    name: "آخرین بروز رسانی",
+    sortField: "dueDate",
+    cell: (row) => formatTime(row.lastUpdate),
+    // selector: row => row.dueDate
+  },
   {
     sortable: true,
     name: "دوره های فعال و غیر فعال",

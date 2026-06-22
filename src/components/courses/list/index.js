@@ -1,6 +1,6 @@
 // ** React Imports
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 // ** Table Columns
 import { columns } from "./columns";
@@ -20,6 +20,9 @@ import { Button, Input, Row, Col, Card } from "reactstrap";
 // ** Styles
 import "@styles/react/apps/app-invoice.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
+import { useDispatch } from "react-redux";
+import debounce from "debounce";
+import { updateCourseListParams } from "../../../redux/actions";
 
 const CustomHeader = ({
   handleFilter,
@@ -61,7 +64,9 @@ const CustomHeader = ({
               className="ms-50 me-2 w-100"
               type="text"
               value={value}
-              onChange={(e) => handleFilter(e.target.value)}
+              onChange={(event) => {
+                handleFilter(event.target.value);
+              }}
               placeholder="جستجو دوره ها..."
             />
           </div>
@@ -90,8 +95,29 @@ const CustomHeader = ({
 
 const InvoiceList = ({ courseList }) => {
   // ** Store vars
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const [rowPageCount, setRowPageCount] = useState(12);
   // const store = useSelector((state) => state.invoice);
+
+  // ** Handle Search
+  const handleSearch = useMemo(
+    () =>
+      debounce((value) => {
+        const search = value.trim() === "" ? null : value.trim();
+        dispatch(updateCourseListParams({ key: "Query", value: search }));
+      }, 1000),
+    [dispatch],
+  );
+
+  // ** Handel Pagination
+
+  // const pageCount = useMemo(
+  //   () =>
+  //     courses?.data?.totalCount
+  //       ? Math.ceil(courses?.data?.totalCount / rowPageCount)
+  //       : 1,
+  //   [courses?.data?.totalCount, rowPageCount],
+  // );
 
   // ** States
   const [value, setValue] = useState("");
@@ -116,16 +142,7 @@ const InvoiceList = ({ courseList }) => {
 
   const handleFilter = (val) => {
     setValue(val);
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: val,
-    //     sortColumn,
-    //     page: currentPage,
-    //     perPage: rowsPerPage,
-    //     status: statusValue
-    //   })
-    // )
+    handleSearch(val);
   };
 
   const handlePerPage = (e) => {
@@ -168,6 +185,22 @@ const InvoiceList = ({ courseList }) => {
     //   })
     // )
     setCurrentPage(page.selected + 1);
+
+    const [whichPage, setWhichPage] = useState(1);
+
+    const pageArray = useMemo(() => {
+      const pages = [];
+      for (let index = 1; index <= pageCount; index++) pages.push(index);
+      return pages;
+    }, [pageCount]);
+
+    useEffect(() => {
+      if (pageCount < whichPage) {
+        setWhichPage(1);
+        dispatch(updateParams({ key: "PageNumber", value: 1 }));
+        window.scroll(0, 0);
+      }
+    }, [pageCount, whichPage, dispatch]);
   };
 
   const CustomPagination = () => {
