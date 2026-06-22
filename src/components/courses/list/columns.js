@@ -155,7 +155,7 @@ export const columns = [
   {
     sortable: true,
     minWidth: "200px",
-    name: "آخرین بروز رسانی",
+    name: "آخرین بروزرسانی",
     sortField: "dueDate",
     cell: (row) => formatTime(row.lastUpdate),
     // selector: row => row.dueDate
@@ -204,7 +204,7 @@ export const columns = [
             <MoreVertical size={17} className="cursor-pointer" />
           </DropdownToggle>
           <DropdownMenu end>
-            <DropdownItem
+            {/* <DropdownItem
               tag="a"
               href="/"
               className="w-100"
@@ -212,15 +212,15 @@ export const columns = [
             >
               <Download size={14} className="me-50" />
               <span className="align-middle">Download</span>
-            </DropdownItem>
-            <DropdownItem
+            </DropdownItem> */}
+            {/* <DropdownItem
               tag={Link}
               to={`/apps/invoice/edit/${row.id}`}
               className="w-100"
             >
               <Edit size={14} className="me-50" />
               <span className="align-middle">Edit</span>
-            </DropdownItem>
+            </DropdownItem> */}
             <DropdownItem
               tag="a"
               href="/"
@@ -233,7 +233,7 @@ export const columns = [
               <Trash size={14} className="me-50" />
               <span className="align-middle">Delete</span>
             </DropdownItem>
-            <DropdownItem
+            {/* <DropdownItem
               tag="a"
               href="/"
               className="w-100"
@@ -241,7 +241,7 @@ export const columns = [
             >
               <Copy size={14} className="me-50" />
               <span className="align-middle">Duplicate</span>
-            </DropdownItem>
+            </DropdownItem> */}
           </DropdownMenu>
         </UncontrolledDropdown>
       </div>

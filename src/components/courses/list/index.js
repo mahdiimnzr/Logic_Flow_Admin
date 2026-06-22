@@ -36,9 +36,7 @@ const CustomHeader = ({
     <div className="invoice-list-table-header w-100 py-2">
       <Row>
         <Col lg="6" className="d-flex align-items-center ">
-          <span>همه دوره ها</span>
-
-          {/* <div className="d-flex align-items-center me-2">
+          <div className="d-flex align-items-center me-2">
             <label htmlFor="rows-per-page">Show</label>
             <Input
               type="select"
@@ -51,7 +49,10 @@ const CustomHeader = ({
               <option value="25">25</option>
               <option value="50">50</option>
             </Input>
-          </div> */}
+          </div>
+          <Button tag={Link} to="/apps/invoice/add" color="primary">
+            Add Record
+          </Button>
         </Col>
         <Col
           lg="6"
@@ -71,22 +72,15 @@ const CustomHeader = ({
             />
           </div>
           <Input
-            className="w-auto "
+            className="w-auto px-3"
             type="select"
             value={statusValue}
             onChange={handleStatusValue}
           >
-            <option value="">Select Status</option>
-            <option value="downloaded">Downloaded</option>
-            {/* <option value="draft">Draft</option>
-            <option value="paid">Paid</option>
-            <option value="partial payment">Partial Payment</option>
-            <option value="past due">Past Due</option>
-            <option value="sent">Sent</option> */}
+            <option value={null}>انتخاب کنید</option>
+            <option value="costUp"> گران ترین</option>
+            <option value="costDown"> ارزان ترین</option>
           </Input>
-          <Button tag={Link} to="/apps/invoice/add" color="primary">
-            Add Record
-          </Button>
         </Col>
       </Row>
     </div>
@@ -94,10 +88,19 @@ const CustomHeader = ({
 };
 
 const InvoiceList = ({ courseList }) => {
-  // ** Store vars
+  // ** Redux
   const dispatch = useDispatch();
-  const [rowPageCount, setRowPageCount] = useState(12);
-  // const store = useSelector((state) => state.invoice);
+
+  // ** States
+  const [value, setValue] = useState("");
+  const [sort, setSort] = useState("desc");
+  const [sortColumn, setSortColumn] = useState("id");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [statusValue, setStatusValue] = useState(null);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // ** Page Count
+  const count = Number(Math.ceil(courseList?.totalCount / rowsPerPage));
 
   // ** Handle Search
   const handleSearch = useMemo(
@@ -108,104 +111,47 @@ const InvoiceList = ({ courseList }) => {
       }, 1000),
     [dispatch],
   );
-
-  // ** Handel Pagination
-
-  // const pageCount = useMemo(
-  //   () =>
-  //     courses?.data?.totalCount
-  //       ? Math.ceil(courses?.data?.totalCount / rowPageCount)
-  //       : 1,
-  //   [courses?.data?.totalCount, rowPageCount],
-  // );
-
-  // ** States
-  const [value, setValue] = useState("");
-  const [sort, setSort] = useState("desc");
-  const [sortColumn, setSortColumn] = useState("id");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [statusValue, setStatusValue] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  // useEffect(() => {
-  // dispatch(
-  //   getData({
-  //     sort,
-  //     q: value,
-  //     sortColumn,
-  //     page: currentPage,
-  //     perPage: rowsPerPage,
-  //     status: statusValue
-  //   })
-  // )
-  // }, [dispatch, store.data.length]);
-
   const handleFilter = (val) => {
     setValue(val);
     handleSearch(val);
   };
 
+  // ** Function in get data on rows per page
   const handlePerPage = (e) => {
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: value,
-    //     sortColumn,
-    //     page: currentPage,
-    //     status: statusValue,
-    //     perPage: parseInt(e.target.value)
-    //   })
-    // )
-    setRowsPerPage(parseInt(e.target.value));
+    const value = parseInt(e.currentTarget.value);
+    dispatch(
+      updateCourseListParams({
+        key: "RowsOfPage",
+        value: e.currentTarget.value,
+      }),
+    );
+    setRowsPerPage(value);
   };
 
   const handleStatusValue = (e) => {
+    if (e.target.value === "costUp") {
+      dispatch(updateCourseListParams({ key: "SortingCol", value: "cost" }));
+      dispatch(updateCourseListParams({ key: "SortType", value: "desc" }));
+    } else if (e.target.value === "costDown") {
+      dispatch(updateCourseListParams({ key: "SortingCol", value: "cost" }));
+      dispatch(updateCourseListParams({ key: "SortType", value: "asc" }));
+    } else {
+      dispatch(
+        updateCourseListParams({ key: "SortingCol", value: "lastUpdate" }),
+      );
+      dispatch(updateCourseListParams({ key: "SortType", value: "desc" }));
+    }
     setStatusValue(e.target.value);
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: value,
-    //     sortColumn,
-    //     page: currentPage,
-    //     perPage: rowsPerPage,
-    //     status: e.target.value
-    //   })
-    // )
   };
 
+  // ** Function in get data on page change
   const handlePagination = (page) => {
-    // dispatch(
-    //   getData({
-    //     sort,
-    //     q: value,
-    //     sortColumn,
-    //     status: statusValue,
-    //     perPage: rowsPerPage,
-    //     page: page.selected + 1
-    //   })
-    // )
+    dispatch(
+      updateCourseListParams({ key: "PageNumber", value: page.selected + 1 }),
+    );
     setCurrentPage(page.selected + 1);
-
-    const [whichPage, setWhichPage] = useState(1);
-
-    const pageArray = useMemo(() => {
-      const pages = [];
-      for (let index = 1; index <= pageCount; index++) pages.push(index);
-      return pages;
-    }, [pageCount]);
-
-    useEffect(() => {
-      if (pageCount < whichPage) {
-        setWhichPage(1);
-        dispatch(updateParams({ key: "PageNumber", value: 1 }));
-        window.scroll(0, 0);
-      }
-    }, [pageCount, whichPage, dispatch]);
   };
-
   const CustomPagination = () => {
-    const count = Number((20 / rowsPerPage).toFixed(0));
-
     return (
       <ReactPaginate
         nextLabel=""
