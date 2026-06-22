@@ -8,16 +8,21 @@ export default [
     navLink: "/home",
   },
   {
-    id: "smaplePage",
-    title: "Sample Page",
-    icon: <Airplay size={20} />,
-    // navLink: "/sample",
+    id: "coursesPage",
+    title: "Courses",
+    icon: <Home size={20} />,
     children: [
       {
-        id: "invoiceList",
+        id: "coursesList",
         title: "List",
         icon: <Circle size={12} />,
-        navLink: "/apps/invoice/list",
+        navLink: "/Courses/List",
+      },
+      {
+        id: "coursesadd",
+        title: "add",
+        icon: <Circle size={12} />,
+        navLink: "/Courses/add",
       },
     ],
   },

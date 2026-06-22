@@ -11,5 +11,7 @@
   "isDelete": "حذف",
   "Deleted": "حذف شده",
   "NotDeleted": "حذف نشده",
-  "Search": "جستجو"
+  "Search": "جستجو",
+  "Courses": "دوره ها ",
+  "List": "لیست دوره ها "
 }

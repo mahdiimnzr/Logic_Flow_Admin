@@ -11,5 +11,7 @@
   "isDelete": "Delete",
   "Deleted": "Deleted",
   "NotDeleted": "No Deleted",
-  "Search": "Search"
+  "Search": "Search",
+  "Courses": "Courses",
+  "List": "Course List"
 }
