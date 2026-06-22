@@ -46,6 +46,7 @@ import {
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
+import { useTranslation } from "react-i18next";
 
 // ** Table Header
 const CustomHeader = ({
@@ -183,8 +184,9 @@ const CustomHeader = ({
   );
 };
 
-const UsersList = () => {
-  // ** Store Vars
+const UsersList = ({ usersList }) => {
+  // ** I18n
+  const { t } = useTranslation();
 
   // ** States
   const [sort, setSort] = useState("desc");
@@ -195,16 +197,11 @@ const UsersList = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentRole, setCurrentRole] = useState({
     value: "",
-    label: "Select Role",
-  });
-  const [currentPlan, setCurrentPlan] = useState({
-    value: "",
-    label: "Select Plan",
+    label: t("RolesSelection"),
   });
   const [currentStatus, setCurrentStatus] = useState({
     value: "",
-    label: "Select Status",
-    number: 0,
+    label: t("StatusSelection"),
   });
 
   // ** Function to toggle sidebar
@@ -213,28 +210,20 @@ const UsersList = () => {
   // ** Get data on mount
 
   // ** User filter options
-  const roleOptions = [
-    { value: "", label: "Select Role" },
-    { value: "admin", label: "Admin" },
-    { value: "author", label: "Author" },
-    { value: "editor", label: "Editor" },
-    { value: "maintainer", label: "Maintainer" },
-    { value: "subscriber", label: "Subscriber" },
-  ];
+  const rolesList = usersList.roles.map((value) => {
+    const roles = { value: value.id, label: value.name };
+    return roles;
+  });
 
-  const planOptions = [
-    { value: "", label: "Select Plan" },
-    { value: "basic", label: "Basic" },
-    { value: "company", label: "Company" },
-    { value: "enterprise", label: "Enterprise" },
-    { value: "team", label: "Team" },
+  const roleOptions = [
+    { value: "", label: t("RolesSelection"), number: 0 },
+    ...rolesList,
   ];
 
   const statusOptions = [
-    { value: "", label: "Select Status", number: 0 },
-    { value: "pending", label: "Pending", number: 1 },
-    { value: "active", label: "Active", number: 2 },
-    { value: "inactive", label: "Inactive", number: 3 },
+    { value: "", label: t("StatusSelection") },
+    { value: "active", label: t("Active") },
+    { value: "deActive", label: t("DeActive") },
   ];
 
   // ** Function in get data on page change
@@ -291,7 +280,7 @@ const UsersList = () => {
 
   // ** Custom Pagination
   const CustomPagination = () => {
-    const count = Number(Math.ceil(store.total / rowsPerPage));
+    const count = Number(Math.ceil(usersList?.totalCount / rowsPerPage));
 
     return (
       <ReactPaginate
@@ -336,33 +325,16 @@ const UsersList = () => {
     // }
   };
 
-  const handleSort = (column, sortDirection) => {
-    setSort(sortDirection);
-    setSortColumn(column.sortField);
-    dispatch(
-      getData({
-        sort,
-        sortColumn,
-        q: searchTerm,
-        page: currentPage,
-        perPage: rowsPerPage,
-        role: currentRole.value,
-        status: currentStatus.value,
-        currentPlan: currentPlan.value,
-      }),
-    );
-  };
-
   return (
     <Fragment>
       <Card>
         <CardHeader>
-          <CardTitle tag="h4">Filters</CardTitle>
+          <CardTitle tag="h4">{t("Filters")}</CardTitle>
         </CardHeader>
         <CardBody>
           <Row>
             <Col md="4">
-              <Label for="role-select">Role</Label>
+              <Label for="role-select">{t("Roles")}</Label>
               <Select
                 isClearable={false}
                 value={currentRole}
@@ -387,34 +359,8 @@ const UsersList = () => {
                 }}
               />
             </Col>
-            <Col className="my-md-0 my-1" md="4">
-              <Label for="plan-select">Plan</Label>
-              <Select
-                theme={selectThemeColors}
-                isClearable={false}
-                className="react-select"
-                classNamePrefix="select"
-                options={planOptions}
-                value={currentPlan}
-                onChange={(data) => {
-                  setCurrentPlan(data);
-                  dispatch(
-                    getData({
-                      sort,
-                      sortColumn,
-                      q: searchTerm,
-                      page: currentPage,
-                      perPage: rowsPerPage,
-                      role: currentRole.value,
-                      currentPlan: data.value,
-                      status: currentStatus.value,
-                    }),
-                  );
-                }}
-              />
-            </Col>
             <Col md="4">
-              <Label for="status-select">Status</Label>
+              <Label for="status-select">{t("Status")}</Label>
               <Select
                 theme={selectThemeColors}
                 isClearable={false}
@@ -436,16 +382,13 @@ const UsersList = () => {
           <DataTable
             noHeader
             subHeader
-            sortServer
             pagination
             responsive
             paginationServer
             columns={columns}
-            onSort={handleSort}
-            sortIcon={<ChevronDown />}
             className="react-dataTable"
             paginationComponent={CustomPagination}
-            // data={dataToRender()}
+            data={usersList?.listUser}
             subHeaderComponent={
               <CustomHeader
                 // store={store}
