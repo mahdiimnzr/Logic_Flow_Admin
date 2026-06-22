@@ -1,6 +1,17 @@
 {
-  "Dashboards": "Dashboards",
+  "Dashboards": "Dashboard",
   "Users": "Users",
+  "Filters": "Filters",
+  "Status": "Status",
+  "StatusSelection": "Select Status",
+  "Active": "Active",
+  "DeActive": "De Active",
+  "Roles": "Role",
+  "RolesSelection": "Select Role",
+  "isDelete": "Delete",
+  "Deleted": "Deleted",
+  "NotDeleted": "No Deleted",
+  "Search": "Search",
   "Courses": "Courses",
   "List": "Course List"
 }

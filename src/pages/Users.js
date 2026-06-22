@@ -1,12 +1,19 @@
 import React, { Fragment } from "react";
 import Table from "../components/users/Table";
 import { useGetUserList } from "../core/services/api/Users/users.service";
+import Spinner from "../@core/components/spinner/Fallback-spinner";
+import { useSelector } from "react-redux";
 
 const Users = () => {
-  const { isLoading, data: usersList } = useGetUserList();
-  return (
+  const params = useSelector((state) => state.usersSlice.params);
+  const { isLoading, data: usersList } = useGetUserList(params);
+  return isLoading ? (
+    <Spinner />
+  ) : (
     <Fragment>
-      <Table />
+      <div className="app-user-list">
+        <Table usersList={usersList?.data} />
+      </div>
     </Fragment>
   );
 };

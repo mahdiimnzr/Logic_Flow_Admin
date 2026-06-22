@@ -1,6 +1,17 @@
 {
   "Dashboards": "داشبورد",
   "Users": "کاربران",
+  "Filters": "فیلتر ها",
+  "Status": "وضعیت",
+  "StatusSelection": "انتخاب وضعیت",
+  "Active": "فعال",
+  "DeActive": "غیر فعال",
+  "Roles": "نقش",
+  "RolesSelection": "انتخاب نقش",
+  "isDelete": "حذف",
+  "Deleted": "حذف شده",
+  "NotDeleted": "حذف نشده",
+  "Search": "جستجو",
   "Courses": "دوره ها ",
   "List": "لیست دوره ها "
 }
