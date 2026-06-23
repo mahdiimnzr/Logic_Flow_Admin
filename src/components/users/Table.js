@@ -2,7 +2,7 @@
 import { Fragment, useState, useEffect, useMemo } from "react";
 
 // ** Invoice List Sidebar
-// import Sidebar from "./Sidebar";
+import SidebarNewUsers from "./Sidebar";
 
 // ** Table Columns
 import { columns } from "./Columns";
@@ -137,7 +137,7 @@ const CustomHeader = ({
               color="primary"
               onClick={toggleSidebar}
             >
-              Add New User
+              {t("CreateNewUser")}
             </Button>
           </div>
         </Col>
@@ -167,6 +167,10 @@ const UsersList = ({ usersList }) => {
   const [currentStatus, setCurrentStatus] = useState({
     value: "",
     label: t("StatusSelection"),
+  });
+  const [currentIsDelete, setCurrentIsDelete] = useState({
+    value: "",
+    label: t("DeleteSelection"),
   });
 
   // ** Page Count
@@ -199,6 +203,11 @@ const UsersList = ({ usersList }) => {
     { value: null, label: t("StatusSelection") },
     { value: "active", label: t("Active") },
     { value: "deActive", label: t("DeActive") },
+  ];
+  const deleteOptions = [
+    { value: null, label: t("DeleteSelection") },
+    { value: "delete", label: t("Deleted") },
+    { value: "notDeleted", label: t("NotDeleted") },
   ];
 
   // ** Function in get data on page change
@@ -295,6 +304,29 @@ const UsersList = ({ usersList }) => {
                 }}
               />
             </Col>
+            <Col md="4">
+              <Label for="delete-select">{t("isDelete")}</Label>
+              <Select
+                isClearable={false}
+                value={currentIsDelete}
+                options={deleteOptions}
+                className="react-select"
+                classNamePrefix="select"
+                theme={selectThemeColors}
+                onChange={(data) => {
+                  setCurrentIsDelete(data);
+                  const value =
+                    data.value === "delete"
+                      ? true
+                      : data.value === "notDeleted"
+                      ? false
+                      : data.value;
+                  dispatch(
+                    updateParams({ key: "IsDeletedUser", value: value }),
+                  );
+                }}
+              />
+            </Col>
           </Row>
         </CardBody>
       </Card>
@@ -325,7 +357,7 @@ const UsersList = ({ usersList }) => {
         </div>
       </Card>
 
-      {/* <Sidebar open={sidebarOpen} toggleSidebar={toggleSidebar} /> */}
+      <SidebarNewUsers open={sidebarOpen} toggleSidebar={toggleSidebar} />
     </Fragment>
   );
 };

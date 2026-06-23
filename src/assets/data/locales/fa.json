@@ -9,11 +9,21 @@
   "Roles": "نقش",
   "RolesSelection": "انتخاب نقش",
   "isDelete": "حذف",
+  "DeleteSelection": "انتخاب حذف",
   "Deleted": "حذف شده",
   "NotDeleted": "حذف نشده",
   "Search": "جستجو",
   "Courses": "دوره ها ",
   "List": "لیست دوره ها ",
   "Show": "نمایش",
-  "Entries": "ورودی ها"
+  "Entries": "ورودی ها",
+  "CreateNewUser": "اضافه کردن کاربر",
+  "NewUser": "کاربر جدید",
+  "FName": "نام",
+  "LName": "نام خانوادگی",
+  "Email": "ایمیل",
+  "Password": "رمزعبور",
+  "PhoneNumber": "شماره تلفن",
+  "isStudent": "دانشجو است",
+  "isTeacher": "استاد است"
 }
