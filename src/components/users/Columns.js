@@ -33,7 +33,6 @@ import {
 import { useTranslation } from "react-i18next";
 import formatDate from "../../core/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteUser } from "../../core/services/api/Users/users.service";
 import toast from "react-hot-toast";
 
 // ** Renders Client Columns
@@ -173,30 +172,30 @@ export const columns = [
     cell: (row) => {
       const { t } = useTranslation();
       const queryClient = useQueryClient();
-      const { mutate: deleteUserMutate } = useMutation({
-        mutationFn: deleteUser,
-        onSuccess: (response) => {
-          if (response.data.success) {
-            toast.success(response.data.message);
-            queryClient.invalidateQueries({ queryKey: ["UsersList"] });
-          } else if (!response.data.success) {
-            toast.error(response.data.message);
-          }
-        },
-        onError: (response) => {
-          toast.error(response.data.message);
-        },
-      });
+      // const { mutate: deleteUserMutate } = useMutation({
+      //   mutationFn: deleteUser,
+      //   onSuccess: (response) => {
+      //     if (response.data.success) {
+      //       toast.success(response.data.message);
+      //       queryClient.invalidateQueries({ queryKey: ["UsersList"] });
+      //     } else if (!response.data.success) {
+      //       toast.error(response.data.message);
+      //     }
+      //   },
+      //   onError: (response) => {
+      //     toast.error(response.data.message);
+      //   },
+      // });
       return (
         <div className="column-action d-flex">
           <Button.Ripple
             color="danger"
             size="sm"
-            onClick={() => {
-              deleteUserMutate({
-                userId: row.id,
-              });
-            }}
+            // onClick={() => {
+            //   deleteUserMutate({
+            //     userId: row.id,
+            //   });
+            // }}
           >
             {t("isDelete")}
           </Button.Ripple>

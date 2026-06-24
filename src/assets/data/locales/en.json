@@ -22,8 +22,20 @@
   "FName": "First Name",
   "LName": "Last Name",
   "Email": "Email",
+  "EmailPeriods": "You can use letters, numbers & periods",
   "Password": "Password",
   "PhoneNumber": "Phone Number",
   "isStudent": "Is Student",
-  "isTeacher": "Is Professor"
+  "isTeacher": "Is Professor",
+  "FirstNameRequired": "First name is required",
+  "LastNameRequired": "Last name is required",
+  "EmailRequired": "Email is required",
+  "EmailInvalid": "Invalid email format",
+  "PasswordRequired": "Password is required",
+  "PasswordMin": "Password must be at least 8 characters",
+  "PhoneNumberLength": "Phone number be 11 characters",
+  "PhoneNumberRequired": "Phone number is required",
+  "Submit": "Submit",
+  "Cancel": "Cancel",
+  "Loading": "Loading..."
 }

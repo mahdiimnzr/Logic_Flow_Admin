@@ -22,8 +22,20 @@
   "FName": "نام",
   "LName": "نام خانوادگی",
   "Email": "ایمیل",
+  "EmailPeriods": "می‌توانید از حروف، اعداد و نقطه استفاده کنید",
   "Password": "رمزعبور",
   "PhoneNumber": "شماره تلفن",
   "isStudent": "دانشجو است",
-  "isTeacher": "استاد است"
+  "isTeacher": "استاد است",
+  "FirstNameRequired": "نام الزامی است",
+  "LastNameRequired": "نام خانوادگی الزامی است",
+  "EmailRequired": "ایمیل الزامی است",
+  "EmailInvalid": "فرمت ایمیل صحیح نیست",
+  "PasswordRequired": "رمز عبور الزامی است",
+  "PasswordMin": "رمز عبور باید حداقل ۸ کاراکتر باشد",
+  "PhoneNumberLength": "شماره تلفن باید 11 کاراکتر باشد",
+  "PhoneNumberRequired": "شماره تلفن الزامی است",
+  "Submit": "ثبت",
+  "Cancel": "انصراف",
+  "Loading": "در حال بارگذاری..."
 }

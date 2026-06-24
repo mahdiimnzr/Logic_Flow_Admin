@@ -1,23 +1,28 @@
-// ** React Import
 import { useState } from "react";
-
-// ** Custom Components
 import Sidebar from "@components/sidebar";
-
-// ** Utils
 import { selectThemeColors } from "@utils";
-
-// ** Third Party Components
 import Select from "react-select";
 import classnames from "classnames";
 import { useForm, Controller } from "react-hook-form";
-
-// ** Reactstrap Imports
-import { Button, Label, FormText, Form, Input } from "reactstrap";
-
-// ** Store & Actions
+import {
+  Button,
+  Label,
+  FormText,
+  Form,
+  Input,
+  InputGroup,
+  InputGroupText,
+} from "reactstrap";
+import InputPasswordToggle from "@components/input-password-toggle";
+import "cleave.js/dist/addons/cleave-phone.ir";
+import Cleave from "cleave.js/react";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createUser } from "../../core/services/api/Users/users.service";
+import toast from "react-hot-toast";
 
 const defaultValues = {
   lastName: "",
@@ -29,102 +34,60 @@ const defaultValues = {
   isTeacher: false,
 };
 
-const countryOptions = [
-  { label: "Australia", value: "Australia" },
-  { label: "Bangladesh", value: "Bangladesh" },
-  { label: "Belarus", value: "Belarus" },
-  { label: "Brazil", value: "Brazil" },
-  { label: "Canada", value: "Canada" },
-  { label: "China", value: "China" },
-  { label: "France", value: "France" },
-  { label: "Germany", value: "Germany" },
-  { label: "India", value: "India" },
-  { label: "Indonesia", value: "Indonesia" },
-  { label: "Israel", value: "Israel" },
-  { label: "Italy", value: "Italy" },
-  { label: "Japan", value: "Japan" },
-  { label: "Korea", value: "Korea" },
-  { label: "Mexico", value: "Mexico" },
-  { label: "Philippines", value: "Philippines" },
-  { label: "Russia", value: "Russia" },
-  { label: "South", value: "South" },
-  { label: "Thailand", value: "Thailand" },
-  { label: "Turkey", value: "Turkey" },
-  { label: "Ukraine", value: "Ukraine" },
-  { label: "United Arab Emirates", value: "United Arab Emirates" },
-  { label: "United Kingdom", value: "United Kingdom" },
-  { label: "United States", value: "United States" },
-];
-
-const checkIsValid = (data) => {
-  return Object.values(data).every((field) =>
-    typeof field === "object" ? field !== null : field.length > 0,
-  );
-};
+const validationSchema = Yup.object({
+  firstName: Yup.string().required("FirstNameRequired"),
+  lastName: Yup.string().required("LastNameRequired"),
+  gmail: Yup.string().email("EmailInvalid").required("EmailRequired"),
+  password: Yup.string().min(8, "PasswordMin").required("PasswordRequired"),
+  phoneNumber: Yup.string()
+    .length(11, "PhoneNumberLength")
+    .required("PhoneNumberRequired"),
+  isStudent: Yup.boolean(),
+  isTeacher: Yup.boolean(),
+});
 
 const SidebarNewUsers = ({ open, toggleSidebar }) => {
-  // **i18n
   const { t } = useTranslation();
-
-  // ** States
-  const [data, setData] = useState(null);
-  const [plan, setPlan] = useState("basic");
-  const [role, setRole] = useState("subscriber");
-
-  // ** Store Vars
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
-  // ** Vars
+  const options = { phone: true, phoneRegionCode: "IR" };
+
   const {
     control,
     setValue,
-    setError,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues });
+  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
-  // ** Function to handle form submit
-  const onSubmit = (data) => {
-    setData(data);
-    if (checkIsValid(data)) {
+  const { mutate: createUserMutate } = useMutation({
+  mutationFn: createUser,
+  onMutate: () => {
+    const toastId = toast.loading(t("Loading"));
+    return { toastId };
+  },
+  onSuccess: (response, _, context) => {
+    if (response.data.success) {
+      toast.success(response.data.message, { id: context.toastId });
+      queryClient.invalidateQueries({ queryKey: ["UsersList"] });
       toggleSidebar();
-      //   dispatch(
-      //     addUser({
-      //       role,
-      //       avatar: "",
-      //       status: "active",
-      //       email: data.email,
-      //       currentPlan: plan,
-      //       billing: "auto debit",
-      //       company: data.company,
-      //       contact: data.contact,
-      //       fullName: data.fullName,
-      //       username: data.username,
-      //       country: data.country.value,
-      //     }),
-      //   );
     } else {
-      for (const key in data) {
-        if (data[key] === null) {
-          setError("country", {
-            type: "manual",
-          });
-        }
-        if (data[key] !== null && data[key].length === 0) {
-          setError(key, {
-            type: "manual",
-          });
-        }
-      }
+      toast.error(response.data.message, { id: context.toastId });
     }
+  },
+  onError: (response, _, context) => {
+    toast.error(response.data.message, { id: context.toastId });
+  },
+});
+
+  const onSubmit = (data) => {
+    createUserMutate(data);
   };
 
   const handleSidebarClosed = () => {
     for (const key in defaultValues) {
-      setValue(key, "");
+      setValue(key, defaultValues[key]);
     }
-    setRole("subscriber");
-    setPlan("basic");
   };
 
   return (
@@ -147,12 +110,19 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             name="firstName"
             control={control}
             render={({ field }) => (
-              <Input
-                id="firstName"
-                placeholder={t("FName")}
-                invalid={errors.firstName && true}
-                {...field}
-              />
+              <>
+                <Input
+                  id="firstName"
+                  placeholder={t("FName")}
+                  invalid={!!errors.firstName}
+                  {...field}
+                />
+                {errors.firstName && (
+                  <span className="text-danger" style={{ fontSize: "12px" }}>
+                    {t(errors.firstName.message)}
+                  </span>
+                )}
+              </>
             )}
           />
         </div>
@@ -164,12 +134,19 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             name="lastName"
             control={control}
             render={({ field }) => (
-              <Input
-                id="lastName"
-                placeholder={t("LName")}
-                invalid={errors.lastName && true}
-                {...field}
-              />
+              <>
+                <Input
+                  id="lastName"
+                  placeholder={t("LName")}
+                  invalid={!!errors.lastName}
+                  {...field}
+                />
+                {errors.lastName && (
+                  <span className="text-danger" style={{ fontSize: "12px" }}>
+                    {t(errors.lastName.message)}
+                  </span>
+                )}
+              </>
             )}
           />
         </div>
@@ -181,99 +158,119 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             name="gmail"
             control={control}
             render={({ field }) => (
-              <Input
-                type="email"
-                id="gmail"
-                placeholder={t("Email")}
-                invalid={errors.gmail && true}
-                {...field}
-              />
+              <>
+                <Input
+                  type="email"
+                  id="gmail"
+                  placeholder={t("Email")}
+                  invalid={!!errors.gmail}
+                  {...field}
+                />
+                {errors.gmail && (
+                  <span className="text-danger" style={{ fontSize: "12px" }}>
+                    {t(errors.gmail.message)}
+                  </span>
+                )}
+              </>
             )}
           />
-          <FormText color="muted">
-            You can use letters, numbers & periods
-          </FormText>
+          <FormText color="muted">{t("EmailPeriods")}</FormText>
         </div>
-
         <div className="mb-1">
-          <Label className="form-label" for="contact">
-            Contact <span className="text-danger">*</span>
+          <Label className="form-label" for="password">
+            {t("Password")} <span className="text-danger">*</span>
           </Label>
           <Controller
-            name="contact"
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <>
+                <InputPasswordToggle
+                  placeholder={t("Password")}
+                  invalid={!!errors.password}
+                  id="password"
+                  htmlFor="password"
+                  {...field}
+                />
+                {errors.password && (
+                  <span className="text-danger" style={{ fontSize: "12px" }}>
+                    {t(errors.password.message)}
+                  </span>
+                )}
+              </>
+            )}
+          />
+        </div>
+        <div className="mb-1">
+          <Label className="form-label" for="phoneNumber">
+            {t("PhoneNumber")} <span className="text-danger">*</span>
+          </Label>
+          <Controller
+            name="phoneNumber"
+            control={control}
+            render={({ field }) => (
+              <>
+                <InputGroup className="input-group-merge">
+                  <Cleave
+                    dir="ltr"
+                    className={`form-control ${
+                      errors.phoneNumber ? "is-invalid" : ""
+                    }`}
+                    placeholder="0912 912 9192"
+                    options={options}
+                    id="phoneNumber"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.rawValue)}
+                  />
+                </InputGroup>
+                {errors.phoneNumber && (
+                  <span className="text-danger" style={{ fontSize: "12px" }}>
+                    {t(errors.phoneNumber.message)}
+                  </span>
+                )}
+              </>
+            )}
+          />
+        </div>
+        <div className="d-flex gap-1 mb-1">
+          <Controller
+            name="isStudent"
             control={control}
             render={({ field }) => (
               <Input
-                id="contact"
-                placeholder="(397) 294-5153"
-                invalid={errors.contact && true}
-                {...field}
+                type="checkbox"
+                id="isStudent"
+                checked={field.value}
+                onChange={field.onChange}
               />
             )}
           />
-        </div>
-        <div className="mb-1">
-          <Label className="form-label" for="company">
-            Company <span className="text-danger">*</span>
+          <Label className="form-label" for="isStudent">
+            {t("isStudent")}
           </Label>
+        </div>
+        <div className="d-flex gap-1 mb-1">
           <Controller
-            name="company"
+            name="isTeacher"
             control={control}
             render={({ field }) => (
               <Input
-                id="company"
-                placeholder="Company Pvt Ltd"
-                invalid={errors.company && true}
-                {...field}
+                type="checkbox"
+                id="isTeacher"
+                checked={field.value}
+                onChange={field.onChange}
               />
             )}
           />
-        </div>
-        <div className="mb-1">
-          <Label className="form-label" for="country">
-            Country <span className="text-danger">*</span>
+          <Label className="form-label" for="isTeacher">
+            {t("isTeacher")}
           </Label>
-          <Controller
-            name="country"
-            control={control}
-            render={({ field }) => (
-              // <Input id='country' placeholder='Australia' invalid={errors.country && true} {...field} />
-              <Select
-                isClearable={false}
-                classNamePrefix="select"
-                options={countryOptions}
-                theme={selectThemeColors}
-                className={classnames("react-select", {
-                  "is-invalid": data !== null && data.country === null,
-                })}
-                {...field}
-              />
-            )}
-          />
-        </div>
-        <div className="mb-1">
-          <Label className="form-label" for="user-role">
-            User Role
-          </Label>
-          <Input
-            type="select"
-            id="user-role"
-            name="user-role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="subscriber">Subscriber</option>
-            <option value="editor">Editor</option>
-            <option value="maintainer">Maintainer</option>
-            <option value="author">Author</option>
-            <option value="admin">Admin</option>
-          </Input>
         </div>
         <Button type="submit" className="me-1" color="primary">
-          Submit
+          {t("Submit")}
         </Button>
         <Button type="reset" color="secondary" outline onClick={toggleSidebar}>
-          Cancel
+          {t("Cancel")}
         </Button>
       </Form>
     </Sidebar>

@@ -2,7 +2,7 @@
 import { Fragment, useState, useEffect, useMemo } from "react";
 
 // ** Invoice List Sidebar
-import SidebarNewUsers from "./Sidebar";
+import SidebarNewUsers from "./sideBar";
 
 // ** Table Columns
 import { columns } from "./Columns";
