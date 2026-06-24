@@ -55,6 +55,9 @@
   z-index: 1036;
 }
 
+.justify-between {
+  justify-content: space-between;
+}
 .sidebar-detached {
   .sidebar {
     width: $sidebar-width;
