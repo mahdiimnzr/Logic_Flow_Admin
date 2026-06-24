@@ -30,6 +30,6 @@ export default [
     id: "usersPage",
     title: "Users",
     icon: <Users size={20} />,
-    navLink: "/Users",
+    navLink: "/Users/List",
   },
 ];

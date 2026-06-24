@@ -86,7 +86,7 @@ export const columns = [
         {renderClient(row)}
         <div className="d-flex flex-column">
           <Link
-            to={`/apps/user/view/${row.id}`}
+            to={`/Users/Detail/${row.id}`}
             className="user_name text-truncate text-body"
             // onClick={() => store.dispatch(getUser(row.id))}
           >
@@ -172,31 +172,9 @@ export const columns = [
     cell: (row) => {
       const { t } = useTranslation();
       const queryClient = useQueryClient();
-      // const { mutate: deleteUserMutate } = useMutation({
-      //   mutationFn: deleteUser,
-      //   onSuccess: (response) => {
-      //     if (response.data.success) {
-      //       toast.success(response.data.message);
-      //       queryClient.invalidateQueries({ queryKey: ["UsersList"] });
-      //     } else if (!response.data.success) {
-      //       toast.error(response.data.message);
-      //     }
-      //   },
-      //   onError: (response) => {
-      //     toast.error(response.data.message);
-      //   },
-      // });
       return (
         <div className="column-action d-flex">
-          <Button.Ripple
-            color="danger"
-            size="sm"
-            // onClick={() => {
-            //   deleteUserMutate({
-            //     userId: row.id,
-            //   });
-            // }}
-          >
+          <Button.Ripple color="danger" size="sm">
             {t("isDelete")}
           </Button.Ripple>
           <UncontrolledDropdown>
@@ -207,7 +185,7 @@ export const columns = [
               <DropdownItem
                 tag={Link}
                 className="w-100"
-                to={`/apps/user/view/${row.id}`}
+                to={`/Users/Detail/${row.id}`}
                 //   onClick={() => store.dispatch(getUser(row.id))}
               >
                 <FileText size={14} className="me-50" />
