@@ -22,8 +22,11 @@ import {
   DropdownToggle,
   UncontrolledButtonDropdown,
 } from "reactstrap";
+import { useTranslation } from "react-i18next";
 
 const BreadCrumbs = (props) => {
+  const { t } = useTranslation();
+
   // ** Props
   const { data, title } = props;
 
@@ -59,7 +62,7 @@ const BreadCrumbs = (props) => {
             <div className="breadcrumb-wrapper vs-breadcrumbs d-sm-block d-none col-12">
               <Breadcrumb>
                 <BreadcrumbItem tag="li">
-                  <Link to="/">Home</Link>
+                  <Link to="/">{t("Dashboards")}</Link>
                 </BreadcrumbItem>
                 {renderBreadCrumbs()}
               </Breadcrumb>

@@ -61,24 +61,24 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
   const { mutate: createUserMutate } = useMutation({
-  mutationFn: createUser,
-  onMutate: () => {
-    const toastId = toast.loading(t("Loading"));
-    return { toastId };
-  },
-  onSuccess: (response, _, context) => {
-    if (response.data.success) {
-      toast.success(response.data.message, { id: context.toastId });
-      queryClient.invalidateQueries({ queryKey: ["UsersList"] });
-      toggleSidebar();
-    } else {
+    mutationFn: createUser,
+    onMutate: () => {
+      const toastId = toast.loading(t("Loading"));
+      return { toastId };
+    },
+    onSuccess: (response, _, context) => {
+      if (response.data.success) {
+        toast.success(response.data.message, { id: context.toastId });
+        queryClient.invalidateQueries({ queryKey: ["UsersList"] });
+        toggleSidebar();
+      } else {
+        toast.error(response.data.message, { id: context.toastId });
+      }
+    },
+    onError: (response, _, context) => {
       toast.error(response.data.message, { id: context.toastId });
-    }
-  },
-  onError: (response, _, context) => {
-    toast.error(response.data.message, { id: context.toastId });
-  },
-});
+    },
+  });
 
   const onSubmit = (data) => {
     createUserMutate(data);
