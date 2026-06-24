@@ -64,6 +64,9 @@ root.render(
             <Toaster
               position={themeConfig.layout.toastPosition}
               toastOptions={{ className: "react-hot-toast" }}
+              containerStyle={{ fontFamily: "IRANYekanXFaNum" }}
+              position="top-left"
+              reverseOrder={false}
             />
           </ThemeContext>
         </Suspense>

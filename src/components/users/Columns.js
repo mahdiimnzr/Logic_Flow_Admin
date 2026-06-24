@@ -28,8 +28,12 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
+  Button,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
+import formatDate from "../../core/utils/formatDate";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 // ** Renders Client Columns
 const renderClient = (row) => {
@@ -82,7 +86,7 @@ export const columns = [
         {renderClient(row)}
         <div className="d-flex flex-column">
           <Link
-            to={`/apps/user/view/${row.id}`}
+            to={`/Users/Detail/${row.id}`}
             className="user_name text-truncate text-body"
             // onClick={() => store.dispatch(getUser(row.id))}
           >
@@ -110,6 +114,18 @@ export const columns = [
     selector: (row) => row.gmail,
     cell: (row) => (
       <span className="text-truncate text-muted mb-0">{row.gmail}</span>
+    ),
+  },
+  {
+    name: "Insert Date",
+    minWidth: "80px",
+    sortable: true,
+    sortField: "insertDate",
+    selector: (row) => row.insertDate,
+    cell: (row) => (
+      <span className="text-truncate text-muted mb-0">
+        {formatDate(row.insertDate)}
+      </span>
     ),
   },
   {
@@ -153,46 +169,32 @@ export const columns = [
   {
     name: "Actions",
     minWidth: "100px",
-    cell: (row) => (
-      <div className="column-action">
-        <UncontrolledDropdown>
-          <DropdownToggle tag="div" className="btn btn-sm">
-            <MoreVertical size={14} className="cursor-pointer" />
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem
-              tag={Link}
-              className="w-100"
-              to={`/apps/user/view/${row.id}`}
-              //   onClick={() => store.dispatch(getUser(row.id))}
-            >
-              <FileText size={14} className="me-50" />
-              <span className="align-middle">Details</span>
-            </DropdownItem>
-            <DropdownItem
-              tag="a"
-              href="/"
-              className="w-100"
-              onClick={(e) => e.preventDefault()}
-            >
-              <Archive size={14} className="me-50" />
-              <span className="align-middle">Edit</span>
-            </DropdownItem>
-            <DropdownItem
-              tag="a"
-              href="/"
-              className="w-100"
-              onClick={(e) => {
-                e.preventDefault();
-                // store.dispatch(deleteUser(row.id));
-              }}
-            >
-              <Trash2 size={14} className="me-50" />
-              <span className="align-middle">Delete</span>
-            </DropdownItem>
-          </DropdownMenu>
-        </UncontrolledDropdown>
-      </div>
-    ),
+    cell: (row) => {
+      const { t } = useTranslation();
+      const queryClient = useQueryClient();
+      return (
+        <div className="column-action d-flex">
+          <Button.Ripple color="danger" size="sm">
+            {t("isDelete")}
+          </Button.Ripple>
+          <UncontrolledDropdown>
+            <DropdownToggle tag="div" className="btn btn-sm">
+              <MoreVertical size={14} className="cursor-pointer" />
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem
+                tag={Link}
+                className="w-100"
+                to={`/Users/Detail/${row.id}`}
+                //   onClick={() => store.dispatch(getUser(row.id))}
+              >
+                <FileText size={14} className="me-50" />
+                <span className="align-middle">Details</span>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
+      );
+    },
   },
 ];
