@@ -3,9 +3,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import usersSlice from "./usersSlice";
 import layout from "./layout";
 import navbar from "./navbar";
+import courseListSlice from "./courseListSlice";
 
 const store = configureStore({
-  reducer: { navbar, layout, usersSlice: usersSlice.reducer },
+  reducer: {
+    navbar,
+    layout,
+    usersSlice: usersSlice.reducer,
+    courseListSlice: courseListSlice.reducer,
+  },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware({
       serializableCheck: false,

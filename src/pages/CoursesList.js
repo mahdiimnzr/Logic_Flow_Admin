@@ -1,13 +1,19 @@
 import Table from "../components/courses/list/index";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import Spinner from "../@core/components/spinner/Fallback-spinner";
 
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
 import { useGetCourseList } from "../core/services/api/CourseList/courseList.service";
+import { param } from "jquery";
+import { useSelector } from "react-redux";
 
 const CoursesList = () => {
-  const { isLoading, data: courseList, refetch } = useGetCourseList();
+  const params = useSelector((state) => state.courseListSlice.params);
+  const { isLoading, data: courseList, refetch } = useGetCourseList(params);
+  useEffect(() => {
+    refetch();
+  }, [params]);
   return isLoading ? (
     <Spinner />
   ) : (
