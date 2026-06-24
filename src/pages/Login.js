@@ -1,6 +1,8 @@
 // ** React Imports
 import { useSkin } from "@hooks/useSkin";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import toast from "react-hot-toast";
 
 // ** Icons Imports
 import { Facebook, Twitter, Mail, GitHub } from "react-feather";
@@ -18,7 +20,14 @@ import {
   Label,
   Input,
   Button,
+  FormFeedback,
+  Spinner,
 } from "reactstrap";
+
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import loginAPI from "../core/services/api/auth/auth.service";
 
 // ** Illustrations Imports
 import illustrationsLight from "@src/assets/images/pages/login-v2.svg";
@@ -27,10 +36,55 @@ import illustrationsDark from "@src/assets/images/pages/login-v2-dark.svg";
 // ** Styles
 import "@styles/react/pages/page-authentication.scss";
 
-const Login = () => {
-  const { skin } = useSkin();
+const LoginSchema = yup.object().shape({
+  loginEmail: yup
+    .string().email("فرمت ایمیل نامعتبر می‌باشد.").required("وارد کردن ایمیل الزامی می‌باشد"),
+  password: yup
+    .string().min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد").required("وارد کردن رمز عبور الزامی می‌باشد"),
+});
 
+const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { skin } = useSkin();
+  const navigate = useNavigate();
   const source = skin === "dark" ? illustrationsDark : illustrationsLight;
+
+  const { control, setError, handleSubmit, formState: { errors } } = useForm({
+    mode: "onChange", resolver: yupResolver(LoginSchema), defaultValues: {
+      loginEmail: "", password: "",
+    }
+  });
+
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+
+    const payload = {
+      phoneOrGmail: data.loginEmail,
+      password: data.password,
+      rememberMe: true,
+    };
+
+    const response = await loginAPI(payload);
+
+    setIsLoading(false);
+
+    if (response && response.status >= 200 && response.status < 300) {
+      console.log("Success Login", response.data);
+      toast.success("Successfully Loged in!");
+
+      // localStorage.setItem("token", JSON.stringify(response.data.token)); // 
+      // navigate("/dashboard");
+
+    } else {
+      console.log("Error loging in!", response);
+      const errorMessage = response?.data?.message || "Wrong Email or Password!";
+      toast.error(errorMessage);
+      setError("loginEmail", {
+        type: "manual",
+        message: errorMessage,
+      });
+    }
+  };
 
   return (
     <div className="auth-wrapper auth-cover">
@@ -123,18 +177,28 @@ const Login = () => {
             </CardText>
             <Form
               className="auth-login-form mt-2"
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={handleSubmit(onSubmit)}
             >
               <div className="mb-1">
                 <Label className="form-label" for="login-email">
                   Email
                 </Label>
-                <Input
-                  type="email"
-                  id="login-email"
-                  placeholder="john@example.com"
-                  autoFocus
+                <Controller
+                  id="loginEmail"
+                  name="loginEmail"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      type="email"
+                      id="login-email"
+                      placeholder="john@example.com"
+                      autoFocus
+                      invalid={errors.loginEmail && true}
+                      {...field}
+                    />
+                  )}
                 />
+                {errors.loginEmail && <FormFeedback>{errors.loginEmail.message}</FormFeedback>}
               </div>
               <div className="mb-1">
                 <div className="d-flex justify-content-between">
@@ -145,10 +209,20 @@ const Login = () => {
                     <small>Forgot Password?</small>
                   </Link>
                 </div>
-                <InputPasswordToggle
-                  className="input-group-merge"
-                  id="login-password"
+                <Controller
+                  id="password"
+                  name="password"
+                  control={control}
+                  render={({ field }) => (
+                    <InputPasswordToggle
+                      className="input-group-merge"
+                      id="login-password"
+                      invalid={errors.password && true}
+                      {...field}
+                    />
+                  )}
                 />
+                {errors.password && <FormFeedback className="d-block">{errors.password.message}</FormFeedback>}
               </div>
               <div className="form-check mb-1">
                 <Input type="checkbox" id="remember-me" />
@@ -156,8 +230,8 @@ const Login = () => {
                   Remember Me
                 </Label>
               </div>
-              <Button tag={Link} to="/" color="primary" block>
-                Sign in
+              <Button type="submit" color="primary" block disabled={isLoading}>
+                {isLoading ? <Spinner size="sm" color="light" /> : "Sign in"}
               </Button>
             </Form>
             <p className="text-center mt-2">
