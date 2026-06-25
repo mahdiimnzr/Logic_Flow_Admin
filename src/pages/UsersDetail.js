@@ -19,8 +19,11 @@ import "@styles/react/libs/flatpickr/flatpickr.scss";
 import "@styles/react/pages/page-account-settings.scss";
 import { useGetUserDetail } from "../core/services/api/Users/users.service";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import Tabs from "../components/usersDetail/Tabs";
 
 const UsersDetail = () => {
+  const { t } = useTranslation();
   const { userId } = useParams();
   // ** States
   const [activeTab, setActiveTab] = useState("1");
@@ -36,26 +39,28 @@ const UsersDetail = () => {
   ) : (
     <Fragment>
       <Breadcrumbs
-        title="Account Settings"
-        data={[{ title: "Pages" }, { title: "Account Settings" }]}
+        title={t("ProfileDetails")}
+        data={[
+          { title: t("Users"), link: "/Users/List" },
+          { title: t("ProfileDetails") },
+        ]}
       />
-      {/* {data !== null ? ( */}
-      {/* <Row> */}
-      {/* <Col xs={12}> */}
-      {/* <Tabs
+      {userDetail?.data !== null ? (
+        <Row>
+          <Col xs={12}>
+            <Tabs
               className="mb-2"
               activeTab={activeTab}
               toggleTab={toggleTab}
-            /> */}
-
-      {/* <TabContent activeTab={activeTab}>
-              <TabPane tabId="1"> */}
-      <AccountSetting data={userDetail?.data} />
-      {/* </TabPane>
-            </TabContent> */}
-      {/* </Col> */}
-      {/* </Row> */}
-      {/* //   ) : null} */}
+            />
+            <TabContent activeTab={activeTab}>
+              <TabPane tabId="1">
+                <AccountSetting data={userDetail?.data} />
+              </TabPane>
+            </TabContent>
+          </Col>
+        </Row>
+      ) : null}
     </Fragment>
   );
 };
