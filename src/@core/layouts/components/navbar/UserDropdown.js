@@ -81,7 +81,11 @@ const UserDropdown = () => {
           <HelpCircle size={14} className="me-75" />
           <span className="align-middle">FAQ</span>
         </DropdownItem>
-        <DropdownItem tag={Link} to="/login">
+        <DropdownItem
+          tag={Link}
+          to="/Auth/Login"
+          onClick={() => localStorage.removeItem("token")}
+        >
           <Power size={14} className="me-75" />
           <span className="align-middle">Logout</span>
         </DropdownItem>
