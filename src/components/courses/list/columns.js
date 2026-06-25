@@ -1,9 +1,13 @@
 // ** React Imports
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 
 // ** Custom Components
 import Avatar from "@components/avatar";
+import Select from "react-select";
+
+// ** Utils
+import { selectThemeColors } from "@utils";
 
 // ** Store & Actions
 // import { store } from '@store/store'
@@ -17,6 +21,12 @@ import {
   DropdownToggle,
   UncontrolledTooltip,
   UncontrolledDropdown,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  Label,
+  Button,
+  ModalFooter,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -37,6 +47,17 @@ import {
 } from "react-feather";
 import formatPrice from "../../../core/utils/formatPrice";
 import formatTime from "../../../core/utils/formatTime";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  activeCourse,
+  updateCourseStatus,
+  useGetCourseList,
+  useGetStatus,
+} from "../../../core/services/api/CourseList/courseList.service";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import formDataConverter from "../../../core/utils/formDataConvertor";
 
 // ** Vars
 const invoiceStatusObj = {
@@ -61,16 +82,21 @@ const renderClient = (row) => {
     ],
     color = states[stateNum];
 
-  if (row.imageAddress.length) {
+  if (row?.imageAddress?.length) {
     return (
-      <Avatar className="me-50" img={row.imageAddress} width="32" height="32" />
+      <Avatar
+        className="me-50"
+        img={row?.imageAddress}
+        width="32"
+        height="32"
+      />
     );
   } else {
     return (
       <Avatar
         color={color}
         className="me-50"
-        content={row.client ? row.client.name : "John Doe"}
+        content={row?.client ? row?.client?.name : "John Doe"}
         initials
       />
     );
@@ -87,8 +113,8 @@ export const columns = [
     // selector: row => row.id,
     cell: (row) => (
       <Link
-        to={`/apps/invoice/preview/${row.fullName}`}
-      >{`${row.fullName}`}</Link>
+        to={`/apps/invoice/preview/${row?.fullName}`}
+      >{`${row?.fullName}`}</Link>
     ),
   },
   // {
@@ -135,9 +161,9 @@ export const columns = [
         <div className="d-flex justify-content-left align-items-center">
           {renderClient(row)}
           <div className="d-flex flex-column">
-            <h6 className="user-name text-truncate mb-0">{row.title}</h6>
+            <h6 className="user-name text-truncate mb-0">{row?.title}</h6>
             <small className="text-truncate text-muted mb-0">
-              {row.miniDescribe}
+              {row?.miniDescribe}
             </small>
           </div>
         </div>
@@ -150,14 +176,14 @@ export const columns = [
     minWidth: "150px",
     sortField: "total",
     // selector: row => row.total,
-    cell: (row) => <span>{formatPrice(row.cost) || 0} تومان</span>,
+    cell: (row) => <span>{formatPrice(row?.cost) || 0} تومان</span>,
   },
   {
     sortable: true,
     minWidth: "200px",
     name: "آخرین بروزرسانی",
     sortField: "dueDate",
-    cell: (row) => formatTime(row.lastUpdate),
+    cell: (row) => formatTime(row?.lastUpdate),
     // selector: row => row.dueDate
   },
   {
@@ -166,85 +192,182 @@ export const columns = [
     minWidth: "164px",
     sortField: "balance",
     // selector: row => row.balance,
-    selector: (row) => row.active,
+    selector: (row) => row?.active,
     cell: (row) => (
       <Badge
         className="text-capitalize"
-        color={row.active ? "light-success" : "light-primary"}
+        color={row?.active ? "light-success" : "light-primary"}
         pill
       >
-        {row.active ? "فعال" : "غیر فعال"}
+        {row?.active ? "فعال" : "غیر فعال"}
       </Badge>
     ),
   },
   {
     name: "عملیات",
     minWidth: "110px",
-    cell: (row) => (
-      <div className="column-action d-flex align-items-center">
-        {/* <Send
+    cell: (row) => {
+      const { t } = useTranslation();
+      const params = useSelector((state) => state.courseListSlice.params);
+      const queryClient = useQueryClient();
+      const { data: Status } = useGetStatus(params);
+      const { mutate: activeCourseMutate } = useMutation({
+        mutationFn: activeCourse,
+        onSuccess: (response) => {
+          if (response?.data?.success === true) {
+            toast.success(response?.data?.message);
+            queryClient.invalidateQueries({ queryKey: ["CourseList"] });
+          } else {
+            toast.error(response?.data?.message);
+          }
+        },
+        onError: (response) => {
+          toast.error(response?.data?.message);
+        },
+      });
+      const { mutate: updateStatusCourseMutate } = useMutation({
+        mutationFn: updateCourseStatus,
+        onSuccess: (response) => {
+          if (response?.data?.success === true) {
+            toast.success(response?.data?.message);
+            queryClient.invalidateQueries({ queryKey: ["CourseList"] });
+            setCenteredModal(false);
+          } else {
+            toast.error(response?.data?.message);
+          }
+        },
+        onError: (response) => {
+          toast.error(response?.data?.message);
+        },
+      });
+      const [centeredModal, setCenteredModal] = useState(false);
+      const [currentRole, setCurrentRole] = useState({
+        value: "",
+        label: "وضعیت برگذاری ",
+      });
+      const rolesList = Status?.data?.map((value) => {
+        const roles = { value: value.id, label: value.statusName };
+        return roles;
+      });
+      const roleOptions = [...(rolesList ?? [])];
+      return (
+        <div className="column-action d-flex align-items-center">
+          {/* <Send
           className="cursor-pointer"
           size={17}
           id={`send-tooltip-${row.id}`}
         /> */}
-        {/* <UncontrolledTooltip placement="top" target={`send-tooltip-${row.id}`}>
+          {/* <UncontrolledTooltip placement="top" target={`send-tooltip-${row.id}`}>
           Send Mail
         </UncontrolledTooltip> */}
-        <Link
-          to={`/apps/invoice/preview/${row.id}`}
-          id={`pw-tooltip-${row.id}`}
-        >
-          <Eye size={17} className="mx-1" />
-        </Link>
-        {/* <UncontrolledTooltip placement="top" target={`pw-tooltip-${row.id}`}>
+          <Link
+            to={`/apps/invoice/preview/${row?.id}`}
+            id={`pw-tooltip-${row?.id}`}
+          >
+            <Eye size={17} className="mx-1" />
+          </Link>
+          {/* <UncontrolledTooltip placement="top" target={`pw-tooltip-${row.id}`}>
           Preview Invoice
         </UncontrolledTooltip> */}
-        <UncontrolledDropdown>
-          <DropdownToggle tag="span">
-            <MoreVertical size={17} className="cursor-pointer" />
-          </DropdownToggle>
-          <DropdownMenu end>
-            {/* <DropdownItem
-              tag="a"
-              href="/"
-              className="w-100"
-              onClick={(e) => e.preventDefault()}
-            >
-              <Download size={14} className="me-50" />
-              <span className="align-middle">Download</span>
-            </DropdownItem> */}
-            {/* <DropdownItem
-              tag={Link}
-              to={`/apps/invoice/edit/${row.id}`}
-              className="w-100"
-            >
-              <Edit size={14} className="me-50" />
-              <span className="align-middle">Edit</span>
-            </DropdownItem> */}
-            <DropdownItem
-              tag="a"
-              href="/"
-              className="w-100"
-              onClick={(e) => {
-                e.preventDefault();
-                // store.dispatch(deleteInvoice(row.id))
-              }}
-            >
-              <Trash size={14} className="me-50" />
-              <span className="align-middle">Delete</span>
-            </DropdownItem>
-            {/* <DropdownItem
-              tag="a"
-              href="/"
-              className="w-100"
-              onClick={(e) => e.preventDefault()}
-            >
-              <Copy size={14} className="me-50" />
-              <span className="align-middle">Duplicate</span>
-            </DropdownItem> */}
-          </DropdownMenu>
-        </UncontrolledDropdown>
-      </div>
-    ),
+          <UncontrolledDropdown>
+            <DropdownToggle tag="span">
+              <MoreVertical size={17} className="cursor-pointer" />
+            </DropdownToggle>
+            <DropdownMenu end>
+              <DropdownItem
+                tag="a"
+                href="/"
+                className="w-100"
+                onClick={(e) => e.preventDefault()}
+              >
+                <Download size={14} className="me-50" />
+                <span className="align-middle">Download</span>
+              </DropdownItem>
+              <DropdownItem
+                tag={Link}
+                to={`/apps/invoice/edit/${row?.id}`}
+                className="w-100"
+              >
+                <Edit size={14} className="me-50" />
+                <span className="align-middle">Edit</span>
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
+                href="/"
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  activeCourseMutate({
+                    active: row.active === true ? false : true,
+                    id: row.courseId,
+                  });
+                  // store.dispatch(deleteInvoice(row.id))
+                }}
+              >
+                {/* <Trash size={14} className="me-50" /> */}
+                <span className="align-middle">
+                  {row.active == true ? "غیر فعال" : "فعال"}
+                </span>
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
+                href="/"
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCenteredModal(!centeredModal);
+                }}
+              >
+                <Copy size={14} className="me-50" />
+                <span className="align-middle">وضعیت ها</span>
+              </DropdownItem>
+
+              <Modal
+                unmountOnClose={true}
+                isOpen={centeredModal}
+                toggle={() => setCenteredModal(!centeredModal)}
+                className="modal-dialog-centered"
+                style={{ fontFamily: "IRANYekanXFaNum" }}
+              >
+                <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
+                  وضعیت برگذاری دوره ها
+                </ModalHeader>
+                <ModalBody>
+                  <Label for="role-select">وضعیت ها</Label>
+                  <Select
+                    isClearable={false}
+                    value={currentRole}
+                    options={roleOptions}
+                    className="react-select"
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    onChange={(data) => {
+                      setCurrentRole(data);
+                    }}
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color="primary"
+                    onClick={() => {
+                      const values = {
+                        CourseId: row.courseId,
+                        StatusId: currentRole.value,
+                      };
+                      const formData = formDataConverter(values);
+                      currentRole.value == ""
+                        ? null
+                        : updateStatusCourseMutate(formData);
+                    }}
+                  >
+                    اعمال وضعیت
+                  </Button>
+                </ModalFooter>
+              </Modal>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
+      );
+    },
   },
 ];
