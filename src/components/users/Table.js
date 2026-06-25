@@ -197,7 +197,7 @@ const UsersList = ({ usersList }) => {
 
   const roleOptions = [
     { value: null, label: t("RolesSelection"), number: 0 },
-    ...(rolesList ?? {}),
+    ...(rolesList ?? []),
   ];
   const statusOptions = [
     { value: null, label: t("StatusSelection") },
