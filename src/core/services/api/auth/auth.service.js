@@ -1,8 +1,6 @@
+import postParams from "../../common/postParams";
 import apiClient from "../../interceptor/interceptor.service";
 
-const loginAPI = async (user) => {
-    const response = await apiClient.post("Sign/Login",user);
-    return response;
-};
-
-export default loginAPI
+export const loginAPI = (body) => postParams("Sign/Login", body);
+export const verifyCodeLogin = (params) =>
+  postParams(`Sign/LoginTelegram/${params.verifyCode}/${params.phoneOrGmail}`);

@@ -6,22 +6,8 @@ const ForgotPassword = lazy(() => import("../../pages/ForgotPassword"));
 
 const AuthRoute = [
   {
-    path: "/login",
+    path: "/Auth/Login",
     element: <Login />,
-    meta: {
-      layout: "blank",
-    },
-  },
-  {
-    path: "/register",
-    element: <Register />,
-    meta: {
-      layout: "blank",
-    },
-  },
-  {
-    path: "/forgot-password",
-    element: <ForgotPassword />,
     meta: {
       layout: "blank",
     },

@@ -6,7 +6,7 @@ import Router from "./router/Router";
 const App = () => {
   return (
     <Suspense fallback={null}>
-        <Router />
+      <Router />
     </Suspense>
   );
 };
