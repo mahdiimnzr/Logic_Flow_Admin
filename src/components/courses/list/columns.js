@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 // ** Custom Components
@@ -241,9 +241,12 @@ export const columns = [
         },
       });
       const [centeredModal, setCenteredModal] = useState(false);
+      const fundedStatus = Status?.data?.find(
+        (value) => value.id == row.statusId,
+      );
       const [currentRole, setCurrentRole] = useState({
-        value: "",
-        label: "وضعیت برگذاری ",
+        value: row.statusId,
+        label: fundedStatus?.statusName,
       });
       const rolesList = Status?.data?.map((value) => {
         const roles = { value: value.id, label: value.statusName };
@@ -337,6 +340,10 @@ export const columns = [
                   <Select
                     isClearable={false}
                     value={currentRole}
+                    defaultValue={{
+                      value: row.statusId,
+                      label: fundedStatus?.statusName,
+                    }}
                     options={roleOptions}
                     className="react-select"
                     classNamePrefix="select"
