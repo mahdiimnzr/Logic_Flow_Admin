@@ -44,10 +44,6 @@ const Routes = [
     path: "/home",
     element: <Home />,
   },
-  {
-    path: "/sample",
-    element: <Sample />,
-  },
   ...AuthRoute,
   ...CoursesRoute,
   ...UsersRoute,

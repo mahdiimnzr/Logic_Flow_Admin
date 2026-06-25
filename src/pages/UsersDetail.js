@@ -21,6 +21,8 @@ import { useGetUserDetail } from "../core/services/api/Users/users.service";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Tabs from "../components/usersDetail/Tabs";
+import UserCourses from "../components/usersDetail/UserCourses";
+import UserReserveCourses from "../components/usersDetail/UserReserveCourses";
 
 const UsersDetail = () => {
   const { t } = useTranslation();
@@ -56,6 +58,16 @@ const UsersDetail = () => {
             <TabContent activeTab={activeTab}>
               <TabPane tabId="1">
                 <AccountSetting data={userDetail?.data} />
+              </TabPane>
+            </TabContent>
+            <TabContent activeTab={activeTab}>
+              <TabPane tabId="2">
+                <UserCourses data={userDetail?.data} />
+              </TabPane>
+            </TabContent>
+            <TabContent activeTab={activeTab}>
+              <TabPane tabId="3">
+                <UserReserveCourses data={userDetail?.data} />
               </TabPane>
             </TabContent>
           </Col>

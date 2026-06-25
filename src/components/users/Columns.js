@@ -46,6 +46,7 @@ import {
   useGetUserList,
 } from "../../core/services/api/Users/users.service";
 import { useSelector } from "react-redux";
+import profile from "/public/Profile.png";
 
 // ** Renders Client Columns
 const renderClient = (row) => {
@@ -54,6 +55,7 @@ const renderClient = (row) => {
       <Avatar
         className="me-1"
         img={row.currentPictureAddress}
+        alt={profile}
         width="32"
         height="32"
       />
