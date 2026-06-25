@@ -1,7 +1,15 @@
+import deleteParams from "../../common/deleteParams";
+import postParams from "../../common/postParams";
+import putParams from "../../common/putParams";
 import useGetQuery from "../../common/useGetQuery";
 
 export const useGetCourseList = (params) =>
   useGetQuery("CourseList", "Course/CourseList", params);
 
-export const postDeleteCourse = (body) =>
-  postParams("/Course/DeleteCourse", body);
+export const activeCourse = (body) =>
+  putParams("Course/ActiveAndDeactiveCourse", body);
+
+export const useGetStatus = (params) => useGetQuery("Status", "Status", params);
+
+export const updateCourseStatus = (body) =>
+  putParams("Course/UpdateCourseStatus", body);
