@@ -9,10 +9,6 @@ import Select from "react-select";
 // ** Utils
 import { selectThemeColors } from "@utils";
 
-// ** Store & Actions
-// import { store } from '@store/store'
-// import { deleteInvoice } from '../store'
-
 // ** Reactstrap Imports
 import {
   Badge,
@@ -49,7 +45,6 @@ import {
   AlignJustify,
 } from "react-feather";
 import formatPrice from "../../../core/utils/formatPrice";
-import formatTime from "../../../core/utils/formatTime";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   activeCourse,
@@ -61,6 +56,7 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import formDataConverter from "../../../core/utils/formDataConvertor";
+import formatDate from "../../../core/utils/formatDate";
 
 // ** Vars
 const invoiceStatusObj = {
@@ -149,7 +145,7 @@ export const columns = [
     minWidth: "200px",
     name: "آخرین بروزرسانی",
     sortField: "dueDate",
-    cell: (row) => formatTime(row?.lastUpdate),
+    cell: (row) => formatDate(row?.lastUpdate),
     // selector: row => row.dueDate
   },
   {
