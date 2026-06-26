@@ -13,14 +13,14 @@ export default [
     icon: <Home size={20} />,
     children: [
       {
-        id: "coursesList",
+        id: "courses",
         title: "List",
         icon: <Circle size={12} />,
         navLink: "/Courses/List",
       },
       {
-        id: "coursesadd",
-        title: "add",
+        id: "coursesAdd",
+        title: "ساخت دوره جدید",
         icon: <Circle size={12} />,
         navLink: "/Courses/add",
       },

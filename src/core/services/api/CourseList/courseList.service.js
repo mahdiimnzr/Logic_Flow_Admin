@@ -16,3 +16,6 @@ export const updateCourseStatus = (body) =>
 
 export const useGetCourseDetail = (params) =>
   useGetQuery("CourseDetail", `Course/${params}`);
+
+export const useGetCourseAdd = (params) =>
+  useGetQuery("CourseAdd", "Course/GetCreate", params);
