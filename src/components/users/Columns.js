@@ -47,17 +47,17 @@ import {
 } from "../../core/services/api/Users/users.service";
 import { useSelector } from "react-redux";
 import profile from "/public/Profile.png";
+import ImageFallback from "../common/ImageFallback";
 
 // ** Renders Client Columns
 const renderClient = (row) => {
-  if (row.currentPictureAddress) {
+  if (row?.currentPictureAddress) {
     return (
-      <Avatar
+      <ImageFallback
         className="me-1"
-        img={row.currentPictureAddress}
-        alt={profile}
-        width="32"
-        height="32"
+        style={{ borderRadius: "100%", width: "32px", height: "32px" }}
+        src={row?.currentPictureAddress}
+        fallback={profile}
       />
     );
   } else {

@@ -1,4 +1,4 @@
-import { Home, Airplay, Circle, Users } from "react-feather";
+import { Home, Airplay, Circle, Users, MessageSquare } from "react-feather";
 
 export default [
   {
@@ -25,6 +25,12 @@ export default [
         navLink: "/Courses/add",
       },
     ],
+  },
+  {
+    id: "comments",
+    title: "Comments",
+    icon: <MessageSquare size={20} />,
+    navLink: "/Comments/List",
   },
   {
     id: "usersPage",

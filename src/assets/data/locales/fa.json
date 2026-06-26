@@ -93,5 +93,12 @@
   "UserCourses": "دوره های ثبت نام شده",
   "UserReserveCourses": "دوره های رزرو شده",
   "Accept": "تایید شده",
-  "NotAccept": "در انتظار تایید"
+  "NotAccept": "در انتظار تایید",
+  "Comments": "دیدگاه ها",
+  "AcceptComment": "تایید",
+  "CommentTitle": "عنوان دیدگاه",
+  "CommentDescribe": "متن دیدگاه",
+  "Teachers": "استاد",
+  "TeachersSelection": "انتخاب استاد",
+  "UsersSelection": "انتخاب کاربر"
 }
