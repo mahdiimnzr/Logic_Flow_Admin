@@ -7,7 +7,9 @@ const CoursesRoute = [
     path: "/Courses/List",
     element: <CoursesList />,
   },
-  {},
+  {
+    path: "/Courses/Edit/:courseId",
+  },
 ];
 
 export default CoursesRoute;

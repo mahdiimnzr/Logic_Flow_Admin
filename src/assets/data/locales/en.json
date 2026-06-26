@@ -93,5 +93,7 @@
   "UserCourses": "Enrolled Courses",
   "UserReserveCourses": "Reserved Courses",
   "Accept": "Approved",
-  "NotAccept": "Pending Approval"
+  "NotAccept": "Pending Approval",
+  "Comments": "Comments",
+  "AcceptComment": "Confirmed"
 }
