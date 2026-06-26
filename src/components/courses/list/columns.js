@@ -170,9 +170,8 @@ export const columns = [
     minWidth: "110px",
     cell: (row) => {
       const { t } = useTranslation();
-      const params = useSelector((state) => state.courseListSlice.params);
       const queryClient = useQueryClient();
-      const { data: Status } = useGetStatus(params);
+      const Status = queryClient.getQueryState(["Status"]);
       const { mutate: activeCourseMutate } = useMutation({
         mutationFn: activeCourse,
         onSuccess: (response) => {
@@ -203,14 +202,14 @@ export const columns = [
         },
       });
       const [centeredModal, setCenteredModal] = useState(false);
-      const fundedStatus = Status?.data?.find(
+      const fundedStatus = Status?.data?.data?.find(
         (value) => value.id == row.statusId,
       );
       const [currentRole, setCurrentRole] = useState({
         value: row.statusId,
         label: fundedStatus?.statusName,
       });
-      const rolesList = Status?.data?.map((value) => {
+      const rolesList = Status?.data?.data?.map((value) => {
         const roles = { value: value.id, label: value.statusName };
         return roles;
       });

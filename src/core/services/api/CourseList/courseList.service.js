@@ -9,7 +9,7 @@ export const useGetCourseList = (params) =>
 export const activeCourse = (body) =>
   putParams("Course/ActiveAndDeactiveCourse", body);
 
-export const useGetStatus = (params) => useGetQuery("Status", "Status", params);
+export const useGetStatus = () => useGetQuery("Status", "Status");
 
 export const updateCourseStatus = (body) =>
   putParams("Course/UpdateCourseStatus", body);
