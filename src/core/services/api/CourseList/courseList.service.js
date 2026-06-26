@@ -13,3 +13,6 @@ export const useGetStatus = (params) => useGetQuery("Status", "Status", params);
 
 export const updateCourseStatus = (body) =>
   putParams("Course/UpdateCourseStatus", body);
+
+export const useGetCourseDetail = (params) =>
+  useGetQuery("CourseDetail", `Course/${params}`);

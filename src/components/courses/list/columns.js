@@ -44,6 +44,9 @@ import {
   CheckCircle,
   MoreVertical,
   ArrowDownCircle,
+  Server,
+  Activity,
+  AlignJustify,
 } from "react-feather";
 import formatPrice from "../../../core/utils/formatPrice";
 import formatTime from "../../../core/utils/formatTime";
@@ -102,7 +105,6 @@ const renderClient = (row) => {
     );
   }
 };
-
 // ** Table columns
 export const columns = [
   {
@@ -110,53 +112,17 @@ export const columns = [
     sortable: true,
     sortField: "id",
     minWidth: "107px",
-    // selector: row => row.id,
     cell: (row) => (
-      <Link
-        to={`/apps/invoice/preview/${row?.fullName}`}
-      >{`${row?.fullName}`}</Link>
+      <Link to={`/Courses/Detail/${row?.courseId}`}>{`${row?.fullName}`}</Link>
     ),
   },
-  // {
-  //   sortable: true,
-  //   minWidth: "102px",
-  //   sortField: "invoiceStatus",
-  //   name: <TrendingUp size={14} />,
-  //   // selector: row => row.invoiceStatus,
-  //   // cell: (row) => {
-  //   //   const color = invoiceStatusObj[row.invoiceStatus]
-  //   //       ? invoiceStatusObj[row.invoiceStatus].color
-  //   //       : "primary",
-  //   //     Icon = invoiceStatusObj[row.invoiceStatus]
-  //   //       ? invoiceStatusObj[row.invoiceStatus].icon
-  //   //       : Edit;
-  //   //   return (
-  //   //     <Fragment>
-  //   //       {/* <Avatar
-  //   //         color={color}
-  //   //         icon={<Icon size={14} />}
-  //   //         id={`av-tooltip-${row.id}`}
-  //   //       />
-  //   //       <UncontrolledTooltip placement="top" target={`av-tooltip-${row.id}`}>
-  //   //         <span className="fw-bold">{row.invoiceStatus}</span>
-  //   //         <br />
-  //   //         <span className="fw-bold">Balance:</span> {row.balance}
-  //   //         <br />
-  //   //         <span className="fw-bold">Due Date:</span> {row.dueDate}
-  //   //       </UncontrolledTooltip> */}
-  //   //     </Fragment>
-  //   //   );
-  //   // },
-  // },
+
   {
     name: "نام دوره",
     sortable: true,
     minWidth: "350px",
     sortField: "client.name",
-    // selector: row => row.client.name,
     cell: (row) => {
-      // const name = row.client ? row.client.name : "",
-      //   email = row.client ? row.client.companyEmail : "";
       return (
         <div className="d-flex justify-content-left align-items-center">
           {renderClient(row)}
@@ -255,37 +221,17 @@ export const columns = [
       const roleOptions = [...(rolesList ?? [])];
       return (
         <div className="column-action d-flex align-items-center">
-          {/* <Send
-          className="cursor-pointer"
-          size={17}
-          id={`send-tooltip-${row.id}`}
-        /> */}
-          {/* <UncontrolledTooltip placement="top" target={`send-tooltip-${row.id}`}>
-          Send Mail
-        </UncontrolledTooltip> */}
           <Link
-            to={`/apps/invoice/preview/${row?.id}`}
-            id={`pw-tooltip-${row?.id}`}
+            to={`/Courses/Detail/${row?.courseId}`}
+            id={`pw-tooltip-${row?.courseId}`}
           >
             <Eye size={17} className="mx-1" />
           </Link>
-          {/* <UncontrolledTooltip placement="top" target={`pw-tooltip-${row.id}`}>
-          Preview Invoice
-        </UncontrolledTooltip> */}
           <UncontrolledDropdown>
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>
             <DropdownMenu end>
-              <DropdownItem
-                tag="a"
-                href="/"
-                className="w-100"
-                onClick={(e) => e.preventDefault()}
-              >
-                <Download size={14} className="me-50" />
-                <span className="align-middle">Download</span>
-              </DropdownItem>
               <DropdownItem
                 tag={Link}
                 to={`/apps/invoice/edit/${row?.id}`}
@@ -304,10 +250,9 @@ export const columns = [
                     active: row.active === true ? false : true,
                     id: row.courseId,
                   });
-                  // store.dispatch(deleteInvoice(row.id))
                 }}
               >
-                {/* <Trash size={14} className="me-50" /> */}
+                <TrendingUp size={14} className="me-50" />
                 <span className="align-middle">
                   {row.active == true ? "غیر فعال" : "فعال"}
                 </span>
@@ -321,7 +266,7 @@ export const columns = [
                   setCenteredModal(!centeredModal);
                 }}
               >
-                <Copy size={14} className="me-50" />
+                <AlignJustify size={14} className="me-50" />
                 <span className="align-middle">وضعیت ها</span>
               </DropdownItem>
 
