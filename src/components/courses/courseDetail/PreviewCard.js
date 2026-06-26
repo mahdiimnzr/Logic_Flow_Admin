@@ -100,7 +100,7 @@ const PreviewCard = ({ courseDetail }) => {
             <div className="invoice-date-wrapper">
               <Users size={20} className="cursor-pointer mx-1" />
               <p className="invoice-date-title">تعداد گروه ها:</p>
-              <p className="invoice-date">{courseDetail?.courseGroup}</p>
+              <p className="invoice-date">{courseDetail?.courseGroupTotal}</p>
             </div>
             <div className="invoice-date-wrapper">
               <ArrowUpCircle size={20} className="cursor-pointer mx-1" />
@@ -122,6 +122,10 @@ const PreviewCard = ({ courseDetail }) => {
             <div className="invoice-date-wrapper d-flex align-items-center">
               <CardText className="mb-25">نام دوره:</CardText>
               <p className="invoice-date">{courseDetail?.title}</p>
+            </div>
+            <div className="invoice-date-wrapper d-flex align-items-center">
+              <CardText className="mb-25">نوع دوره :</CardText>
+              <p className="invoice-date">{courseDetail?.statusName}</p>
             </div>
             <div className="invoice-date-wrapper d-flex align-items-center">
               <CardText className="mb-25"> وضعیت دوره :</CardText>
