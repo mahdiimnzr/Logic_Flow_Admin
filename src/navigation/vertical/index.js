@@ -2,10 +2,10 @@ import { Home, Airplay, Circle, Users, MessageSquare } from "react-feather";
 
 export default [
   {
-    id: "home",
-    title: "Home",
+    id: "dashboard",
+    title: "Dashboards",
     icon: <Home size={20} />,
-    navLink: "/home",
+    navLink: "/Dashboard",
   },
   {
     id: "coursesPage",
