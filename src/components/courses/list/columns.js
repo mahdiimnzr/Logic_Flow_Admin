@@ -171,7 +171,7 @@ export const columns = [
     cell: (row) => {
       const { t } = useTranslation();
       const queryClient = useQueryClient();
-      const Status = queryClient.getQueryState(["Status"]);
+      const Status = queryClient.getQueryState(["CourseStatus"]);
       const { mutate: activeCourseMutate } = useMutation({
         mutationFn: activeCourse,
         onSuccess: (response) => {
@@ -229,7 +229,7 @@ export const columns = [
             <DropdownMenu end>
               <DropdownItem
                 tag={Link}
-                to={`/apps/invoice/edit/${row?.id}`}
+                to={`/Courses/Edit/${row?.courseId}`}
                 className="w-100"
               >
                 <Edit size={14} className="me-50" />
@@ -264,7 +264,6 @@ export const columns = [
                 <AlignJustify size={14} className="me-50" />
                 <span className="align-middle">وضعیت ها</span>
               </DropdownItem>
-
               <Modal
                 unmountOnClose={true}
                 isOpen={centeredModal}
