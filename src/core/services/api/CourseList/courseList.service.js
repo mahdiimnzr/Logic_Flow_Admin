@@ -26,3 +26,4 @@ export const useGetCourseTerms = () => useGetQuery("CourseTerms", "Term");
 export const useGetCourseClassRooms = () =>
   useGetQuery("CourseClassRoom", "ClassRoom");
 export const updateCourseDetail = (body) => putParams("Course", body);
+export const createCourseStepTwo = (body) => postParams("Course", body);

@@ -121,7 +121,7 @@
   "CourseEndTime": "زمان پایان دوره",
   "CourseGoogleSchema": "گوگل اسکیما",
   "CourseGoogleTitle": "عنوان گوگل دوره",
-  "CoursePrerequisiteId": "پیش‌نیاز دوره",
+  "CoursePrerequisiteId": "پیش‌ نیاز دوره",
   "CourseShortLink": "لینک کوتاه دوره",
   "CourseTumbImageAddress": "آدرس تصویر بندانگشتی",
   "CourseImageAddress": "آدرس تصویر دوره",
@@ -150,5 +150,38 @@
   "CourseImageAddressRequired": "آدرس تصویر الزامی است",
   "CoursePrerequisiteIdRequired": "پیش‌نیاز دوره الزامی است",
   "CourseGoogleSchemaRequired": "گوگل اسکیما الزامی است",
-  "CourseGoogleTitleRequired": "عنوان گوگل الزامی است"
+  "CourseGoogleTitleRequired": "عنوان گوگل الزامی است",
+
+  "AddCourseInfo": "اضافه کردن اطلاعات دوره",
+  "CourseTitlePlaceholder": "نام دوره را وارد کنید",
+  "CourseMiniDescribePlaceholder": "توضیحات مختصر را وارد کنید",
+  "CourseCostPlaceholder": "هزینه دوره را وارد کنید",
+  "CourseCapacityPlaceholder": "ظرفیت دوره را وارد کنید",
+  "CourseSessionNumberPlaceholder": "تعداد جلسات را وارد کنید",
+  "CourseCurrentPaymentNumberPlaceholder": "شماره پرداخت فعلی دوره را وارد کنید",
+  "CourseDescribePlaceholder": "توضیحات را وارد کنید",
+  "DatePlaceholder": "انتخاب تاریخ",
+  "Previous": "قبلی",
+  "Next": "بعدی",
+
+  "AddCourseDetails": "اضافه کردن جزئیات دوره",
+  "CourseTypeSelectPlaceholder": "نحوه برگزاری را انتخاب کنید",
+  "CourseStatusSelectPlaceholder": "وضعیت برگزاری را انتخاب کنید",
+  "CourseLvlSelectPlaceholder": "سطح برگزاری دوره را انتخاب کنید",
+  "CourseClassSelectPlaceholder": "نام کلاس را انتخاب کنید",
+  "CourseTeacherSelectPlaceholder": "معلم دوره را انتخاب کنید",
+  "CourseTremSelectPlaceholder": "نوع ترم را انتخاب کنید",
+  "CourseShortLinkPlaceholder": "لینک کوتاه را وارد کنید",
+  "CourseUniqeUrlStringPlaceholder": "رشته منحصر به فرد را وارد کنید",
+
+  "CourseGoogleTitlePlaceholder": "عنوان گوگل دوره را وارد کنید",
+  "CourseGoogleSchemaPlaceholder": "گوگل اسکیما را وارد کنید",
+  "CoursePrerequisiteIdPlaceholder": "شناسه پیش‌نیاز دوره را وارد کنید",
+  "CourseTumbImageAddressPlaceholder": "آدرس تصویر بندانگشتی را وارد کنید",
+  "CourseImageAddressPlaceholder": "آدرس تصویر دوره را وارد کنید",
+
+  "AddCourseInfoSubtitle": "اطلاعات پایه دوره را وارد کنید",
+  "AddCourseDetailsSubtitle": "جزئیات و تنظیمات دوره را وارد کنید",
+  "AddCourseSeoDetails": "اطلاعات سئو دوره",
+  "AddCourseSeoDetailsSubtitle": "اطلاعات سئو و تصاویر دوره را وارد کنید"
 }
