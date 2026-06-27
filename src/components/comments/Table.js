@@ -72,7 +72,7 @@ const CustomHeader = ({
           xl="6"
           className="d-flex align-items-sm-center justify-content-xl-end justify-content-start flex-xl-nowrap flex-wrap flex-sm-row flex-column pe-xl-1 p-0 mt-xl-0 mt-1"
         >
-          <div className="d-flex align-items-center mb-sm-0 mb-1 me-1">
+          <div className="d-flex align-items-center">
             <label className="mb-0" htmlFor="search-invoice">
               {t("Search")}
             </label>
@@ -83,16 +83,6 @@ const CustomHeader = ({
               value={searchTerm}
               onChange={(e) => handleFilter(e.target.value)}
             />
-          </div>
-
-          <div className="d-flex align-items-center table-header-actions">
-            <Button
-              className="add-new-user"
-              color="primary"
-              onClick={toggleSidebar}
-            >
-              {t("CreateNewUser")}
-            </Button>
           </div>
         </Col>
       </Row>

@@ -710,6 +710,7 @@ const AccountSetting = ({ data }) => {
                             field.onChange(null);
                           }
                         }}
+                        placeholder="mm/dd/yyyy"
                         inputClass={`form-control ${
                           errors.birthDay ? "is-invalid" : ""
                         }`}
