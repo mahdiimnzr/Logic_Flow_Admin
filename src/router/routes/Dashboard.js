@@ -4,7 +4,7 @@ const Dashboard = lazy(() => import("../../pages/Dashboard"));
 
 const DashboardRoute = [
     {
-        path: "/dashboard",
+        path: "/Dashboard",
         element: <Dashboard />,
     },
 ];
