@@ -222,19 +222,14 @@ export const columns = [
           >
             <Eye size={17} className="mx-1" />
           </Link>
+          <Link to={`/Courses/Edit/${row?.courseId}`}>
+            <Edit size={17} className="me-50" />
+          </Link>
           <UncontrolledDropdown>
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>
             <DropdownMenu end>
-              <DropdownItem
-                tag={Link}
-                to={`/Courses/Edit/${row?.courseId}`}
-                className="w-100"
-              >
-                <Edit size={14} className="me-50" />
-                <span className="align-middle">Edit</span>
-              </DropdownItem>
               <DropdownItem
                 tag="a"
                 href="/"
