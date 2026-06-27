@@ -12,6 +12,13 @@ const addCoursesSlice = createSlice({
       MiniDescribe: null,
       EndTime: null,
       StartTime: null,
+      CourseTypeId: null,
+      CourseStatusId: null,
+      CourseLvlId: null,
+      ClassId: null,
+      TeacherId: null,
+      TremId: null,
+      ShortLink: null,
     },
   },
   reducers: {

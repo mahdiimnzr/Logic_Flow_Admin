@@ -20,8 +20,8 @@ const AddCourse = () => {
   const steps = [
     // {
     //   id: "account-details",
-    //   title: "Account Details",
-    //   subtitle: "Enter Your Account Details.",
+    //   title: "اطلاعات دوره",
+    //   // subtitle: "Enter Your Account Details.",
     //   content: <AccountDetails stepper={stepper} />,
     // },
     {

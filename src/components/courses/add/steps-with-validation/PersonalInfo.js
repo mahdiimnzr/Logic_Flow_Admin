@@ -17,18 +17,31 @@ import { Label, Row, Col, Button, Form, Input, FormFeedback } from "reactstrap";
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import { useGetCourseAdd } from "../../../../core/services/api/CourseList/courseList.service";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAddCourseSliceParams } from "../../../../redux/actions";
 
 const defaultValues = {
-  Url: "",
-  level: "",
+  CourseTypeId: null,
+  CourseStatusId: null,
+  CourseLvlId: null,
+  ClassId: null,
+  TeacherId: null,
+  TremId: null,
+  ShortLink: null,
 };
 
 const SignupSchema = yup.object().shape({
-  Url: yup.string().required("پر کردن این فیلد ضروری است"),
-  level: yup.string().required("پر کردن این فیلد ضروری است"),
+  CourseTypeId: yup.string().required("پر کردن این فیلد ضروری است"),
+  CourseStatusId: yup.string().required("پر کردن این فیلد ضروری است"),
+  CourseLvlId: yup.string().required("پر کردن این فیلد ضروری است"),
+  ClassId: yup.string().required("پر کردن این فیلد ضروری است"),
+  TeacherId: yup.string().required("پر کردن این فیلد ضروری است"),
+  TremId: yup.string().required("پر کردن این فیلد ضروری است"),
+  ShortLink: yup.string().required("پر کردن این فیلد ضروری است"),
 });
 
 const PersonalInfo = ({ stepper }) => {
+  const dispatch = useDispatch();
   // ** Hooks
   const {
     control,
@@ -39,14 +52,58 @@ const PersonalInfo = ({ stepper }) => {
     resolver: yupResolver(SignupSchema),
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (value) => {
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "CourseTypeId",
+        value: value.CourseTypeId,
+      }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "CourseStatusId",
+        value: value.CourseStatusId,
+      }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "CourseLvlId",
+        value: value.CourseLvlId,
+      }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "ClassId",
+        value: value.ClassId,
+      }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "TeacherId",
+        value: value.TeacherId,
+      }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "TremId",
+        value: value.TremId,
+      }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "ShortLink",
+        value: value.ShortLink,
+      }),
+    );
     stepper.next();
   };
+  const params = useSelector((value) => value.addCourseSlice.params);
+  console.log(params);
 
   const { data: courseAdd } = useGetCourseAdd();
 
   const [currentCourseType, setCurrentCourseType] = useState({
-    value: "",
+    value: null,
     label: "نحوه برگذاری را انتخواب کنید",
   });
   const courseTypeList = courseAdd?.data?.courseTypeDtos?.map((value) => {
@@ -103,117 +160,206 @@ const PersonalInfo = ({ stepper }) => {
       </div>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row>
-          <Col md="6" className="mb-1">
-            <Label className="form-label" for="نحوه برگذاری">
-              نحوه برگذاری
-            </Label>
-            <Select
-              theme={selectThemeColors}
-              isClearable={false}
-              id={` نحوه برگذاری`}
-              value={currentCourseType}
-              options={courseTypeList}
-              onChange={(data) => {
-                setCurrentCourseType(data);
-              }}
+          <Col sm="6" className="mb-1">
+            <Label for="CourseTypeId"> نحوه برگذاری</Label>
+            <Controller
+              name="CourseTypeId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  theme={selectThemeColors}
+                  isClearable={false}
+                  className={`react-select ${
+                    errors.CourseLvlId ? "is-invalid" : ""
+                  }`}
+                  classNamePrefix="select"
+                  value={currentCourseType}
+                  options={courseTypeList}
+                  id="CourseTypeId"
+                  name="CourseTypeId"
+                  onChange={(data) => {
+                    setCurrentCourseType(data);
+                    setValue("CourseTypeId", data.value);
+                  }}
+                />
+              )}
             />
-          </Col>
-          <Col md="6" className="mb-1">
-            <Label className="form-label" for="وضعیت برگذاری">
-              وضعیت برگذاری
-            </Label>
-            <Select
-              theme={selectThemeColors}
-              isClearable={false}
-              id={`وضعیت برگذاری`}
-              value={currentStatus}
-              options={statusList}
-              onChange={(data) => {
-                setCurrentStatus(data);
-              }}
-            />
-          </Col>
-          <Col md="6" className="mb-1">
-            <Label className="form-label" for="level">
-              سطح برگذاری دوره
-            </Label>
-            <Select
-              theme={selectThemeColors}
-              isClearable={false}
-              id="level"
-              name="level"
-              value={courseLevel}
-              options={courseLevelList}
-              onChange={(data) => {
-                setCourseLevel(data);
-              }}
-            />
-            {errors.level && (
-              <FormFeedback>{errors.level.message}</FormFeedback>
+            {errors.CourseTypeId && (
+              <div className="invalid-feedback d-block">
+                پر کردن این فیلد ها ضروری است
+              </div>
             )}
           </Col>
-          <Col md="6" className="mb-1">
-            <Label className="form-label" for=" نام کلاس">
-              نام کلاس
-            </Label>
-            <Select
-              theme={selectThemeColors}
-              isClearable={false}
-              id={` نام کلاس`}
-              value={courseLassRoom}
-              options={classRoomlList}
-              onChange={(data) => {
-                setCourseLassRoom(data);
-              }}
+          <Col sm="6" className="mb-1">
+            <Label for="CourseStatusId"> وضعیت برگذاری</Label>
+            <Controller
+              name="CourseStatusId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  theme={selectThemeColors}
+                  isClearable={false}
+                  className={`react-select ${
+                    errors.CourseLvlId ? "is-invalid" : ""
+                  }`}
+                  classNamePrefix="select"
+                  value={currentStatus}
+                  options={statusList}
+                  id="CourseStatusId"
+                  name="CourseStatusId"
+                  onChange={(data) => {
+                    setCurrentStatus(data);
+                    setValue("CourseStatusId", data.value);
+                  }}
+                />
+              )}
             />
+            {errors.CourseStatusId && (
+              <div className="invalid-feedback d-block">
+                پر کردن این فیلد ها ضروری است
+              </div>
+            )}
           </Col>
-          <Col md="6" className="mb-1">
-            <Label className="form-label" for="انتخواب معلم">
-              انتخواب معلم
-            </Label>
-            <Select
-              theme={selectThemeColors}
-              isClearable={false}
-              id={`انتخواب معلم`}
-              value={courseTeachers}
-              options={teachersList}
-              onChange={(data) => {
-                setCourseTeachers(data);
-              }}
+          <Col sm="6" className="mb-1">
+            <Label for="CourseLvlId"> سطح برگذاری دوره</Label>
+            <Controller
+              name="CourseLvlId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  theme={selectThemeColors}
+                  isClearable={false}
+                  className={`react-select ${
+                    errors.CourseLvlId ? "is-invalid" : ""
+                  }`}
+                  classNamePrefix="select"
+                  value={courseLevel}
+                  options={courseLevelList}
+                  id="CourseLvlId"
+                  name="CourseLvlId"
+                  onChange={(data) => {
+                    setCourseLevel(data);
+                    setValue("CourseLvlId", data.value);
+                  }}
+                />
+              )}
             />
+            {errors.CourseLvlId && (
+              <div className="invalid-feedback d-block">
+                پر کردن این فیلد ها ضروری است
+              </div>
+            )}
           </Col>
-          <Col md="6" className="mb-1">
-            <Label className="form-label" for="ترم دوره">
-              ترم دوره
-            </Label>
-            <Select
-              theme={selectThemeColors}
-              isClearable={false}
-              id={`انتخواب معلم`}
-              value={courseTerm}
-              options={termList}
-              onChange={(data) => {
-                setCourseTerm(data);
-              }}
+          <Col sm="6" className="mb-1">
+            <Label for="ClassId"> نام کلاس</Label>
+            <Controller
+              name="ClassId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  theme={selectThemeColors}
+                  isClearable={false}
+                  className={`react-select ${
+                    errors.CourseLvlId ? "is-invalid" : ""
+                  }`}
+                  classNamePrefix="select"
+                  value={courseLassRoom}
+                  options={classRoomlList}
+                  id="ClassId"
+                  name="ClassId"
+                  onChange={(data) => {
+                    setCourseLassRoom(data);
+                    setValue("ClassId", data.value);
+                  }}
+                />
+              )}
             />
+            {errors.CourseLvlId && (
+              <div className="invalid-feedback d-block">
+                پر کردن این فیلد ها ضروری است
+              </div>
+            )}
           </Col>
+          <Col sm="6" className="mb-1">
+            <Label for="TeacherId"> انتخواب معلم</Label>
+            <Controller
+              name="TeacherId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  theme={selectThemeColors}
+                  isClearable={false}
+                  className={`react-select ${
+                    errors.CourseLvlId ? "is-invalid" : ""
+                  }`}
+                  classNamePrefix="select"
+                  value={courseTeachers}
+                  options={teachersList}
+                  id="TeacherId"
+                  name="TeacherId"
+                  onChange={(data) => {
+                    setCourseTeachers(data);
+                    setValue("TeacherId", data.value);
+                  }}
+                />
+              )}
+            />
+            {errors.TeacherId && (
+              <div className="invalid-feedback d-block">
+                پر کردن این فیلد ها ضروری است
+              </div>
+            )}
+          </Col>
+          <Col sm="6" className="mb-1">
+            <Label for="TremId"> ترم دوره</Label>
+            <Controller
+              name="TremId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  theme={selectThemeColors}
+                  isClearable={false}
+                  className={`react-select ${
+                    errors.CourseLvlId ? "is-invalid" : ""
+                  }`}
+                  classNamePrefix="select"
+                  value={courseTerm}
+                  options={termList}
+                  id="TremId"
+                  name="TremId"
+                  onChange={(data) => {
+                    setCourseTerm(data);
+                    setValue("TremId", data.value);
+                  }}
+                />
+              )}
+            />
+            {errors.TremId && (
+              <div className="invalid-feedback d-block">
+                پر کردن این فیلد ها ضروری است
+              </div>
+            )}
+          </Col>
+
           <Col md="6" className="mb-1">
-            <Label className="form-label" for="Url">
+            <Label className="form-label" for="ShortLink">
               لینک کوتاه دوره
             </Label>
             <Controller
-              id="Url"
-              name="Url"
+              id="ShortLink"
+              name="ShortLink"
               control={control}
               render={({ field }) => (
                 <Input
                   placeholder="Url"
-                  invalid={errors.Url && true}
+                  invalid={errors.ShortLink && true}
                   {...field}
                 />
               )}
             />
-            {errors.Url && <FormFeedback>{errors.Url.message}</FormFeedback>}
+            {errors.ShortLink && (
+              <FormFeedback>{errors.ShortLink.message}</FormFeedback>
+            )}
           </Col>
         </Row>
 
