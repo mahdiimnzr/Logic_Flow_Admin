@@ -108,8 +108,8 @@ const AccountDetails = ({ stepper }) => {
   return (
     <Fragment>
       <div className="content-header">
-        <h5 className="mb-0">Account Details</h5>
-        <small className="text-muted">Enter Your Account Details.</small>
+        <h5 className="mb-0">اضافه کردن اطلاعات دوره</h5>
+        {/* <small className="text-muted">Enter Your Account Details.</small> */}
       </div>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row>
@@ -230,7 +230,7 @@ const AccountDetails = ({ stepper }) => {
           </Col>
         </Row>
         <Row>
-          <Col md="10" className="mb-1">
+          <Col md="12" className="mb-1">
             <Label className="form-label" for={`MiniDescribe`}>
               توضیحات مختصر درباره دوره
             </Label>
@@ -240,7 +240,9 @@ const AccountDetails = ({ stepper }) => {
               name="MiniDescribe"
               render={({ field }) => (
                 <Input
-                  type="MiniDescribe"
+                  id="MiniDescribe"
+                  name="MiniDescribe"
+                  type="textarea"
                   placeholder="توضیات مختصر را وارد کنید"
                   invalid={errors.MiniDescribe && true}
                   {...field}
