@@ -37,7 +37,6 @@ import { useTranslation } from "react-i18next";
 const UserCourses = ({ data }) => {
   // ** I18n
   const { t } = useTranslation();
-
   return (
     <Fragment>
       <Card className="overflow-hidden">
@@ -47,7 +46,7 @@ const UserCourses = ({ data }) => {
             responsive
             columns={columns}
             className="react-dataTable"
-            data={data?.courseReserve}
+            data={data ? data : []}
           />
         </div>
       </Card>

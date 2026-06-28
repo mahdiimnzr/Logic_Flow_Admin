@@ -47,7 +47,7 @@ const UserCourses = ({ data }) => {
             responsive
             columns={columns}
             className="react-dataTable"
-            data={data?.courseStudent}
+            data={data ? data : []}
           />
         </div>
       </Card>
