@@ -43,29 +43,31 @@ const UsersDetail = () => {
   );
 
   const courseGroupQueries = useGetCourseGroupCourses(
-    courseReserveQueries.map((q, index) => ({
-      TeacherId: q.data?.data?.teacherId,
+    courseReserveQueries.map((value, index) => ({
+      TeacherId: value.data?.data?.teacherId,
       CourseId: userDetail?.data?.courseReserve[index]?.courseId,
     })),
-    courseReserveQueries.every((q) => q.isSuccess),
+    courseReserveQueries.every((value) => value.isSuccess),
   );
 
   const courses = courseStudentQueries
-    .filter((q) => q.isSuccess)
-    .map((q) => q.data?.data);
+    .filter((value) => value.isSuccess)
+    .map((value) => value.data?.data);
 
   const reserveCourses = courseReserveQueries
-    .filter((q, index) => q.isSuccess && courseGroupQueries[index]?.isSuccess)
-    .map((q, index) => ({
-      ...q.data?.data,
+    .filter(
+      (value, index) => value.isSuccess && courseGroupQueries[index]?.isSuccess,
+    )
+    .map((value, index) => ({
+      ...value.data?.data,
       accept: userDetail?.data?.courseReserve[index]?.accept,
       groupId: courseGroupQueries[index]?.data?.data?.[0]?.id,
     }));
 
   const coursesLoading =
-    courseStudentQueries.some((q) => q.isLoading) ||
-    courseReserveQueries.some((q) => q.isLoading) ||
-    courseGroupQueries.some((q) => q.isLoading);
+    courseStudentQueries.some((value) => value.isLoading) ||
+    courseReserveQueries.some((value) => value.isLoading) ||
+    courseGroupQueries.some((value) => value.isLoading);
 
   const toggleTab = (tab) => {
     setActiveTab(tab);
