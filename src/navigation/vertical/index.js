@@ -1,3 +1,4 @@
+import { title } from "process";
 import { Home, Airplay, Circle, Users, MessageSquare } from "react-feather";
 
 export default [
@@ -25,6 +26,19 @@ export default [
         navLink: "/Courses/add",
       },
     ],
+  },
+  {
+    id: "blogsPage",
+    title: "اخبار",
+    icon: <Home size={20} />,
+    children: [
+      {
+        id:"blogs",
+        title:" لیست اخبار",
+        icon: <Circle size={12} />,
+        navLink:"/blogs/list",
+      }
+    ]
   },
   {
     id: "comments",
