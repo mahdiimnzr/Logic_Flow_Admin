@@ -16,7 +16,8 @@ import { useSelector } from "react-redux";
 
 const CourseAdd = () => {
   const { isLoading } = useGetCourseAdd();
-
+  const params = useSelector((state) => state.addCourseSlice.params);
+  console.log(params);
   return isLoading ? (
     <Spinner />
   ) : (

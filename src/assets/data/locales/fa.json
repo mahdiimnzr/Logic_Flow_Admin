@@ -101,7 +101,6 @@
   "Teachers": "استاد",
   "TeachersSelection": "انتخاب استاد",
   "UsersSelection": "انتخاب کاربر",
-  "Toman": "تومان",
 
   "CourseId": "شناسه دوره",
   "CourseTitle": "عنوان دوره",
@@ -185,6 +184,19 @@
   "AddCourseDetailsSubtitle": "جزئیات و تنظیمات دوره را وارد کنید",
   "AddCourseSeoDetails": "اطلاعات سئو دوره",
   "AddCourseSeoDetailsSubtitle": "اطلاعات سئو و تصاویر دوره را وارد کنید",
+
+  "AddCourseTechCategory": "تکنولوژی و دسته‌بندی",
+  "AddCourseTechCategorySubtitle": "تکنولوژی و دسته‌بندی دوره را انتخاب کنید",
+  "CourseTechnologyId": "تکنولوژی دوره",
+  "CourseCategoryId": "دسته‌بندی دوره",
+  "CourseTechnologyIdRequired": "انتخاب تکنولوژی الزامی است",
+  "CourseCategoryIdRequired": "انتخاب دسته‌بندی الزامی است",
+  "CourseTechnologySelectPlaceholder": "تکنولوژی دوره را انتخاب کنید",
+  "CourseCategorySelectPlaceholder": "دسته‌بندی دوره را انتخاب کنید",
+
+  "ReviewCourse": "بررسی و ثبت دوره",
+  "ReviewCourseSubtitle": "اطلاعات وارد شده را بررسی کنید و در صورت تایید دوره را ثبت کنید",
+  "ErrorOccurred": "خطایی رخ داده است، لطفاً دوباره تلاش کنید",
 
   "DropFilesTitle": "فایل ها را اینجا بکشید یا کلیک کنید",
   "DropFilesSubtitle": "فایل ها را اینجا رها کنید یا روی",

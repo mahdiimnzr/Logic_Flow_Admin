@@ -27,6 +27,7 @@ const defaultValues = {
   Capacity: "",
   SessionNumber: "",
   Describe: "",
+  MiniDescribe: "",
   StartTime: "",
   EndTime: "",
   CurrentCoursePaymentNumber: "",
@@ -78,6 +79,12 @@ const AccountDetails = ({ stepper }) => {
     );
     dispatch(
       updateAddCourseSliceParams({ key: "Describe", value: value.Describe }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({
+        key: "MiniDescribe",
+        value: value.MiniDescribe,
+      }),
     );
     dispatch(
       updateAddCourseSliceParams({ key: "StartTime", value: value.StartTime }),
@@ -154,16 +161,15 @@ const AccountDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.Cost ? "is-invalid" : ""
                     }`}
                     placeholder={t("CourseCostPlaceholder")}
                     options={numericOptions}
                     id="Cost"
-                    invalid={errors.Cost && true}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
-                    {...field}
                   />
                 </InputGroup>
               )}
@@ -186,16 +192,15 @@ const AccountDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
                     }`}
                     placeholder={t("CourseCurrentPaymentNumberPlaceholder")}
                     options={numericOptions}
                     id="CurrentCoursePaymentNumber"
-                    invalid={errors.CurrentCoursePaymentNumber && true}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
-                    {...field}
                   />
                 </InputGroup>
               )}
@@ -218,16 +223,15 @@ const AccountDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.Capacity ? "is-invalid" : ""
                     }`}
                     placeholder={t("CourseCapacityPlaceholder")}
                     options={numericOptions}
                     id="Capacity"
-                    invalid={errors.Capacity && true}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
-                    {...field}
                   />
                 </InputGroup>
               )}
@@ -250,16 +254,15 @@ const AccountDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.SessionNumber ? "is-invalid" : ""
                     }`}
                     placeholder={t("CourseSessionNumberPlaceholder")}
                     options={numericOptions}
                     id="SessionNumber"
-                    invalid={errors.SessionNumber && true}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
-                    {...field}
                   />
                 </InputGroup>
               )}
