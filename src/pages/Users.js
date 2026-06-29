@@ -9,7 +9,12 @@ import { useTranslation } from "react-i18next";
 const Users = () => {
   const { t } = useTranslation();
   const params = useSelector((state) => state.usersSlice.params);
-  const { isLoading, data: usersList, refetch } = useGetUserList(params);
+  const {
+    isLoading,
+    isRefetching,
+    data: usersList,
+    refetch,
+  } = useGetUserList(params);
   useEffect(() => {
     refetch();
   }, [params]);

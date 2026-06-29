@@ -101,7 +101,6 @@
   "Teachers": "استاد",
   "TeachersSelection": "انتخاب استاد",
   "UsersSelection": "انتخاب کاربر",
-
   "CourseId": "شناسه دوره",
   "CourseTitle": "عنوان دوره",
   "CourseDescribe": "توضیحات دوره",
@@ -151,7 +150,6 @@
   "CoursePrerequisiteIdRequired": "پیش‌نیاز دوره الزامی است",
   "CourseGoogleSchemaRequired": "گوگل اسکیما الزامی است",
   "CourseGoogleTitleRequired": "عنوان گوگل الزامی است",
-
   "AddCourseInfo": "اضافه کردن اطلاعات دوره",
   "CourseTitlePlaceholder": "نام دوره را وارد کنید",
   "CourseMiniDescribePlaceholder": "توضیحات مختصر را وارد کنید",
@@ -163,7 +161,6 @@
   "DatePlaceholder": "انتخاب تاریخ",
   "Previous": "قبلی",
   "Next": "بعدی",
-
   "AddCourseDetails": "اضافه کردن جزئیات دوره",
   "CourseTypeSelectPlaceholder": "نحوه برگزاری را انتخاب کنید",
   "CourseStatusSelectPlaceholder": "وضعیت برگزاری را انتخاب کنید",
@@ -173,18 +170,15 @@
   "CourseTremSelectPlaceholder": "نوع ترم را انتخاب کنید",
   "CourseShortLinkPlaceholder": "لینک کوتاه را وارد کنید",
   "CourseUniqeUrlStringPlaceholder": "رشته منحصر به فرد را وارد کنید",
-
   "CourseGoogleTitlePlaceholder": "عنوان گوگل دوره را وارد کنید",
   "CourseGoogleSchemaPlaceholder": "گوگل اسکیما را وارد کنید",
   "CoursePrerequisiteIdPlaceholder": "شناسه پیش‌نیاز دوره را وارد کنید",
   "CourseTumbImageAddressPlaceholder": "آدرس تصویر بندانگشتی را وارد کنید",
   "CourseImageAddressPlaceholder": "آدرس تصویر دوره را وارد کنید",
-
   "AddCourseInfoSubtitle": "اطلاعات پایه دوره را وارد کنید",
   "AddCourseDetailsSubtitle": "جزئیات و تنظیمات دوره را وارد کنید",
   "AddCourseSeoDetails": "اطلاعات سئو دوره",
   "AddCourseSeoDetailsSubtitle": "اطلاعات سئو و تصاویر دوره را وارد کنید",
-
   "AddCourseTechCategory": "تکنولوژی و دسته‌بندی",
   "AddCourseTechCategorySubtitle": "تکنولوژی و دسته‌بندی دوره را انتخاب کنید",
   "CourseTechnologyId": "تکنولوژی دوره",
@@ -193,14 +187,35 @@
   "CourseCategoryIdRequired": "انتخاب دسته‌بندی الزامی است",
   "CourseTechnologySelectPlaceholder": "تکنولوژی دوره را انتخاب کنید",
   "CourseCategorySelectPlaceholder": "دسته‌بندی دوره را انتخاب کنید",
-
   "ReviewCourse": "بررسی و ثبت دوره",
   "ReviewCourseSubtitle": "اطلاعات وارد شده را بررسی کنید و در صورت تایید دوره را ثبت کنید",
   "ErrorOccurred": "خطایی رخ داده است، لطفاً دوباره تلاش کنید",
-
   "DropFilesTitle": "فایل ها را اینجا بکشید یا کلیک کنید",
   "DropFilesSubtitle": "فایل ها را اینجا رها کنید یا روی",
   "DropFilesBrowse": "مرور",
   "DropFilesSubtitle2": "کلیک کنید",
-  "DropFilesCurrentImage": "تصویر فعلی"
+  "DropFilesCurrentImage": "تصویر فعلی",
+  "CommentCount": "تعداد کامنت ها",
+  "StudentCount": "تعداد دانشجویان",
+  "ReserveCount": "تعداد رزرو ها",
+  "CourseDetail": "جزئیات دوره",
+  "CourseTechnologies": "دسته بندی",
+  "CourseStatus": "وضعیت دوره",
+  "CourseLevel": "سطح دوره",
+  "CourseType": "نحوه برگزاری",
+  "CourseClassRoom": "مکان برگزاری",
+  "CourseTeacher": "مدرس دوره",
+  "CourseReserves": "رزرو های دوره",
+  "ReserveStatus": "وضعیت رزرو",
+  "Actions": "عملیات",
+  "Toman": "تومان",
+  "SelectGroup": "انتخاب گروه",
+  "GroupRequired": "انتخاب گروه الزامی است",
+  "CourseGroups": "گروه های دوره",
+  "ApplyStatus": "اعمال وضعیت",
+  "Reserves": "رزرو ها",
+  "Groups": "گروه ها",
+  "Edit": "ویرایش",
+  "Remove": "حذف",
+  "AddGroup": "اضافه کردن گروه"
 }

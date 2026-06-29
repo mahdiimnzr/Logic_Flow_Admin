@@ -15,18 +15,19 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { acceptCourseReserve } from "../../core/services/api/Users/users.service";
-import formatPrice from "../../core/utils/formatPrice";
-import ImageFallback from "../common/ImageFallback";
-import courseImage from "../../assets/images/coursePng.png";
+import { acceptCourseReserve } from "../../../../core/services/api/Users/users.service";
+import formatPrice from "../../../../core/utils/formatPrice";
+import ImageFallback from "../../../common/ImageFallback";
+import courseImage from "../../../../assets/images/coursePng.png";
 
 export const columns = [
   {
-    name: "CourseTitle",
+    name: "Student",
     sortable: true,
-    minWidth: "300px",
-    sortField: "title",
-    selector: (row) => row.title,
+    minWidth: "100px",
+    maxWidth: "300px",
+    sortField: "studentName",
+    selector: (row) => row.studentName,
     cell: (row) => {
       const { t } = useTranslation();
       return (
@@ -35,79 +36,37 @@ export const columns = [
             className="me-1"
             style={{ borderRadius: "100%", width: "32px", height: "32px" }}
             fallback={courseImage}
-            src={row.imageAddress}
+            src={row.studentphoto}
           />
           <Link
-            to={`/Courses/Detail/${row.courseId}`}
-            className="user_name text-body text-truncate"
+            to={`/Users/Detail/${row.studentId}`}
+            className="user_name text-truncate text-body"
           >
-            <span className="fw-bolder text-truncate">{row.title}</span>
+            <span className="fw-bolder">{row.studentName}</span>
           </Link>
         </div>
       );
     },
   },
   {
-    name: "Teacher",
+    name: "Student Email",
     sortable: true,
     minWidth: "200px",
-    sortField: "teacher",
-    selector: (row) => row.teacherName,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <Link
-          to={`/Users/Detail/${row.teacherId}`}
-          className="user_name text-truncate text-body"
-        >
-          <span className="fw-bolder">{row.teacherName}</span>
-        </Link>
-      </div>
-    ),
-  },
-  {
-    name: "CourseCost",
-    sortable: true,
-    minWidth: "200px",
-    sortField: "cost",
-    selector: (row) => row.cost,
+    sortField: "studentEmail",
+    selector: (row) => row.studentEmail,
     cell: (row) => {
       const { t } = useTranslation();
       return (
         <div className="d-flex flex-column">
-          <span className="fw-bolder">
-            {formatPrice(row.cost)} {t("Toman")}
-          </span>
+          <span className="fw-bolder">{row.studentEmail}</span>
         </div>
       );
     },
   },
   {
-    name: "CourseCapacity",
-    sortable: true,
-    minWidth: "200px",
-    sortField: "capacity",
-    selector: (row) => row.capacity,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">{formatPrice(row.capacity)}</span>
-      </div>
-    ),
-  },
-  {
-    name: "CourseStatus",
-    sortable: true,
-    minWidth: "200px",
-    sortField: "courseStatusName",
-    selector: (row) => row.courseStatusName,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">{row.courseStatusName}</span>
-      </div>
-    ),
-  },
-  {
     name: "ReserveStatus",
-    minWidth: "60px",
+    minWidth: "100px",
+    maxWidth: "150px",
     sortable: true,
     sortField: "status",
     selector: (row) => row.accept,
@@ -128,11 +87,12 @@ export const columns = [
     name: "Actions",
     sortable: true,
     minWidth: "20px",
+    maxWidth: "130px",
     sortField: "capacity",
     selector: (row) => row.capacity,
     cell: (row) => {
       const { t } = useTranslation();
-      const { userId } = useParams();
+      const { courseId } = useParams();
       const queryClient = useQueryClient();
       const [centeredModal, setCenteredModal] = useState(false);
       const [groupError, setGroupError] = useState("");
@@ -143,7 +103,7 @@ export const columns = [
 
       const rolesList = row?.groupId?.map((value) => ({
         value: value.groupId,
-        label: value.groupName,
+        label: value.groupName + ` (ظرفیت دوره :${value.groupCapacity})`,
       }));
 
       const { mutate: acceptReserveMutate } = useMutation({
@@ -156,7 +116,7 @@ export const columns = [
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
             queryClient.invalidateQueries({
-              queryKey: [`UserDetail-${userId}`],
+              queryKey: [`CourseReserve-${courseId}`],
             });
             setCenteredModal(false);
           } else {
@@ -179,9 +139,9 @@ export const columns = [
           return;
         }
         acceptReserveMutate({
-          courseId: row.courseId,
+          courseId: courseId,
           courseGroupId: currentRole.value ? currentRole.value : "",
-          studentId: userId,
+          studentId: row.studentId,
         });
       };
 
@@ -193,13 +153,6 @@ export const columns = [
 
       return (
         <div className="d-flex align-items-center gap-1">
-          <Link
-            to={`/Courses/Detail/${row?.courseId}`}
-            id={`pw-tooltip-${row?.courseId}`}
-          >
-            <Eye size={17} className="mx-1" />
-          </Link>
-
           {!row.accept && (
             <Button.Ripple onClick={handleToggle} color="warning" size="sm">
               {t("AcceptComment")}
