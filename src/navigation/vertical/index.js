@@ -27,6 +27,19 @@ export default [
     ],
   },
   {
+    id: "ManagementCourses",
+    title: "مدیریت دوره ها",
+    icon: <Home size={20} />,
+    children: [
+      {
+        id: "TechnologyManagementPage",
+        title: "مدیریت تکنولوژی",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/TechnologyManagement",
+      },
+    ],
+  },
+  {
     id: "comments",
     title: "Comments",
     icon: <MessageSquare size={20} />,

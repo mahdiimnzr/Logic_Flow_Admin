@@ -14,10 +14,6 @@ import Select from "react-select";
 // ** Reactstrap Imports
 import { Button, Input, Row, Col, Card } from "reactstrap";
 
-// ** Store & Actions
-// import { getData } from '../store'
-// import { useDispatch, useSelector } from 'react-redux'
-
 // ** Styles
 import "@styles/react/apps/app-invoice.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
@@ -34,21 +30,6 @@ const CustomHeader = ({
   rowsPerPage,
   Label,
 }) => {
-  // const [currentRole, setCurrentRole] = useState({
-  //   value: "",
-  //   label: t("RolesSelection"),
-  // });
-
-  // // ** course filter options
-  // const rolesList = usersList?.roles?.map((value) => {
-  //   const roles = { value: value.id, label: value.name };
-  //   return roles;
-  // });
-
-  // const roleOptions = [
-  //   { value: null, label: t("RolesSelection"), number: 0 },
-  //   ...(rolesList ?? {}),
-  // ];
   return (
     <div className="invoice-list-table-header w-100 py-2">
       <Row>
@@ -99,21 +80,6 @@ const CustomHeader = ({
             <option value="costDown"> ارزان ترین</option>
           </Input>
         </Col>
-        {/* <Col md="4">
-          <Label for="role-select">{t("Roles")}</Label>
-          <Select
-            isClearable={false}
-            value={currentRole}
-            options={roleOptions}
-            className="react-select"
-            classNamePrefix="select"
-            theme={selectThemeColors}
-            onChange={(data) => {
-              setCurrentRole(data);
-              dispatch(updateParams({ key: "roleId", value: data.value }));
-            }}
-          />
-        </Col> */}
       </Row>
     </div>
   );
@@ -215,29 +181,11 @@ const InvoiceList = ({ courseList }) => {
     const isFiltered = Object.keys(filters).some(function (k) {
       return filters[k].length > 0;
     });
-
-    // if (store.data.length > 0) {
-    //   return store.data
-    // } else if (store.data.length === 0 && isFiltered) {
-    //   return []
-    // } else {
-    //   return store.allData.slice(0, rowsPerPage)
-    // }
   };
 
   const handleSort = (column, sortDirection) => {
     setSort(sortDirection);
     setSortColumn(column.sortField);
-    // dispatch(
-    //   getData({
-    //     q: value,
-    //     page: currentPage,
-    //     sort: sortDirection,
-    //     status: statusValue,
-    //     perPage: rowsPerPage,
-    //     sortColumn: column.sortField
-    //   })
-    // )
   };
 
   return (
