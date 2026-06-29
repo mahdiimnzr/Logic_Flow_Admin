@@ -8,7 +8,6 @@ import {
   useGetCourseList,
   useGetStatus,
 } from "../core/services/api/CourseList/courseList.service";
-import { param } from "jquery";
 import { useSelector } from "react-redux";
 
 const CoursesList = () => {
