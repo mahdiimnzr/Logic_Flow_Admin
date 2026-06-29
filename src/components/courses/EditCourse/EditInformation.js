@@ -36,6 +36,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { updateUserDetail } from "../../../core/services/api/Users/users.service";
 import { updateCourseDetail } from "../../../core/services/api/CourseList/courseList.service";
 import formDataConverter from "../../../core/utils/formDataConvertor";
+import ImageDropZone from "../../common/ImageDropZone";
 
 const validationSchema = Yup.object({
   Title: Yup.string().required("CourseTitleRequired"),
@@ -54,7 +55,6 @@ const validationSchema = Yup.object({
   Cost: Yup.string().required("CourseCostRequired"),
   UniqeUrlString: Yup.string().required("CourseUniqeUrlStringRequired"),
   imageAddress: Yup.string().required("CourseImageAddressRequired"),
-  TumbImageAddress: Yup.string().required("CourseTumbImageAddressRequired"),
   StartTime: Yup.string().nullable().required("CourseStartTimeRequired"),
   EndTime: Yup.string().nullable().required("CourseEndTimeRequired"),
   GoogleSchema: Yup.string().required("CourseGoogleSchemaRequired"),
@@ -165,7 +165,6 @@ const AccountSetting = ({ data, usersList }) => {
     GoogleTitle: data?.googleTitle ?? "",
     CoursePrerequisiteId: null,
     ShortLink: "",
-    TumbImageAddress: data?.tumbImageAddress ?? "",
     imageAddress: data?.imageAddress ?? "",
     CourseStatusId: data?.statusId ?? "",
   };
@@ -302,54 +301,6 @@ const AccountSetting = ({ data, usersList }) => {
                       {errors.Describe && (
                         <FormFeedback>
                           {t(errors.Describe.message)}
-                        </FormFeedback>
-                      )}
-                    </>
-                  )}
-                />
-              </Col>
-              <Col sm="6" className="mb-1">
-                <Label className="form-label" for="imageAddress">
-                  {t("CourseImageAddress")}
-                </Label>
-                <Controller
-                  name="imageAddress"
-                  control={control}
-                  render={({ field }) => (
-                    <>
-                      <Input
-                        id="imageAddress"
-                        placeholder={t("CourseImageAddress")}
-                        invalid={!!errors.imageAddress}
-                        {...field}
-                      />
-                      {errors.imageAddress && (
-                        <div className="invalid-feedback d-block">
-                          {t(errors.imageAddress.message)}
-                        </div>
-                      )}
-                    </>
-                  )}
-                />
-              </Col>
-              <Col sm="6" className="mb-1">
-                <Label className="form-label" for="TumbImageAddress">
-                  {t("CourseTumbImageAddress")}
-                </Label>
-                <Controller
-                  name="TumbImageAddress"
-                  control={control}
-                  render={({ field }) => (
-                    <>
-                      <Input
-                        id="TumbImageAddress"
-                        placeholder={t("CourseTumbImageAddress")}
-                        invalid={!!errors.TumbImageAddress}
-                        {...field}
-                      />
-                      {errors.TumbImageAddress && (
-                        <FormFeedback>
-                          {t(errors.TumbImageAddress.message)}
                         </FormFeedback>
                       )}
                     </>
@@ -868,7 +819,25 @@ const AccountSetting = ({ data, usersList }) => {
                   </div>
                 )}
               </Col>
-              <Col style={{ marginTop: "200px" }} sm="12">
+              <Col sm="12" className="mb-1">
+                <Label for="imageAddress">{t("CourseImageAddress")}</Label>
+                <ImageDropZone
+                  currentImage={data?.imageAddress}
+                  error={
+                    errors.imageAddress ? t(errors.imageAddress.message) : null
+                  }
+                  onChange={(files) => {
+                    if (files.length > 0) {
+                      setValue("imageAddress", URL.createObjectURL(files[0]), {
+                        shouldValidate: true,
+                      });
+                    } else {
+                      setValue("imageAddress", "", { shouldValidate: true });
+                    }
+                  }}
+                />
+              </Col>
+              <Col sm="12">
                 <Button type="submit" className="me-1" color="primary">
                   {t("SaveChanges")}
                 </Button>

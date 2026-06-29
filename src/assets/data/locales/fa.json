@@ -184,5 +184,11 @@
   "AddCourseInfoSubtitle": "اطلاعات پایه دوره را وارد کنید",
   "AddCourseDetailsSubtitle": "جزئیات و تنظیمات دوره را وارد کنید",
   "AddCourseSeoDetails": "اطلاعات سئو دوره",
-  "AddCourseSeoDetailsSubtitle": "اطلاعات سئو و تصاویر دوره را وارد کنید"
+  "AddCourseSeoDetailsSubtitle": "اطلاعات سئو و تصاویر دوره را وارد کنید",
+
+  "DropFilesTitle": "فایل ها را اینجا بکشید یا کلیک کنید",
+  "DropFilesSubtitle": "فایل ها را اینجا رها کنید یا روی",
+  "DropFilesBrowse": "مرور",
+  "DropFilesSubtitle2": "کلیک کنید",
+  "DropFilesCurrentImage": "تصویر فعلی"
 }

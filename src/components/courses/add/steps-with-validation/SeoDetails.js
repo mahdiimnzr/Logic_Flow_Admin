@@ -21,13 +21,13 @@ import { createCourseStepTwo } from "../../../../core/services/api/CourseList/co
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import formDataConverter from "../../../../core/utils/formDataConvertor";
+import ImageDropZone from "../../../common/ImageDropZone";
 
 const defaultValues = {
   GoogleTitle: "",
   GoogleSchema: "",
   CoursePrerequisiteId: "",
   imageAddress: "",
-  TumbImageAddress: "",
 };
 
 const SeoDetails = ({ stepper }) => {
@@ -42,9 +42,6 @@ const SeoDetails = ({ stepper }) => {
       .string()
       .required(t("CoursePrerequisiteIdRequired")),
     imageAddress: yup.string().required(t("CourseImageAddressRequired")),
-    TumbImageAddress: yup
-      .string()
-      .required(t("CourseTumbImageAddressRequired")),
   });
 
   const numericOptions = {
@@ -194,64 +191,29 @@ const SeoDetails = ({ stepper }) => {
             )}
           </Col>
 
-          <Col md="6" className="mb-1">
-            <Label className="form-label" for="TumbImageAddress">
-              {t("CourseTumbImageAddress")}
-            </Label>
-            <Controller
-              id="TumbImageAddress"
-              name="TumbImageAddress"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  placeholder={t("CourseTumbImageAddressPlaceholder")}
-                  invalid={errors.TumbImageAddress && true}
-                  {...field}
-                  onChange={(data) => {
-                    setValue("TumbImageAddress", data.target.value);
-                    dispatch(
-                      updateAddCourseSliceParams({
-                        key: "TumbImageAddress",
-                        value: data.target.value,
-                      }),
-                    );
-                  }}
-                />
-              )}
+          <Col sm="12" className="mb-1">
+            <Label for="imageAddress">{t("CourseImageAddress")}</Label>
+            <ImageDropZone
+              currentImage={null}
+              error={
+                errors.imageAddress ? t(errors.imageAddress.message) : null
+              }
+              onChange={(files) => {
+                if (files.length > 0) {
+                  setValue("imageAddress", URL.createObjectURL(files[0]), {
+                    shouldValidate: true,
+                  });
+                  dispatch(
+                    updateAddCourseSliceParams({
+                      key: "imageAddress",
+                      value: URL.createObjectURL(files[0]),
+                    }),
+                  );
+                } else {
+                  setValue("imageAddress", "", { shouldValidate: true });
+                }
+              }}
             />
-            {errors.TumbImageAddress && (
-              <FormFeedback>{errors.TumbImageAddress.message}</FormFeedback>
-            )}
-          </Col>
-
-          <Col md="12" className="mb-1">
-            <Label className="form-label" for="imageAddress">
-              {t("CourseImageAddress")}
-            </Label>
-            <Controller
-              id="imageAddress"
-              name="imageAddress"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  placeholder={t("CourseImageAddressPlaceholder")}
-                  invalid={errors.imageAddress && true}
-                  {...field}
-                  onChange={(data) => {
-                    setValue("imageAddress", data.target.value);
-                    dispatch(
-                      updateAddCourseSliceParams({
-                        key: "imageAddress",
-                        value: data.target.value,
-                      }),
-                    );
-                  }}
-                />
-              )}
-            />
-            {errors.imageAddress && (
-              <FormFeedback>{errors.imageAddress.message}</FormFeedback>
-            )}
           </Col>
         </Row>
         <div className="d-flex justify-content-between">
