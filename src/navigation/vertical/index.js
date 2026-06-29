@@ -33,12 +33,25 @@ export default [
     icon: <Home size={20} />,
     children: [
       {
-        id:"blogs",
-        title:" لیست اخبار",
+        id: "blogs",
+        title: " لیست اخبار",
         icon: <Circle size={12} />,
-        navLink:"/blogs/list",
-      }
-    ]
+        navLink: "/blogs/list",
+      },
+    ],
+  },
+  {
+    id: "ManagementCourses",
+    title: "مدیریت دوره ها",
+    icon: <Home size={20} />,
+    children: [
+      {
+        id: "TechnologyManagementPage",
+        title: "مدیریت تکنولوژی",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/TechnologyManagement",
+      },
+    ],
   },
   {
     id: "comments",
