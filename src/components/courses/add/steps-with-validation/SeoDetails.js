@@ -17,10 +17,7 @@ import Cleave from "cleave.js/react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAddCourseSliceParams } from "../../../../redux/actions";
 import { useTranslation } from "react-i18next";
-import { createCourseStepTwo } from "../../../../core/services/api/CourseList/courseList.service";
 import toast from "react-hot-toast";
-import { useMutation } from "@tanstack/react-query";
-import formDataConverter from "../../../../core/utils/formDataConvertor";
 import ImageDropZone from "../../../common/ImageDropZone";
 
 const defaultValues = {
@@ -59,34 +56,14 @@ const SeoDetails = ({ stepper }) => {
     resolver: yupResolver(SignupSchema),
   });
 
-  const { mutate: createCourseMutate } = useMutation({
-    mutationFn: createCourseStepTwo,
-    onMutate: () => {
-      const toastId = toast.loading(t("Loading"));
-      return { toastId };
-    },
-    onSuccess: (response, _, context) => {
-      if (response.data.success) {
-        toast.success(response.data.message, { id: context.toastId });
-        stepper.next();
-      } else {
-        toast.error(response.data.message, { id: context.toastId });
-      }
-    },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
-    },
-  });
-
-  const onSubmit = (value) => {
-    const formData = formDataConverter(params);
-    createCourseMutate(formData);
+  const onSubmit = () => {
+    stepper.next();
   };
 
   return (
     <Fragment>
       <div className="content-header">
-        <h5 className="mb-0">{t("AddCourseInfo")}</h5>
+        <h5 className="mb-0">{t("AddCourseSeoDetails")}</h5>
       </div>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row>
@@ -103,12 +80,12 @@ const SeoDetails = ({ stepper }) => {
                   placeholder={t("CourseGoogleTitlePlaceholder")}
                   invalid={errors.GoogleTitle && true}
                   {...field}
-                  onChange={(data) => {
-                    setValue("GoogleTitle", data.target.value);
+                  onChange={(e) => {
+                    field.onChange(e);
                     dispatch(
                       updateAddCourseSliceParams({
                         key: "GoogleTitle",
-                        value: data.target.value,
+                        value: e.target.value,
                       }),
                     );
                   }}
@@ -133,12 +110,12 @@ const SeoDetails = ({ stepper }) => {
                   placeholder={t("CourseGoogleSchemaPlaceholder")}
                   invalid={errors.GoogleSchema && true}
                   {...field}
-                  onChange={(data) => {
-                    setValue("GoogleSchema", data.target.value);
+                  onChange={(e) => {
+                    field.onChange(e);
                     dispatch(
                       updateAddCourseSliceParams({
                         key: "GoogleSchema",
-                        value: data.target.value,
+                        value: e.target.value,
                       }),
                     );
                   }}
@@ -161,18 +138,16 @@ const SeoDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.CoursePrerequisiteId ? "is-invalid" : ""
                     }`}
                     placeholder={t("CoursePrerequisiteIdPlaceholder")}
                     options={numericOptions}
                     id="CoursePrerequisiteId"
-                    invalid={errors.CoursePrerequisiteId && true}
                     value={field.value}
-                    {...field}
                     onChange={(e) => {
                       field.onChange(e.target.rawValue);
-                      setValue("CoursePrerequisiteId", e.target.rawValue);
                       dispatch(
                         updateAddCourseSliceParams({
                           key: "CoursePrerequisiteId",
@@ -205,8 +180,8 @@ const SeoDetails = ({ stepper }) => {
                   });
                   dispatch(
                     updateAddCourseSliceParams({
-                      key: "imageAddress",
-                      value: URL.createObjectURL(files[0]),
+                      key: "Image",
+                      value: files[0],
                     }),
                   );
                 } else {
@@ -216,8 +191,14 @@ const SeoDetails = ({ stepper }) => {
             />
           </Col>
         </Row>
+
         <div className="d-flex justify-content-between">
-          <Button color="secondary" className="btn-prev" outline disabled>
+          <Button
+            type="button"
+            color="primary"
+            className="btn-prev"
+            onClick={() => stepper.previous()}
+          >
             <ArrowLeft size={14} className="align-middle me-sm-25 me-0" />
             <span className="align-middle d-sm-inline-block d-none">
               {t("Previous")}

@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
 import Wizard from "@components/wizard";
-import SeoDetails from "./steps-with-validation/SeoDetails";
-import PersonalInfo from "./steps-with-validation/PersonalInfo";
 import AccountDetails from "./steps-with-validation/AccountDetails";
+import PersonalInfo from "./steps-with-validation/PersonalInfo";
+import SeoDetails from "./steps-with-validation/SeoDetails";
+import TechCategory from "./steps-with-validation/TechCategory";
+import ReviewSubmit from "./steps-with-validation/ReviewSubmit";
 import { useTranslation } from "react-i18next";
 
 const AddCourse = () => {
@@ -28,6 +30,18 @@ const AddCourse = () => {
       title: t("AddCourseSeoDetails"),
       subtitle: t("AddCourseSeoDetailsSubtitle"),
       content: <SeoDetails stepper={stepper} />,
+    },
+    {
+      id: "tech-category",
+      title: t("AddCourseTechCategory"),
+      subtitle: t("AddCourseTechCategorySubtitle"),
+      content: <TechCategory stepper={stepper} />,
+    },
+    {
+      id: "review-submit",
+      title: t("ReviewCourse"),
+      subtitle: t("ReviewCourseSubtitle"),
+      content: <ReviewSubmit stepper={stepper} />,
     },
   ];
 
