@@ -1,46 +1,47 @@
-// ** React Imports
 import { useRef, useState } from "react";
-
-// ** Custom Components
 import Wizard from "@components/wizard";
-
-// ** Steps
-import Address from "./steps-with-validation/Address";
-import SocialLinks from "./steps-with-validation/SocialLinks";
-import PersonalInfo from "./steps-with-validation/PersonalInfo";
 import AccountDetails from "./steps-with-validation/AccountDetails";
+import PersonalInfo from "./steps-with-validation/PersonalInfo";
+import SeoDetails from "./steps-with-validation/SeoDetails";
+import TechCategory from "./steps-with-validation/TechCategory";
+import ReviewSubmit from "./steps-with-validation/ReviewSubmit";
+import { useTranslation } from "react-i18next";
 
 const AddCourse = () => {
-  // ** Ref
   const ref = useRef(null);
-
-  // ** State
   const [stepper, setStepper] = useState(null);
+  const { t } = useTranslation();
 
   const steps = [
-    // {
-    //   id: "account-details",
-    //   title: "اطلاعات دوره",
-    //   // subtitle: "Enter Your Account Details.",
-    //   content: <AccountDetails stepper={stepper} />,
-    // },
+    {
+      id: "account-details",
+      title: t("AddCourseInfo"),
+      subtitle: t("AddCourseInfoSubtitle"),
+      content: <AccountDetails stepper={stepper} />,
+    },
     {
       id: "personal-info",
-      title: "Personal Info",
-      subtitle: "Add Personal Info",
+      title: t("AddCourseDetails"),
+      subtitle: t("AddCourseDetailsSubtitle"),
       content: <PersonalInfo stepper={stepper} />,
     },
     {
-      id: "step-address",
-      title: "Address",
-      subtitle: "Add Address",
-      content: <Address stepper={stepper} />,
+      id: "seo-details",
+      title: t("AddCourseSeoDetails"),
+      subtitle: t("AddCourseSeoDetailsSubtitle"),
+      content: <SeoDetails stepper={stepper} />,
     },
     {
-      id: "social-links",
-      title: "Social Links",
-      subtitle: "Add Social Links",
-      content: <SocialLinks stepper={stepper} />,
+      id: "tech-category",
+      title: t("AddCourseTechCategory"),
+      subtitle: t("AddCourseTechCategorySubtitle"),
+      content: <TechCategory stepper={stepper} />,
+    },
+    {
+      id: "review-submit",
+      title: t("ReviewCourse"),
+      subtitle: t("ReviewCourseSubtitle"),
+      content: <ReviewSubmit stepper={stepper} />,
     },
   ];
 

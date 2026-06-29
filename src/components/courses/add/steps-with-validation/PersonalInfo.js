@@ -1,51 +1,46 @@
-// ** React Imports
 import { Fragment, useState } from "react";
-
-// ** Third Party Components
 import Select from "react-select";
 import { useForm, Controller } from "react-hook-form";
 import { ArrowLeft, ArrowRight } from "react-feather";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
-// ** Utils
 import { selectThemeColors } from "@utils";
-
-// ** Reactstrap Imports
 import { Label, Row, Col, Button, Form, Input, FormFeedback } from "reactstrap";
-
-// ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import { useGetCourseAdd } from "../../../../core/services/api/CourseList/courseList.service";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { updateAddCourseSliceParams } from "../../../../redux/actions";
+import { useTranslation } from "react-i18next";
 
 const defaultValues = {
-  CourseTypeId: null,
-  CourseStatusId: null,
-  CourseLvlId: null,
-  ClassId: null,
-  TeacherId: null,
-  TremId: null,
-  ShortLink: null,
+  CourseTypeId: "",
+  CourseStatusId: "",
+  CourseLvlId: "",
+  ClassId: "",
+  TeacherId: "",
+  TremId: "",
+  ShortLink: "",
 };
-
-const SignupSchema = yup.object().shape({
-  CourseTypeId: yup.string().required("پر کردن این فیلد ضروری است"),
-  CourseStatusId: yup.string().required("پر کردن این فیلد ضروری است"),
-  CourseLvlId: yup.string().required("پر کردن این فیلد ضروری است"),
-  ClassId: yup.string().required("پر کردن این فیلد ضروری است"),
-  TeacherId: yup.string().required("پر کردن این فیلد ضروری است"),
-  TremId: yup.string().required("پر کردن این فیلد ضروری است"),
-  ShortLink: yup.string().required("پر کردن این فیلد ضروری است"),
-});
 
 const PersonalInfo = ({ stepper }) => {
   const dispatch = useDispatch();
-  // ** Hooks
+  const { t } = useTranslation();
+
+  const SignupSchema = yup.object({
+    CourseTypeId: yup.string().required(t("CourseTypeIdRequired")),
+    CourseStatusId: yup.string().required(t("CourseStatusIdRequired")),
+    CourseLvlId: yup.string().required(t("CourseLvlIdRequired")),
+    ClassId: yup.string().required(t("CourseClassIdRequired")),
+    TeacherId: yup.string().required(t("CourseTeacherIdRequired")),
+    TremId: yup.string().required(t("CourseTremIdRequired")),
+    ShortLink: yup.string().required(t("CourseShortLinkRequired")),
+    UniqeUrlString: yup.string().required(t("CourseUniqeUrlStringRequired")),
+  });
+
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues,
@@ -72,96 +67,91 @@ const PersonalInfo = ({ stepper }) => {
       }),
     );
     dispatch(
-      updateAddCourseSliceParams({
-        key: "ClassId",
-        value: value.ClassId,
-      }),
+      updateAddCourseSliceParams({ key: "ClassId", value: value.ClassId }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({ key: "TeacherId", value: value.TeacherId }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({ key: "TremId", value: value.TremId }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({ key: "ShortLink", value: value.ShortLink }),
     );
     dispatch(
       updateAddCourseSliceParams({
-        key: "TeacherId",
-        value: value.TeacherId,
-      }),
-    );
-    dispatch(
-      updateAddCourseSliceParams({
-        key: "TremId",
-        value: value.TremId,
-      }),
-    );
-    dispatch(
-      updateAddCourseSliceParams({
-        key: "ShortLink",
-        value: value.ShortLink,
+        key: "UniqeUrlString",
+        value: value.UniqeUrlString,
       }),
     );
     stepper.next();
   };
-  const params = useSelector((value) => value.addCourseSlice.params);
-  console.log(params);
 
   const { data: courseAdd } = useGetCourseAdd();
 
   const [currentCourseType, setCurrentCourseType] = useState({
     value: null,
-    label: "نحوه برگذاری را انتخواب کنید",
+    label: t("CourseTypeSelectPlaceholder"),
   });
-  const courseTypeList = courseAdd?.data?.courseTypeDtos?.map((value) => {
-    const courseType = { value: value.id, label: value.typeName };
-    return courseType;
-  });
+  const courseTypeList = courseAdd?.data?.courseTypeDtos?.map((value) => ({
+    value: value.id,
+    label: value.typeName,
+  }));
 
   const [currentStatus, setCurrentStatus] = useState({
-    value: "",
-    label: "وضعیت برگذاری را انتخواب کنید",
+    value: null,
+    label: t("CourseStatusSelectPlaceholder"),
   });
-  const statusList = courseAdd?.data?.statusDtos?.map((value) => {
-    const status = { value: value.id, label: value.statusName };
-    return status;
-  });
+  const statusList = courseAdd?.data?.statusDtos?.map((value) => ({
+    value: value.id,
+    label: value.statusName,
+  }));
+
   const [courseLevel, setCourseLevel] = useState({
-    value: "",
-    label: " سطح برگذاری دوره را انتخواب کنید",
+    value: null,
+    label: t("CourseLvlSelectPlaceholder"),
   });
-  const courseLevelList = courseAdd?.data?.courseLevelDtos?.map((value) => {
-    const courseLevel = { value: value.id, label: value.levelName };
-    return courseLevel;
-  });
+  const courseLevelList = courseAdd?.data?.courseLevelDtos?.map((value) => ({
+    value: value.id,
+    label: value.levelName,
+  }));
+
   const [courseLassRoom, setCourseLassRoom] = useState({
-    value: "",
-    label: "نام کلاس را انتخواب کنید",
+    value: null,
+    label: t("CourseClassSelectPlaceholder"),
   });
-  const classRoomlList = courseAdd?.data?.classRoomDtos?.map((value) => {
-    const classRoom = { value: value.id, label: value.classRoomName };
-    return classRoom;
-  });
+  const classRoomlList = courseAdd?.data?.classRoomDtos?.map((value) => ({
+    value: value.id,
+    label: value.classRoomName,
+  }));
+
   const [courseTeachers, setCourseTeachers] = useState({
-    value: "",
-    label: "معلم دوره را انتخواب کنید",
+    value: null,
+    label: t("CourseTeacherSelectPlaceholder"),
   });
-  const teachersList = courseAdd?.data?.teachers?.map((value) => {
-    const teacher = { value: value.id, label: value.fullName };
-    return teacher;
-  });
+  const teachersList = courseAdd?.data?.teachers?.map((value) => ({
+    value: value.teacherId,
+    label: value.fullName,
+  }));
+
   const [courseTerm, setCourseTerm] = useState({
-    value: "",
-    label: "نوع ترم را انتخواب کنید",
+    value: null,
+    label: t("CourseTremSelectPlaceholder"),
   });
-  const termList = courseAdd?.data?.termDtos?.map((value) => {
-    const term = { value: value.id, label: value.termName };
-    return term;
-  });
+  const termList = courseAdd?.data?.termDtos?.map((value) => ({
+    value: value.id,
+    label: value.termName,
+  }));
 
   return (
     <Fragment>
       <div className="content-header">
-        <h5 className="mb-0">Personal Info</h5>
-        <small>Enter Your Personal Info.</small>
+        <h5 className="mb-0">{t("AddCourseDetails")}</h5>
       </div>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row>
           <Col sm="6" className="mb-1">
-            <Label for="CourseTypeId"> نحوه برگذاری</Label>
+            <Label for="CourseTypeId">{t("CourseTypeId")}</Label>
             <Controller
               name="CourseTypeId"
               control={control}
@@ -170,7 +160,7 @@ const PersonalInfo = ({ stepper }) => {
                   theme={selectThemeColors}
                   isClearable={false}
                   className={`react-select ${
-                    errors.CourseLvlId ? "is-invalid" : ""
+                    errors.CourseTypeId ? "is-invalid" : ""
                   }`}
                   classNamePrefix="select"
                   value={currentCourseType}
@@ -186,12 +176,13 @@ const PersonalInfo = ({ stepper }) => {
             />
             {errors.CourseTypeId && (
               <div className="invalid-feedback d-block">
-                پر کردن این فیلد ها ضروری است
+                {errors.CourseTypeId.message}
               </div>
             )}
           </Col>
+
           <Col sm="6" className="mb-1">
-            <Label for="CourseStatusId"> وضعیت برگذاری</Label>
+            <Label for="CourseStatusId">{t("CourseStatusId")}</Label>
             <Controller
               name="CourseStatusId"
               control={control}
@@ -200,7 +191,7 @@ const PersonalInfo = ({ stepper }) => {
                   theme={selectThemeColors}
                   isClearable={false}
                   className={`react-select ${
-                    errors.CourseLvlId ? "is-invalid" : ""
+                    errors.CourseStatusId ? "is-invalid" : ""
                   }`}
                   classNamePrefix="select"
                   value={currentStatus}
@@ -216,12 +207,13 @@ const PersonalInfo = ({ stepper }) => {
             />
             {errors.CourseStatusId && (
               <div className="invalid-feedback d-block">
-                پر کردن این فیلد ها ضروری است
+                {errors.CourseStatusId.message}
               </div>
             )}
           </Col>
+
           <Col sm="6" className="mb-1">
-            <Label for="CourseLvlId"> سطح برگذاری دوره</Label>
+            <Label for="CourseLvlId">{t("CourseLvlId")}</Label>
             <Controller
               name="CourseLvlId"
               control={control}
@@ -246,12 +238,13 @@ const PersonalInfo = ({ stepper }) => {
             />
             {errors.CourseLvlId && (
               <div className="invalid-feedback d-block">
-                پر کردن این فیلد ها ضروری است
+                {errors.CourseLvlId.message}
               </div>
             )}
           </Col>
+
           <Col sm="6" className="mb-1">
-            <Label for="ClassId"> نام کلاس</Label>
+            <Label for="ClassId">{t("CourseClassId")}</Label>
             <Controller
               name="ClassId"
               control={control}
@@ -260,7 +253,7 @@ const PersonalInfo = ({ stepper }) => {
                   theme={selectThemeColors}
                   isClearable={false}
                   className={`react-select ${
-                    errors.CourseLvlId ? "is-invalid" : ""
+                    errors.ClassId ? "is-invalid" : ""
                   }`}
                   classNamePrefix="select"
                   value={courseLassRoom}
@@ -274,14 +267,15 @@ const PersonalInfo = ({ stepper }) => {
                 />
               )}
             />
-            {errors.CourseLvlId && (
+            {errors.ClassId && (
               <div className="invalid-feedback d-block">
-                پر کردن این فیلد ها ضروری است
+                {errors.ClassId.message}
               </div>
             )}
           </Col>
+
           <Col sm="6" className="mb-1">
-            <Label for="TeacherId"> انتخواب معلم</Label>
+            <Label for="TeacherId">{t("CourseTeacherId")}</Label>
             <Controller
               name="TeacherId"
               control={control}
@@ -290,7 +284,7 @@ const PersonalInfo = ({ stepper }) => {
                   theme={selectThemeColors}
                   isClearable={false}
                   className={`react-select ${
-                    errors.CourseLvlId ? "is-invalid" : ""
+                    errors.TeacherId ? "is-invalid" : ""
                   }`}
                   classNamePrefix="select"
                   value={courseTeachers}
@@ -306,12 +300,13 @@ const PersonalInfo = ({ stepper }) => {
             />
             {errors.TeacherId && (
               <div className="invalid-feedback d-block">
-                پر کردن این فیلد ها ضروری است
+                {errors.TeacherId.message}
               </div>
             )}
           </Col>
+
           <Col sm="6" className="mb-1">
-            <Label for="TremId"> ترم دوره</Label>
+            <Label for="TremId">{t("CourseTremId")}</Label>
             <Controller
               name="TremId"
               control={control}
@@ -320,7 +315,7 @@ const PersonalInfo = ({ stepper }) => {
                   theme={selectThemeColors}
                   isClearable={false}
                   className={`react-select ${
-                    errors.CourseLvlId ? "is-invalid" : ""
+                    errors.TremId ? "is-invalid" : ""
                   }`}
                   classNamePrefix="select"
                   value={courseTerm}
@@ -336,14 +331,14 @@ const PersonalInfo = ({ stepper }) => {
             />
             {errors.TremId && (
               <div className="invalid-feedback d-block">
-                پر کردن این فیلد ها ضروری است
+                {errors.TremId.message}
               </div>
             )}
           </Col>
 
           <Col md="6" className="mb-1">
             <Label className="form-label" for="ShortLink">
-              لینک کوتاه دوره
+              {t("CourseShortLink")}
             </Label>
             <Controller
               id="ShortLink"
@@ -351,7 +346,7 @@ const PersonalInfo = ({ stepper }) => {
               control={control}
               render={({ field }) => (
                 <Input
-                  placeholder="Url"
+                  placeholder={t("CourseShortLinkPlaceholder")}
                   invalid={errors.ShortLink && true}
                   {...field}
                 />
@@ -359,6 +354,27 @@ const PersonalInfo = ({ stepper }) => {
             />
             {errors.ShortLink && (
               <FormFeedback>{errors.ShortLink.message}</FormFeedback>
+            )}
+          </Col>
+
+          <Col md="6" className="mb-1">
+            <Label className="form-label" for="UniqeUrlString">
+              {t("CourseUniqeUrlString")}
+            </Label>
+            <Controller
+              id="UniqeUrlString"
+              name="UniqeUrlString"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  placeholder={t("CourseUniqeUrlStringPlaceholder")}
+                  invalid={errors.UniqeUrlString && true}
+                  {...field}
+                />
+              )}
+            />
+            {errors.UniqeUrlString && (
+              <FormFeedback>{errors.UniqeUrlString.message}</FormFeedback>
             )}
           </Col>
         </Row>
@@ -370,18 +386,16 @@ const PersonalInfo = ({ stepper }) => {
             className="btn-prev"
             onClick={() => stepper.previous()}
           >
-            <ArrowLeft
-              size={14}
-              className="align-middle me-sm-25 me-0"
-            ></ArrowLeft>
-            <span className="align-middle d-sm-inline-block d-none">قبلی</span>
+            <ArrowLeft size={14} className="align-middle me-sm-25 me-0" />
+            <span className="align-middle d-sm-inline-block d-none">
+              {t("Previous")}
+            </span>
           </Button>
           <Button type="submit" color="primary" className="btn-next">
-            <span className="align-middle d-sm-inline-block d-none">بعدی</span>
-            <ArrowRight
-              size={14}
-              className="align-middle ms-sm-25 ms-0"
-            ></ArrowRight>
+            <span className="align-middle d-sm-inline-block d-none">
+              {t("Next")}
+            </span>
+            <ArrowRight size={14} className="align-middle ms-sm-25 ms-0" />
           </Button>
         </div>
       </Form>

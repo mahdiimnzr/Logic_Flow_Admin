@@ -19,6 +19,7 @@ import {
   FileText,
   Trash2,
   Archive,
+  Eye,
 } from "react-feather";
 
 // ** Reactstrap Imports
@@ -46,6 +47,10 @@ import {
   useGetUserList,
 } from "../../core/services/api/Users/users.service";
 import { useSelector } from "react-redux";
+import formatPrice from "../../core/utils/formatPrice";
+import { t } from "i18next";
+import ImageFallback from "../common/ImageFallback";
+import courseImage from "../../assets/images/coursePng.png";
 
 const statusObj = {
   active: "light-success",
@@ -54,59 +59,96 @@ const statusObj = {
 
 export const columns = [
   {
-    name: "ID",
+    name: "Course Title",
     sortable: true,
-    minWidth: "200px",
-    sortField: "id",
-    selector: (row) => row.courseId,
+    minWidth: "300px",
+    sortField: "title",
+    selector: (row) => row.title,
     cell: (row) => (
-      <div className="d-flex flex-column">
+      <div className="d-flex align-items-center gap-1 text-truncate">
+        <ImageFallback
+          className="me-1"
+          style={{ borderRadius: "100%", width: "32px", height: "32px" }}
+          fallback={courseImage}
+          src={row.imageAddress}
+        />
         <Link
           to={`/Courses/Detail/${row.courseId}`}
-          className="user_name text-truncate text-body"
+          className="user_name text-body text-truncate"
         >
-          <span className="fw-bolder">{row.courseId} </span>
+          <span className="fw-bolder text-truncate">{row.title} </span>
         </Link>
       </div>
     ),
   },
   {
-    name: "Sign ID",
+    name: "Teacher",
     sortable: true,
     minWidth: "200px",
-    sortField: "id",
-    selector: (row) => row.id,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">{row.id} </span>
-      </div>
-    ),
-  },
-  {
-    name: "course Group ID",
-    sortable: true,
-    minWidth: "200px",
-    sortField: "id",
-    selector: (row) => row.courseGroupId,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">{row.courseGroupId} </span>
-      </div>
-    ),
-  },
-  {
-    name: "Student ID",
-    sortable: true,
-    minWidth: "200px",
-    sortField: "id",
-    selector: (row) => row.studentId,
+    sortField: "teacher",
+    selector: (row) => row.teacherName,
     cell: (row) => (
       <div className="d-flex flex-column">
         <Link
-          to={`/Users/Detail/${row.studentId}`}
+          to={`/Users/Detail/${row.teacherId}`}
           className="user_name text-truncate text-body"
         >
-          <span className="fw-bolder">{row.studentId} </span>
+          <span className="fw-bolder">{row.teacherName} </span>
+        </Link>
+      </div>
+    ),
+  },
+  {
+    name: "course Cost",
+    sortable: true,
+    minWidth: "200px",
+    sortField: "cost",
+    selector: (row) => row.cost,
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <span className="fw-bolder">
+          {formatPrice(row.cost)} {t("Toman")}
+        </span>
+      </div>
+    ),
+  },
+  {
+    name: "Course Capacity",
+    sortable: true,
+    minWidth: "200px",
+    sortField: "capacity",
+    selector: (row) => row.capacity,
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <span className="fw-bolder">{formatPrice(row.capacity)}</span>
+      </div>
+    ),
+  },
+  {
+    name: "Course Status",
+    sortable: true,
+    minWidth: "200px",
+    sortField: "courseStatusName",
+    selector: (row) => row.courseStatusName,
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <span className="fw-bolder">{row.courseStatusName}</span>
+      </div>
+    ),
+  },
+  {
+    name: "Actions",
+    sortable: true,
+    minWidth: "20px",
+    sortField: "capacity",
+    selector: (row) => row.capacity,
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <Link
+          to={`/Courses/Detail/${row?.courseId}`}
+          id={`pw-tooltip-${row?.courseId}`}
+        >
+          <Eye size={17} className="mx-1" />
         </Link>
       </div>
     ),

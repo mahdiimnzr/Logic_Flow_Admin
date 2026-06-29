@@ -1,18 +1,10 @@
-// ** React Imports
 import { Fragment } from "react";
-
-// ** Utils
-import { isObjEmpty } from "@utils";
-
-// ** Third Party Components
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { ArrowLeft, ArrowRight } from "react-feather";
 import { yupResolver } from "@hookform/resolvers/yup";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-
-// ** Reactstrap Imports
 import {
   Form,
   Label,
@@ -27,38 +19,42 @@ import Cleave from "cleave.js/react";
 import DatePicker from "react-multi-date-picker";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAddCourseSliceParams } from "../../../../redux/actions";
+import { useTranslation } from "react-i18next";
 
 const defaultValues = {
   Title: "",
   Cost: "",
   Capacity: "",
   SessionNumber: "",
+  Describe: "",
   MiniDescribe: "",
   StartTime: "",
   EndTime: "",
+  CurrentCoursePaymentNumber: "",
 };
 
 const AccountDetails = ({ stepper }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const SignupSchema = yup.object().shape({
-    Title: yup.string().required("پر کردن این فیلد ها ضروری است"),
-    Cost: yup.string().required("این فیلد تنها مقادیر عددی را می‌پذیرد"),
-    Capacity: yup.string().required("این فیلد تنها مقادیر عددی را می‌پذیرد"),
-    SessionNumber: yup
+    Title: yup.string().required(t("CourseTitleRequired")),
+    Cost: yup.string().required(t("CourseCostRequired")),
+    Capacity: yup.string().required(t("CourseCapacityRequired")),
+    SessionNumber: yup.string().required(t("CourseSessionNumberRequired")),
+    Describe: yup.string().required(t("CourseDescribeRequired")),
+    MiniDescribe: yup.string().required(t("CourseMiniDescribeRequired")),
+    StartTime: yup.string().required(t("CourseStartTimeRequired")),
+    EndTime: yup.string().required(t("CourseEndTimeRequired")),
+    CurrentCoursePaymentNumber: yup
       .string()
-      .required("این فیلد تنها مقادیر عددی را می‌پذیرد"),
-    MiniDescribe: yup.string().required("پر کردن این فیلد ها ضروری است"),
-    StartTime: yup.string().required("پر کردن این فیلد ها ضروری است"),
-    EndTime: yup.string().required("پر کردن این فیلد ها ضروری است"),
+      .required(t("CourseCurrentPaymentNumberRequired")),
   });
 
   const numericOptions = {
     numeral: true,
     numeralThousandsGroupStyle: "thousand",
   };
-
-  // ** Hooks
 
   const {
     control,
@@ -82,40 +78,39 @@ const AccountDetails = ({ stepper }) => {
       }),
     );
     dispatch(
+      updateAddCourseSliceParams({ key: "Describe", value: value.Describe }),
+    );
+    dispatch(
       updateAddCourseSliceParams({
         key: "MiniDescribe",
         value: value.MiniDescribe,
       }),
     );
     dispatch(
-      updateAddCourseSliceParams({
-        key: "StartTime",
-        value: value.StartTime,
-      }),
+      updateAddCourseSliceParams({ key: "StartTime", value: value.StartTime }),
+    );
+    dispatch(
+      updateAddCourseSliceParams({ key: "EndTime", value: value.EndTime }),
     );
     dispatch(
       updateAddCourseSliceParams({
-        key: "EndTime",
-        value: value.EndTime,
+        key: "CurrentCoursePaymentNumber",
+        value: value.CurrentCoursePaymentNumber,
       }),
     );
-
     stepper.next();
   };
-  const params = useSelector((value) => value.addCourseSlice.params);
-  console.log(params);
 
   return (
     <Fragment>
       <div className="content-header">
-        <h5 className="mb-0">اضافه کردن اطلاعات دوره</h5>
-        {/* <small className="text-muted">Enter Your Account Details.</small> */}
+        <h5 className="mb-0">{t("AddCourseInfo")}</h5>
       </div>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row>
           <Col md="6" className="mb-1">
             <Label className="form-label" for="Title">
-              نام دوره
+              {t("CourseTitle")}
             </Label>
             <Controller
               id="Title"
@@ -123,7 +118,7 @@ const AccountDetails = ({ stepper }) => {
               control={control}
               render={({ field }) => (
                 <Input
-                  placeholder="نام دوره را وارد کنید"
+                  placeholder={t("CourseTitlePlaceholder")}
                   invalid={errors.Title && true}
                   {...field}
                 />
@@ -133,9 +128,31 @@ const AccountDetails = ({ stepper }) => {
               <FormFeedback>{errors.Title.message}</FormFeedback>
             )}
           </Col>
+
           <Col md="6" className="mb-1">
-            <Label className="form-label" for={`Cost`}>
-              قیمت دوره
+            <Label className="form-label" for="MiniDescribe">
+              {t("CourseMiniDescribe")}
+            </Label>
+            <Controller
+              id="MiniDescribe"
+              name="MiniDescribe"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  placeholder={t("CourseMiniDescribePlaceholder")}
+                  invalid={errors.MiniDescribe && true}
+                  {...field}
+                />
+              )}
+            />
+            {errors.MiniDescribe && (
+              <FormFeedback>{errors.MiniDescribe.message}</FormFeedback>
+            )}
+          </Col>
+
+          <Col md="6" className="mb-1">
+            <Label className="form-label" for="Cost">
+              {t("CourseCost")}
             </Label>
             <Controller
               control={control}
@@ -144,16 +161,15 @@ const AccountDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.Cost ? "is-invalid" : ""
                     }`}
-                    placeholder=" ظرفیت دوره را وارد کنید"
+                    placeholder={t("CourseCostPlaceholder")}
                     options={numericOptions}
                     id="Cost"
-                    invalid={errors.Cost && true}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
-                    {...field}
                   />
                 </InputGroup>
               )}
@@ -164,11 +180,41 @@ const AccountDetails = ({ stepper }) => {
               </span>
             )}
           </Col>
-        </Row>
-        <Row>
+
+          <Col md="6" className="mb-1">
+            <Label className="form-label" for="CurrentCoursePaymentNumber">
+              {t("CourseCurrentPaymentNumber")}
+            </Label>
+            <Controller
+              control={control}
+              id="CurrentCoursePaymentNumber"
+              name="CurrentCoursePaymentNumber"
+              render={({ field }) => (
+                <InputGroup className="input-group-merge">
+                  <Cleave
+                    {...field}
+                    className={`form-control ${
+                      errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
+                    }`}
+                    placeholder={t("CourseCurrentPaymentNumberPlaceholder")}
+                    options={numericOptions}
+                    id="CurrentCoursePaymentNumber"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.rawValue)}
+                  />
+                </InputGroup>
+              )}
+            />
+            {errors.CurrentCoursePaymentNumber && (
+              <span className="invalid-feedback d-block">
+                {errors.CurrentCoursePaymentNumber.message}
+              </span>
+            )}
+          </Col>
+
           <Col md="6" className="mb-1">
             <Label className="form-label" for="Capacity">
-              ظرفیت دوره
+              {t("CourseCapacity")}
             </Label>
             <Controller
               id="Capacity"
@@ -177,16 +223,15 @@ const AccountDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.Capacity ? "is-invalid" : ""
                     }`}
-                    placeholder=" ظرفیت دوره را وارد کنید"
+                    placeholder={t("CourseCapacityPlaceholder")}
                     options={numericOptions}
                     id="Capacity"
-                    invalid={errors.Capacity && true}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
-                    {...field}
                   />
                 </InputGroup>
               )}
@@ -197,9 +242,10 @@ const AccountDetails = ({ stepper }) => {
               </span>
             )}
           </Col>
+
           <Col md="6" className="mb-1">
-            <Label className="form-label" for={`SessionNumber`}>
-              تعداد جلسات دوره
+            <Label className="form-label" for="SessionNumber">
+              {t("CourseSessionNumber")}
             </Label>
             <Controller
               control={control}
@@ -208,16 +254,15 @@ const AccountDetails = ({ stepper }) => {
               render={({ field }) => (
                 <InputGroup className="input-group-merge">
                   <Cleave
+                    {...field}
                     className={`form-control ${
                       errors.SessionNumber ? "is-invalid" : ""
                     }`}
-                    placeholder=" ظرفیت دوره را وارد کنید"
+                    placeholder={t("CourseSessionNumberPlaceholder")}
                     options={numericOptions}
                     id="SessionNumber"
-                    invalid={errors.SessionNumber && true}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
-                    {...field}
                   />
                 </InputGroup>
               )}
@@ -228,36 +273,34 @@ const AccountDetails = ({ stepper }) => {
               </span>
             )}
           </Col>
-        </Row>
-        <Row>
+
           <Col md="12" className="mb-1">
-            <Label className="form-label" for={`MiniDescribe`}>
-              توضیحات مختصر درباره دوره
+            <Label className="form-label" for="Describe">
+              {t("CourseDescribe")}
             </Label>
             <Controller
               control={control}
-              id="MiniDescribe"
-              name="MiniDescribe"
+              id="Describe"
+              name="Describe"
               render={({ field }) => (
                 <Input
-                  id="MiniDescribe"
-                  name="MiniDescribe"
+                  id="Describe"
+                  name="Describe"
                   type="textarea"
-                  placeholder="توضیات مختصر را وارد کنید"
-                  invalid={errors.MiniDescribe && true}
+                  placeholder={t("CourseDescribePlaceholder")}
+                  invalid={errors.Describe && true}
                   {...field}
                 />
               )}
             />
-            {errors.MiniDescribe && (
-              <FormFeedback>{errors.MiniDescribe.message}</FormFeedback>
+            {errors.Describe && (
+              <FormFeedback>{errors.Describe.message}</FormFeedback>
             )}
           </Col>
-        </Row>
-        <Row>
+
           <Col md="6" className="mb-1">
             <Label className="form-label" for="StartTime">
-              شروع دوره :
+              {t("CourseStartTime")} :
             </Label>
             <Controller
               name="StartTime"
@@ -271,7 +314,7 @@ const AccountDetails = ({ stepper }) => {
                     calendarPosition="bottom-right"
                     value={field.value ? new Date(field.value) : null}
                     editable={false}
-                    placeholder="mm/dd/yyyy"
+                    placeholder={t("DatePlaceholder")}
                     onChange={(date) => {
                       if (date) {
                         field.onChange(date.toDate().toISOString());
@@ -293,9 +336,10 @@ const AccountDetails = ({ stepper }) => {
               )}
             />
           </Col>
+
           <Col md="6" className="mb-1">
             <Label className="form-label" for="EndTime">
-              پایان دوره :
+              {t("CourseEndTime")} :
             </Label>
             <Controller
               name="EndTime"
@@ -309,7 +353,7 @@ const AccountDetails = ({ stepper }) => {
                     calendarPosition="bottom-right"
                     value={field.value ? new Date(field.value) : null}
                     editable={false}
-                    placeholder="mm/dd/yyyy"
+                    placeholder={t("DatePlaceholder")}
                     onChange={(date) => {
                       if (date) {
                         field.onChange(date.toDate().toISOString());
@@ -332,21 +376,18 @@ const AccountDetails = ({ stepper }) => {
             />
           </Col>
         </Row>
-
         <div className="d-flex justify-content-between">
           <Button color="secondary" className="btn-prev" outline disabled>
-            <ArrowLeft
-              size={14}
-              className="align-middle me-sm-25 me-0"
-            ></ArrowLeft>
-            <span className="align-middle d-sm-inline-block d-none">قبلی</span>
+            <ArrowLeft size={14} className="align-middle me-sm-25 me-0" />
+            <span className="align-middle d-sm-inline-block d-none">
+              {t("Previous")}
+            </span>
           </Button>
           <Button type="submit" color="primary" className="btn-next">
-            <span className="align-middle d-sm-inline-block d-none">بعدی</span>
-            <ArrowRight
-              size={14}
-              className="align-middle ms-sm-25 ms-0"
-            ></ArrowRight>
+            <span className="align-middle d-sm-inline-block d-none">
+              {t("Next")}
+            </span>
+            <ArrowRight size={14} className="align-middle ms-sm-25 ms-0" />
           </Button>
         </div>
       </Form>
