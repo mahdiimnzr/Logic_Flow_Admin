@@ -24,18 +24,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import toast from "react-hot-toast";
 import ImageDropZone from "../../common/ImageDropZone";
-import { postTechnology } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
+import { postCourseLevel } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const defaultValues = {
-  techName: "",
-  describe: "",
-  iconAddress: "",
+  levelName: "",
 };
 
 const validationSchema = Yup.object({
-  techName: Yup.string().required("نام الزامی است"),
-  describe: Yup.string().required("توضیحات الزامی است"),
-  iconAddress: Yup.string().required(" عکس الزامی است"),
+  levelName: Yup.string().required("نام الزامی است"),
 });
 
 const SidebarNewUsers = ({ open, toggleSidebar }) => {
@@ -52,15 +48,15 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
     formState: { errors },
   } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
-  const { mutate: postTechnologyMutate } = useMutation({
-    mutationFn: postTechnology,
+  const { mutate: postCourseLevels } = useMutation({
+    mutationFn: postCourseLevel,
     onMutate: () => {
       const toastId = toast.loading(t("Loading"));
       return { toastId };
     },
     onSuccess: (response, _, context) => {
-      toast.success("تکنولوژی با موفقیت ساخته شد", { id: context.toastId });
-      queryClient.invalidateQueries({ queryKey: ["Technology"] });
+      toast.success("سطح دوره جدید ساخته شد", { id: context.toastId });
+      queryClient.invalidateQueries({ queryKey: ["CourseLevel"] });
       toggleSidebar();
     },
     onError: (response, _, context) => {
@@ -69,7 +65,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   });
 
   const onSubmit = (data) => {
-    postTechnologyMutate(data);
+    postCourseLevels(data);
   };
 
   const handleSidebarClosed = () => {
@@ -91,69 +87,29 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
     >
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1">
-          <Label className="form-label" for="techName">
-            نام تکنولوژی<span className="text-danger">*</span>
+          <Label className="form-label" for="levelName">
+            نام سطح<span className="text-danger">*</span>
           </Label>
           <Controller
-            name="techName"
+            name="levelName"
             control={control}
             render={({ field }) => (
               <>
                 <Input
-                  id="techName"
-                  placeholder={" نام تکنولوژی"}
-                  invalid={!!errors.techName}
+                  id="levelName"
+                  placeholder={" ...نام سطح"}
+                  invalid={!!errors.levelName}
                   {...field}
                 />
-                {errors.techName && (
+                {errors.levelName && (
                   <span className="text-danger" style={{ fontSize: "12px" }}>
-                    {t(errors.techName.message)}
+                    {t(errors.levelName.message)}
                   </span>
                 )}
               </>
             )}
           />
         </div>
-
-        <div className="mb-1">
-          <Label className="form-label" for="describe">
-            توضیحات <span className="text-danger">*</span>
-          </Label>
-          <Controller
-            name="describe"
-            control={control}
-            render={({ field }) => (
-              <>
-                <Input
-                  id="describe"
-                  placeholder={"توضیحات"}
-                  invalid={!!errors.describe}
-                  {...field}
-                />
-                {errors.describe && (
-                  <span className="text-danger" style={{ fontSize: "12px" }}>
-                    {t(errors.describe.message)}
-                  </span>
-                )}
-              </>
-            )}
-          />
-        </div>
-        <div className="mb-1">
-          <ImageDropZone
-            error={errors.iconAddress ? t(errors.iconAddress.message) : null}
-            onChange={(files) => {
-              if (files.length > 0) {
-                setValue("iconAddress", URL.createObjectURL(files[0]), {
-                  shouldValidate: true,
-                });
-              } else {
-                setValue("iconAddress", "", { shouldValidate: true });
-              }
-            }}
-          />
-        </div>
-
         <Button type="submit" className="me-1" color="primary">
           {t("Submit")}
         </Button>
