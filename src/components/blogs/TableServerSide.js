@@ -101,7 +101,6 @@ const DataTableServerSide = ({ statusFilter }) => {
                                 onChange={e => handlePerPage(e)}
                                 style={{ width: "5rem" }}
                             >
-                                <option value={7}>7</option>
                                 <option value={10}>10</option>
                                 <option value={25}>25</option>
                                 <option value={50}>50</option>
@@ -127,7 +126,7 @@ const DataTableServerSide = ({ statusFilter }) => {
                 <div className='react-dataTable position-relative'>
 
                     {(isLoading || isFetching) && (
-                        <div className=' d-flex justify-content-center position-absolute w-100 h-100 align-items-center' style={{zIndex:1, backgroundColor:"rgba(255,255,255,0.6)"}}>
+                        <div className=' d-flex justify-content-center position-absolute w-100 h-100 align-items-center' style={{ zIndex: 1, backgroundColor: "rgba(255,255,255,0.6)" }}>
                             <Spinner color="primary" />
                         </div>
                     )}

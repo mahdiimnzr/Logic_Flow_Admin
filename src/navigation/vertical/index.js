@@ -37,7 +37,13 @@ export default [
         title:" لیست اخبار",
         icon: <Circle size={12} />,
         navLink:"/blogs/list",
-      }
+      },
+      {
+        id:"blogAdd",
+        title:"اضافه کردن مقاله",
+        icon: <Circle size={12} />,
+        navLink:"/blogs/add",
+      },
     ]
   },
   {

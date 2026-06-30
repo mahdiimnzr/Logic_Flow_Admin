@@ -22,4 +22,33 @@ const getAdminBlogsList = async (params) => {
 
 };
 
+const createNewsBlog = async (formData) => {
+
+    try {
+        const response = await apiClient.post("/News/CreateNews", formData);
+        if (response && response.status === 200) {
+            return response.data;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error Creating Blog!",error);
+        throw error;
+    }
+};
+
+const getNewsCategories = async () => {
+    try {
+        const response = await apiClient.get("/News/GetListNewsCategory");
+        if (response && response.status === 200) {
+            return response.data;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error Getting Categories!",error);
+        return null
+    }
+};
+
 export {getAdminBlogsList}
+export {createNewsBlog}
+export {getNewsCategories}
