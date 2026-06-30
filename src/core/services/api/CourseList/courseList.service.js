@@ -37,3 +37,32 @@ export const createCourseStepTwo = (body) => postParams("Course", body);
 
 export const addCourseTechnology = ({ courseId, body }) =>
   postParams(`Course/AddCourseTechnology?courseId=${courseId}`, body);
+
+export const useGetCourseReserve = (id) =>
+  useGetQuery(`CourseReserve-${id}`, `CourseReserve/${id}`);
+
+export const useGetCourseGroup = (params, options) =>
+  useGetQuery(
+    `CourseGroup-${params?.CourseId}`,
+    "CourseGroup/GetCourseGroup",
+    params,
+    options,
+  );
+
+export const addCourseGroup = (body) => postParams("CourseGroup", body);
+export const updateCourseGroup = (body) => putParams("CourseGroup", body);
+export const removeCourseGroup = (body) => deleteParams("CourseGroup", body);
+
+export const useGetCourseSocialMedias = () =>
+  useGetQuery("CourseSocialGroups", "CourseSocialGroup");
+export const addCourseSocialGroup = (body) =>
+  postParams("CourseSocialGroup", body);
+export const updateCourseSocialGroup = (body) =>
+  putParams("CourseSocialGroup", body);
+
+export const useGetCourseAssistance = () =>
+  useGetQuery("CourseAssistance", "CourseAssistance");
+export const addCourseAssistance = (body) =>
+  postParams("CourseAssistance", body);
+export const updateCourseAssistance = (body) =>
+  putParams("CourseAssistance", body);

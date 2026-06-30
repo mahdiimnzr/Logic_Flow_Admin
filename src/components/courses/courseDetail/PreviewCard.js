@@ -7,7 +7,6 @@ import formatPrice from "../../../core/utils/formatPrice";
 import formatDate from "../../../core/utils/formatDate";
 
 const PreviewCard = ({ courseDetail }) => {
-  console.log(courseDetail);
   return (
     <Card className="invoice-preview-card">
       <CardBody className="invoice-padding pb-0">

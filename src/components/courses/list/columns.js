@@ -57,6 +57,8 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import formDataConverter from "../../../core/utils/formDataConvertor";
 import formatDate from "../../../core/utils/formatDate";
+import ImageFallback from "../../common/ImageFallback";
+import userImage from "/Profile.png";
 
 // ** Vars
 const invoiceStatusObj = {
@@ -83,11 +85,11 @@ const renderClient = (row) => {
 
   if (row?.imageAddress?.length) {
     return (
-      <Avatar
+      <ImageFallback
         className="me-50"
-        img={row?.imageAddress}
-        width="32"
-        height="32"
+        style={{ borderRadius: "100%", width: "32px", height: "32px" }}
+        fallback={userImage}
+        src={row?.imageAddress}
       />
     );
   } else {

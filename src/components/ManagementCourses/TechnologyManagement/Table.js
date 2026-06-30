@@ -173,16 +173,6 @@ const UsersList = ({ technology }) => {
     return displayData?.slice(start, start + rowsPerPage);
   }, [displayData, currentPage, rowsPerPage]);
 
-  // ** Handle Search
-  // const handleSearch = useMemo(
-  //   () =>
-  //     debounce((value) => {
-  //       const search = value.trim() === "" ? null : value.trim();
-  //       dispatch(updateParams({ key: "Query", value: search }));
-  //     }, 1000),
-  //   [dispatch],
-  // );
-
   // ** Function in get data on page change
   const handlePagination = (page) => {
     setCurrentPage(page.selected + 1);
@@ -200,10 +190,14 @@ const UsersList = ({ technology }) => {
     handleSearch(val);
   };
 
-  const handleSearch = debounce((value) => {
-    const search = value.trim();
-    setDebounceSearch(search);
-  }, 1000);
+  const handleSearch = useMemo(
+    () =>
+      debounce((value) => {
+        const search = value.trim();
+        setDebounceSearch(search);
+      }, 1000),
+    [displayData],
+  );
 
   // ** Update Current Page If That Page Doesn`t Exist
   useEffect(() => {
