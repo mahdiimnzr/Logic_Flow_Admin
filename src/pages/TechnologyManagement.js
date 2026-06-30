@@ -49,8 +49,10 @@ const TechnologyManagement = () => {
             </Button>
           </div>
         </Col>
-        <Col xl="8" sm="12">
-          <Table technology={technology?.data} />
+        <Col xl="9" sm="12">
+          <div className="app-user-list">
+            <Table technology={technology?.data} />
+          </div>
         </Col>
       </Row>
       <SidebarNewUsers open={sidebarOpen} toggleSidebar={toggleSidebar} />
