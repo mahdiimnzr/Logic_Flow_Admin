@@ -11,7 +11,6 @@ const Users = () => {
   const params = useSelector((state) => state.usersSlice.params);
   const {
     isLoading,
-    isRefetching,
     data: usersList,
     refetch,
   } = useGetUserList(params);

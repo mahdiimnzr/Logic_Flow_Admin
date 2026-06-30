@@ -1,32 +1,35 @@
-import { Link, useParams } from "react-router-dom";
-import Select from "react-select";
-import { selectThemeColors } from "@utils";
-import { Eye } from "react-feather";
+import { useParams } from "react-router-dom";
+import { yupResolver } from "@hookform/resolvers/yup";
 import {
-  Badge,
   Button,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Label,
+  Col,
+  Input,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { acceptCourseReserve } from "../../../../core/services/api/Users/users.service";
-import formatPrice from "../../../../core/utils/formatPrice";
-import ImageFallback from "../../../common/ImageFallback";
-import courseImage from "../../../../assets/images/coursePng.png";
 import {
   removeCourseGroup,
   updateCourseGroup,
 } from "../../../../core/services/api/CourseList/courseList.service";
+import { Controller, useForm } from "react-hook-form";
+import * as Yup from "yup";
+import formDataConverter from "../../../../core/utils/formDataConvertor";
+
+const validationSchema = Yup.object({
+  GroupName: Yup.string().required("CourseGroupNameRequired"),
+  GroupCapacity: Yup.string().required("CourseGroupCapacityRequired"),
+});
 
 export const columns = [
   {
-    name: "Group",
+    name: "CourseGroup",
     sortable: true,
     minWidth: "100px",
     maxWidth: "300px",
@@ -42,7 +45,7 @@ export const columns = [
     },
   },
   {
-    name: "Teacher Name",
+    name: "TeacherName",
     sortable: true,
     minWidth: "200px",
     maxWidth: "250px",
@@ -58,7 +61,7 @@ export const columns = [
     },
   },
   {
-    name: "Group Capacity",
+    name: "GroupCapacity",
     sortable: true,
     minWidth: "200px",
     maxWidth: "150px",
@@ -85,16 +88,19 @@ export const columns = [
       const { courseId } = useParams();
       const queryClient = useQueryClient();
       const [centeredModal, setCenteredModal] = useState(false);
-      const [groupError, setGroupError] = useState("");
-      const [currentRole, setCurrentRole] = useState({
-        value: null,
-        label: t("SelectGroup"),
-      });
 
-      // const rolesList = row?.groupId?.map((value) => ({
-      //   value: value.groupId,
-      //   label: value.groupName + ` (ظرفیت دوره :${value.groupCapacity})`,
-      // }));
+      const defaultValues = {
+        Id: row.groupId ?? "",
+        CourseId: courseId ?? "",
+        GroupName: row.groupName ?? "",
+        GroupCapacity: row.groupCapacity ?? "",
+      };
+
+      const {
+        control,
+        handleSubmit,
+        formState: { errors },
+      } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
       const { mutate: removeCourseGroupMutate } = useMutation({
         mutationFn: removeCourseGroup,
@@ -118,28 +124,34 @@ export const columns = [
         },
       });
 
-      const handleRoleChange = (data) => {
-        setCurrentRole(data);
-        if (data?.value) setGroupError("");
+      const { mutate: updateCourseGroupMutate } = useMutation({
+        mutationFn: updateCourseGroup,
+        onMutate: () => {
+          const toastId = toast.loading(t("Loading"));
+          return { toastId };
+        },
+        onSuccess: (response, _, context) => {
+          if (response.data.success) {
+            toast.success(response.data.message, { id: context.toastId });
+            queryClient.invalidateQueries({
+              queryKey: [`CourseGroup-${courseId}`],
+            });
+            setCenteredModal(false);
+          } else {
+            toast.error(response.data.message, { id: context.toastId });
+          }
+        },
+        onError: (response, _, context) => {
+          toast.error(response.data.message, { id: context.toastId });
+        },
+      });
+
+      const onSubmit = (data) => {
+        const formData = formDataConverter(data);
+        updateCourseGroupMutate(formData);
       };
 
-      const handleSubmit = (data) => {
-        if (!currentRole.value) {
-          setGroupError(t("GroupRequired"));
-          return;
-        }
-        acceptReserveMutate({
-          courseId: courseId,
-          courseGroupId: currentRole.value ? currentRole.value : "",
-          studentId: row.studentId,
-        });
-      };
-
-      const handleToggle = () => {
-        setCenteredModal(!centeredModal);
-        setGroupError("");
-        setCurrentRole({ value: null, label: t("SelectGroup") });
-      };
+      const handleToggle = () => setCenteredModal(!centeredModal);
 
       return (
         <div className="d-flex align-items-center gap-1">
@@ -158,7 +170,7 @@ export const columns = [
             {t("Remove")}
           </Button.Ripple>
 
-          {/* <Modal
+          <Modal
             unmountOnClose={true}
             isOpen={centeredModal}
             toggle={handleToggle}
@@ -167,31 +179,66 @@ export const columns = [
           >
             <ModalHeader toggle={handleToggle}>{t("CourseGroups")}</ModalHeader>
             <ModalBody>
-              <Label for="role-select">{t("SelectGroup")}</Label>
-              <Select
-                isClearable={false}
-                value={currentRole}
-                options={rolesList}
-                className={`react-select ${groupError ? "is-invalid" : ""}`}
-                classNamePrefix="select"
-                theme={selectThemeColors}
-                onChange={handleRoleChange}
-              />
-              {groupError && (
-                <div className="invalid-feedback d-block mt-25">
-                  {groupError}
-                </div>
-              )}
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Col sm="12" className="mb-1">
+                  <Label className="form-label" for="GroupName">
+                    {t("CourseGroupName")}
+                  </Label>
+                  <Controller
+                    name="GroupName"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <Input
+                          id="GroupName"
+                          placeholder={t("CourseGroupNamePlaceholder")}
+                          invalid={!!errors.GroupName}
+                          {...field}
+                        />
+                        {errors.GroupName && (
+                          <div className="invalid-feedback d-block">
+                            {t(errors.GroupName.message)}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  />
+                </Col>
+                <Col sm="12">
+                  <Label className="form-label" for="GroupCapacity">
+                    {t("CourseGroupCapacity")}
+                  </Label>
+                  <Controller
+                    name="GroupCapacity"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <Input
+                          id="GroupCapacity"
+                          placeholder={t("CourseGroupCapacityPlaceholder")}
+                          invalid={!!errors.GroupCapacity}
+                          {...field}
+                        />
+                        {errors.GroupCapacity && (
+                          <div className="invalid-feedback d-block">
+                            {t(errors.GroupCapacity.message)}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  />
+                </Col>
+              </form>
             </ModalBody>
             <ModalFooter className="d-flex justify-content-between">
               <Button color="secondary" outline onClick={handleToggle}>
                 {t("Cancel")}
               </Button>
-              <Button color="primary" onClick={handleSubmit}>
+              <Button color="primary" onClick={handleSubmit(onSubmit)}>
                 {t("ApplyStatus")}
               </Button>
             </ModalFooter>
-          </Modal> */}
+          </Modal>
         </div>
       );
     },

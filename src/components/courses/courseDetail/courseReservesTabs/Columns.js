@@ -52,6 +52,7 @@ export const columns = [
     name: "Student Email",
     sortable: true,
     minWidth: "200px",
+    maxWidth: "300px",
     sortField: "studentEmail",
     selector: (row) => row.studentEmail,
     cell: (row) => {
@@ -66,7 +67,7 @@ export const columns = [
   {
     name: "ReserveStatus",
     minWidth: "100px",
-    maxWidth: "150px",
+    maxWidth: "200px",
     sortable: true,
     sortField: "status",
     selector: (row) => row.accept,

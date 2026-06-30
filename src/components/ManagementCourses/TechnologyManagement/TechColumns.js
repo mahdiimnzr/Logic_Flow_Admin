@@ -73,19 +73,6 @@ const renderClient = (row) => {
     );
   }
 };
-// const renderRole = (row) => {
-//   return (
-//     <span className={`text-truncate text-capitalize align-middle text-primary`}>
-//       {row.join(", ")}
-//     </span>
-//   );
-// };
-
-// const statusObj = {
-//   active: "light-success",
-//   deActive: "light-secondary",
-// };
-
 export const columns = [
   {
     name: "تکنولوژی",
@@ -138,7 +125,6 @@ export const columns = [
         techName: row.techName ?? "",
         describe: row.describe ?? "",
         iconAddress: row.iconAddress ?? "",
-        // parentId: "",
         id: row.id ?? "",
       };
 

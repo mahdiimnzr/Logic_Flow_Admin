@@ -1,8 +1,14 @@
-// ** Reactstrap Imports
 import { Nav, NavItem, NavLink } from "reactstrap";
-
-// ** Icons Imports
-import { Menu, Bell, Book, Send, Package } from "react-feather";
+import {
+  Menu,
+  Bell,
+  Book,
+  Send,
+  Package,
+  CreditCard,
+  Users,
+  UserCheck,
+} from "react-feather";
 import { useTranslation } from "react-i18next";
 
 const CourseDetailTabs = ({ activeTab, toggleTab }) => {
@@ -31,6 +37,24 @@ const CourseDetailTabs = ({ activeTab, toggleTab }) => {
         <NavLink active={activeTab === "4"} onClick={() => toggleTab("4")}>
           <Package size={18} className="me-50" />
           <span className="fw-bold">{t("Groups")}</span>
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink active={activeTab === "5"} onClick={() => toggleTab("5")}>
+          <CreditCard size={18} className="me-50" />
+          <span className="fw-bold">{t("Payments")}</span>
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink active={activeTab === "6"} onClick={() => toggleTab("6")}>
+          <Users size={18} className="me-50" />
+          <span className="fw-bold">{t("SocialGroups")}</span>
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink active={activeTab === "7"} onClick={() => toggleTab("7")}>
+          <UserCheck size={18} className="me-50" />
+          <span className="fw-bold">{t("Mentors")}</span>
         </NavLink>
       </NavItem>
     </Nav>

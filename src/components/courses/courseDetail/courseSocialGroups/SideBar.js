@@ -1,5 +1,3 @@
-import { useState } from "react";
-import Sidebar from "@components/sidebar";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Label, Form, Input } from "reactstrap";
 import * as Yup from "yup";
@@ -8,24 +6,26 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
-import { addCourseGroup } from "../../../../core/services/api/CourseList/courseList.service";
-import formDataConverter from "../../../../core/utils/formDataConvertor";
+import { addCourseSocialGroup } from "../../../../core/services/api/CourseList/courseList.service";
+import Sidebar from "@components/sidebar";
 
-const SidebarNewGroup = ({ open, toggleSidebar }) => {
+const validationSchema = Yup.object({
+  groupName: Yup.string().required("SocialGroupNameRequired"),
+  groupLink: Yup.string()
+    .url("SocialGroupLinkInvalid")
+    .required("SocialGroupLinkRequired"),
+});
+
+const SidebarNewSocialGroup = ({ open, toggleSidebar }) => {
   const { t } = useTranslation();
   const { courseId } = useParams();
   const queryClient = useQueryClient();
 
   const defaultValues = {
-    CourseId: courseId,
-    GroupName: "",
-    GroupCapacity: "",
+    groupName: "",
+    groupLink: "",
+    courseId: courseId,
   };
-
-  const validationSchema = Yup.object({
-    GroupName: Yup.string().required("CourseGroupNameRequired"),
-    GroupCapacity: Yup.string().required("CourseGroupCapacityRequired"),
-  });
 
   const {
     control,
@@ -34,8 +34,8 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
     formState: { errors },
   } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
-  const { mutate: createGroupMutate } = useMutation({
-    mutationFn: addCourseGroup,
+  const { mutate: createSocialGroupMutate } = useMutation({
+    mutationFn: addCourseSocialGroup,
     onMutate: () => {
       const toastId = toast.loading(t("Loading"));
       return { toastId };
@@ -43,9 +43,7 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
     onSuccess: (response, _, context) => {
       if (response.data.success) {
         toast.success(response.data.message, { id: context.toastId });
-        queryClient.invalidateQueries({
-          queryKey: [`CourseGroup-${courseId}`],
-        });
+        queryClient.invalidateQueries({ queryKey: ["CourseSocialGroups"] });
         toggleSidebar();
       } else {
         toast.error(response.data.message, { id: context.toastId });
@@ -57,8 +55,7 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
   });
 
   const onSubmit = (data) => {
-    const formData = formDataConverter(data);
-    createGroupMutate(formData);
+    createSocialGroupMutate(data);
   };
 
   const handleSidebarClosed = () => {
@@ -71,7 +68,7 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
     <Sidebar
       size="lg"
       open={open}
-      title={t("NewGroup")}
+      title={t("NewSocialGroup")}
       headerClassName="mb-1 flex justify-between"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
@@ -80,23 +77,23 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
     >
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1">
-          <Label className="form-label" for="GroupName">
-            {t("CourseGroupName")} <span className="text-danger">*</span>
+          <Label className="form-label" for="groupName">
+            {t("SocialGroupName")} <span className="text-danger">*</span>
           </Label>
           <Controller
-            name="GroupName"
+            name="groupName"
             control={control}
             render={({ field }) => (
               <>
                 <Input
-                  id="GroupName"
-                  placeholder={t("CourseGroupNamePlaceholder")}
-                  invalid={!!errors.GroupName}
+                  id="groupName"
+                  placeholder={t("SocialGroupNamePlaceholder")}
+                  invalid={!!errors.groupName}
                   {...field}
                 />
-                {errors.GroupName && (
+                {errors.groupName && (
                   <span className="text-danger" style={{ fontSize: "12px" }}>
-                    {t(errors.GroupName.message)}
+                    {t(errors.groupName.message)}
                   </span>
                 )}
               </>
@@ -104,23 +101,23 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
           />
         </div>
         <div className="mb-1">
-          <Label className="form-label" for="GroupCapacity">
-            {t("CourseGroupCapacity")} <span className="text-danger">*</span>
+          <Label className="form-label" for="groupLink">
+            {t("SocialGroupLink")} <span className="text-danger">*</span>
           </Label>
           <Controller
-            name="GroupCapacity"
+            name="groupLink"
             control={control}
             render={({ field }) => (
               <>
                 <Input
-                  id="GroupCapacity"
-                  placeholder={t("CourseGroupCapacityPlaceholder")}
-                  invalid={!!errors.GroupCapacity}
+                  id="groupLink"
+                  placeholder={t("SocialGroupLinkPlaceholder")}
+                  invalid={!!errors.groupLink}
                   {...field}
                 />
-                {errors.GroupCapacity && (
+                {errors.groupLink && (
                   <span className="text-danger" style={{ fontSize: "12px" }}>
-                    {t(errors.GroupCapacity.message)}
+                    {t(errors.groupLink.message)}
                   </span>
                 )}
               </>
@@ -138,4 +135,4 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
   );
 };
 
-export default SidebarNewGroup;
+export default SidebarNewSocialGroup;

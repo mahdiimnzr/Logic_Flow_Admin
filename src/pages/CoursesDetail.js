@@ -5,6 +5,8 @@ import {
   useGetCourseDetail,
   useGetCourseGroup,
   useGetCourseReserve,
+  useGetCourseSocialMedias,
+  useGetCourseAssistance,
 } from "../core/services/api/CourseList/courseList.service";
 import { useState, useMemo } from "react";
 import Spinner from "@components/spinner/Fallback-spinner";
@@ -15,12 +17,17 @@ import CommentsList from "../components/courses/courseDetail/courseComments/Tabl
 import { useGetCourseCommentsList } from "../core/services/api/Comments/comments.service";
 import ReserveTabs from "../components/courses/courseDetail/courseReservesTabs/Table";
 import GroupsList from "../components/courses/courseDetail/courseGroup/Table";
+import PaymentList from "../components/courses/courseDetail/coursePayments/Table";
+import SocialGroupList from "../components/courses/courseDetail/courseSocialGroups/Table";
+import MentorList from "../components/courses/courseDetail/courseMentors/Table";
+import { useGetUserList } from "../core/services/api/Users/users.service";
 
 const CoursesDetail = () => {
   const { courseId } = useParams();
   const [activeTab, setActiveTab] = useState("1");
 
   const { isLoading, data: courseDetail } = useGetCourseDetail(courseId);
+  const { isLoading: usersLoading } = useGetUserList({ RowsOfPage: 1000 });
 
   const { isLoading: commentsLoading, data: courseComments } =
     useGetCourseCommentsList({ RowsOfPage: "1000" });
@@ -38,6 +45,12 @@ const CoursesDetail = () => {
         enabled: !!courseDetail?.data?.teacherId,
       },
     );
+
+  const { isLoading: courseSocialGroupLoading, data: courseSocialGroup } =
+    useGetCourseSocialMedias();
+
+  const { isLoading: courseMentorsLoading, data: courseMentors } =
+    useGetCourseAssistance();
 
   const reserveCourseWithGroup = courseReserves?.data?.map((value) => ({
     ...value,
@@ -64,7 +77,10 @@ const CoursesDetail = () => {
   return isLoading ||
     commentsLoading ||
     reservesLoading ||
-    courseGroupLoading ? (
+    courseGroupLoading ||
+    courseSocialGroupLoading ||
+    courseMentorsLoading ||
+    usersLoading ? (
     <Spinner />
   ) : (
     <div className="invoice-preview-wrapper">
@@ -101,6 +117,27 @@ const CoursesDetail = () => {
             <TabPane tabId="4">
               <div className="app-user-list">
                 <GroupsList data={courseGroupWithTeacher} />
+              </div>
+            </TabPane>
+          </TabContent>
+          <TabContent activeTab={activeTab}>
+            <TabPane tabId="5">
+              <div className="app-user-list">
+                <PaymentList data={courseDetail?.data} />
+              </div>
+            </TabPane>
+          </TabContent>
+          <TabContent activeTab={activeTab}>
+            <TabPane tabId="6">
+              <div className="app-user-list">
+                <SocialGroupList data={courseSocialGroup?.data} />
+              </div>
+            </TabPane>
+          </TabContent>
+          <TabContent activeTab={activeTab}>
+            <TabPane tabId="7">
+              <div className="app-user-list">
+                <MentorList data={courseMentors?.data} />
               </div>
             </TabPane>
           </TabContent>
