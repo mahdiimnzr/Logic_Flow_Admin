@@ -1,16 +1,15 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import Spinner from "../@core/components/spinner/Fallback-spinner";
-import Table from "../components/ManagementCourses/TechnologyManagement/Table";
+import Table from "../components/ManagementCourses/LevelManagement/Table";
 import { Button, Col, Row } from "reactstrap";
-import { kFormatter } from "@utils";
-import SubscribersGained from "../components/ManagementCourses/TechnologyManagement/SubscribersGained";
+import SubscribersGained from "../components/ManagementCourses/LevelManagement/SubscribersGained";
 import { useTranslation } from "react-i18next";
-import SidebarNewUsers from "../components/ManagementCourses/TechnologyManagement/TechSideBar";
+import LevelSideBar from "../components/ManagementCourses/LevelManagement/LevelSideBar";
 import Breadcrumbs from "@components/breadcrumbs";
-import { useGetTechnology } from "../core/services/api/ManagementCourses/ManagementCourses.service";
+import { useGetCourseLevel } from "../core/services/api/ManagementCourses/ManagementCourses.service";
 
-const TechnologyManagement = () => {
-  const { isLoading, data: technology } = useGetTechnology();
+const LevelManagement = () => {
+  const { isLoading, data: CourseLevel } = useGetCourseLevel();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // ** Function to toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -28,12 +27,12 @@ const TechnologyManagement = () => {
       <Row>
         <Col lg="3" sm="6">
           <SubscribersGained
-            title="مجموع تکنولوژی ها"
-            subscribers={technology?.data?.length || 0}
+            title="مجموع سطح دوره ها"
+            subscribers={CourseLevel?.data?.length || 0}
             series={[
               {
                 name: "تکنولوژی ها",
-                data: [0, 25, 15, 50, 35, 70, technology?.data?.length || 0],
+                data: [0, 25, 15, 50, 35, 70, CourseLevel?.data?.length || 0],
               },
             ]}
           />
@@ -45,19 +44,20 @@ const TechnologyManagement = () => {
               color="primary"
               onClick={toggleSidebar}
             >
-              اضافه کردن تکنولوژی
+              {" "}
+              افزودن سطح دوره ها
             </Button>
           </div>
         </Col>
         <Col xl="9" sm="12">
           <div className="app-user-list">
-            <Table technology={technology?.data} />
+            <Table CourseLevel={CourseLevel?.data} />
           </div>
         </Col>
       </Row>
-      <SidebarNewUsers open={sidebarOpen} toggleSidebar={toggleSidebar} />
+      <LevelSideBar open={sidebarOpen} toggleSidebar={toggleSidebar} />
     </Fragment>
   );
 };
 
-export default TechnologyManagement;
+export default LevelManagement;

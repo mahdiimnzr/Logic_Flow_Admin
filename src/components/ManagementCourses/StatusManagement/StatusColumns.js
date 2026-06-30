@@ -1,5 +1,5 @@
 // ** React Imports
-import { Link, useNavigate } from "react-router-dom";
+
 import { useForm, Controller } from "react-hook-form";
 
 // ** Custom Components
@@ -22,6 +22,7 @@ import {
   Input,
   Row,
   Col,
+  FormFeedback,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,13 +34,12 @@ import profile from "/public/Profile.png";
 import ImageFallback from "../../common/ImageFallback";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import ImageDropZone from "../../common/ImageDropZone";
-import { updateTechnology } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
+import { updateStatus } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const validationSchema = Yup.object({
-  techName: Yup.string().required("CourseTitleRequired"),
-  describe: Yup.string().required("CourseDescribeRequired"),
-  iconAddress: Yup.string().required(" عکس الزامی است"),
+  statusName: Yup.string().required("CourseTitleRequired"),
+  describe: Yup.string().required(" توضیات الزامی است"),
+  statusNumber: Yup.string().required(" توضیات الزامی است"),
 });
 
 // ** Renders Client Columns
@@ -68,7 +68,7 @@ const renderClient = (row) => {
 };
 export const columns = [
   {
-    name: "تکنولوژی",
+    name: "",
     sortable: true,
     minWidth: "200px",
     sortField: "iconAddress",
@@ -76,21 +76,21 @@ export const columns = [
     cell: (row) => (
       <div className="d-flex justify-content-left align-items-center">
         {renderClient(row)}
-        <div className="d-flex flex-column">
+        {/* <div className="d-flex flex-column">
           <span className="text-truncate text-muted mb-0">{row.techName}</span>
-        </div>
+        </div> */}
       </div>
     ),
   },
 
   {
-    name: "توضیحات تکنولوژی",
+    name: "وضعیت ها",
     minWidth: "80px",
     sortable: true,
-    sortField: "describe",
-    selector: (row) => row.describe,
+    sortField: "statusName",
+    selector: (row) => row.statusName,
     cell: (row) => (
-      <span className="text-truncate text-muted mb-0">{row.describe}</span>
+      <span className="text-truncate text-muted mb-0">{row.statusName}</span>
     ),
   },
 
@@ -106,9 +106,9 @@ export const columns = [
       const queryClient = useQueryClient();
 
       const defaultValues = {
-        techName: row.techName ?? "",
+        statusName: row.statusName ?? "",
         describe: row.describe ?? "",
-        iconAddress: row.iconAddress ?? "",
+        statusNumber: row.statusNumber ?? "",
         id: row.id ?? "",
       };
 
@@ -120,16 +120,16 @@ export const columns = [
         formState: { errors },
       } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
-      const { mutate: updateTechnologyMutate } = useMutation({
-        mutationFn: updateTechnology,
+      const { mutate: updateStatusMutate } = useMutation({
+        mutationFn: updateStatus,
         onMutate: () => {
           const toastId = toast.loading(t("Loading"));
           return { toastId };
         },
         onSuccess: (response, _, context) => {
-          toast.success(" تکنولوژی ویرایش شد", { id: context.toastId });
+          toast.success("وضعیت ویرایش شد", { id: context.toastId });
           queryClient.invalidateQueries({
-            queryKey: [`Technology`],
+            queryKey: [`Status`],
           });
           setShow(!show);
         },
@@ -139,50 +139,13 @@ export const columns = [
       });
 
       const onSubmit = (data) => {
-        updateTechnologyMutate(data);
+        updateStatusMutate(data);
       };
 
       return (
-        <div className="column-action d-flex gap-1 align-items-center">
+        <div className="column-action d-flex gap-1">
           ویرایش
           <Edit size={17} className="me-50 " onClick={() => setShow(true)} />
-          <Button.Ripple
-            onClick={() => setCenteredModal(!centeredModal)}
-            color="info"
-            size="sm"
-          >
-            {" "}
-            جزعیات
-          </Button.Ripple>
-          <Modal
-            unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={() => setCenteredModal(!centeredModal)}
-            className="modal-dialog-centered"
-            style={{ fontFamily: "IRANYekanXFaNum" }}
-          >
-            <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
-              {t("Comments")}
-            </ModalHeader>
-            <ModalBody>
-              <div className="mb-1 d-flex flex-column">
-                <Label>{t("CommentTitle")}</Label>
-                <span className="text-muted mb-0">{row.techName}</span>
-              </div>
-              <div className="mb-1 d-flex flex-column">
-                <Label>{t("CommentDescribe")}</Label>
-                <span className="text-muted mb-0">{row.describe}</span>
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                color="primary"
-                onClick={() => setCenteredModal(!centeredModal)}
-              >
-                {t("Cancel")}
-              </Button>
-            </ModalFooter>
-          </Modal>
           <Modal
             isOpen={show}
             toggle={() => setShow(!show)}
@@ -202,22 +165,22 @@ export const columns = [
                 onSubmit={handleSubmit(onSubmit)}
               >
                 <Col xs={12}>
-                  <Label className="form-label" for="techName">
-                    نام تکنولوژی
+                  <Label className="form-label" for="statusName">
+                    نام وضعبت
                   </Label>
                   <Controller
-                    name="techName"
+                    name="statusName"
                     control={control}
                     render={({ field }) => (
                       <Input
                         {...field}
-                        id="techName"
+                        id="statusName"
                         placeholder="   نام تکنولوژی"
-                        invalid={errors.techName && true}
+                        invalid={errors.statusName && true}
                       />
                     )}
                   />
-                  {errors.techName && (
+                  {errors.statusName && (
                     <FormFeedback>Please enter a valid Username</FormFeedback>
                   )}
                 </Col>
@@ -242,6 +205,26 @@ export const columns = [
                   )}
                 </Col>
                 <Col xs={12}>
+                  <Label className="form-label" for="statusNumber">
+                    عدد
+                  </Label>
+                  <Controller
+                    name="statusNumber"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="statusNumber"
+                        placeholder="statusNumber"
+                        invalid={errors.describe && true}
+                      />
+                    )}
+                  />
+                  {errors.describe && (
+                    <FormFeedback>Please enter a valid Username</FormFeedback>
+                  )}
+                </Col>
+                {/* <Col xs={12}>
                   <ImageDropZone
                     currentImage={row?.iconAddress}
                     error={
@@ -257,7 +240,7 @@ export const columns = [
                       }
                     }}
                   />
-                </Col>
+                </Col> */}
                 <Col xs={12} className="text-center mt-2 pt-50">
                   <Button type="submit" className="me-1" color="primary">
                     تغیرات
