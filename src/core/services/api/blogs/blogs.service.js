@@ -1,6 +1,6 @@
 import apiClient from "../../interceptor/interceptor.service"
 
-const getAdminBlogsList = async (params) => {
+export const getAdminBlogsList = async (params) => {
 
     const response = await apiClient.get("/News/AdminNewsFilterList", {
         params: {
@@ -19,10 +19,9 @@ const getAdminBlogsList = async (params) => {
 
     console.error("Error Fetching Blogs List!", response);
     return null;
-
 };
 
-const createNewsBlog = async (formData) => {
+export const createNewsBlog = async (formData) => {
 
     try {
         const response = await apiClient.post("/News/CreateNews", formData);
@@ -31,12 +30,12 @@ const createNewsBlog = async (formData) => {
         }
         return null;
     } catch (error) {
-        console.error("Error Creating Blog!",error);
+        console.error("Error Creating Blog!", error);
         throw error;
     }
 };
 
-const getNewsCategories = async () => {
+export const getNewsCategories = async () => {
     try {
         const response = await apiClient.get("/News/GetListNewsCategory");
         if (response && response.status === 200) {
@@ -44,11 +43,68 @@ const getNewsCategories = async () => {
         }
         return null;
     } catch (error) {
-        console.error("Error Getting Categories!",error);
+        console.error("Error Getting Categories!", error);
         return null
     }
 };
 
-export {getAdminBlogsList}
-export {createNewsBlog}
-export {getNewsCategories}
+export const toggleBlogStatus = async (formData) => {
+
+    try {
+        const response = await apiClient.put("/News/ActiveDeactiveNews", formData);
+        if (response && response.status === 200) {
+            return response.data;
+        }
+        return null
+    } catch (error) {
+        console.error("Error Toggling!", error);
+        throw error
+    }
+};
+
+export const getNewsById = async (id) => {
+    try {
+        const response = await apiClient.get(`/News/${id}`);
+
+        if (response && response.status === 200) {
+            return response.data;
+        }
+        return null;
+
+    } catch (error) {
+        console.error("Error fetching news details!", error);
+        throw error;
+    }
+};
+
+export const updateNews = async (formData) => {
+    try {
+        const response = await apiClient.put("/News/UpdateNews", formData);
+
+        if (response && response.status === 200) {
+            return response.data;
+        }
+
+        return null;
+
+    } catch (error) {
+        console.error("Error updating news text!", error);
+        throw error;
+    }
+};
+
+export const updateNewsFile = async (formData) => {
+    try {
+        const response = await apiClient.put("/News/UpdateNewsFile", formData);
+
+        if (response && response.status === 200) {
+            return response.data;
+        }
+        return null;
+
+    } catch (error) {
+        console.error("Error updating news file!", error);
+        throw error;
+    }
+    
+};

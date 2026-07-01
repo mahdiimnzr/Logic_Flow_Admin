@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight } from 'react-feather'
 import { Controller } from 'react-hook-form'
 import { getNewsCategories } from '../../../core/services/api/blogs/blogs.service'
 
-const BasicInfo = ({ stepper, control, errors }) => {
+const BasicInfo = ({ stepper, control, errors, trigger }) => {
 
     const [categories, setCategories] = useState([])
     const [isLoading, setIsLoading] = useState(true)
@@ -21,6 +21,22 @@ const BasicInfo = ({ stepper, control, errors }) => {
         fetchCategories()
     }, [])
 
+    const handleNext = async () => {
+        const isStepValid = await trigger([
+            'title',
+            'categoryId',
+            'googleTitle',
+            'keyword',
+            'miniDescribe',
+            'googleDescribe'
+        ]);
+
+        if (isStepValid) {
+            stepper.next();
+        }
+    };
+
+
     return (
         <Fragment>
             <div className='content-header mb-2'>
@@ -36,7 +52,10 @@ const BasicInfo = ({ stepper, control, errors }) => {
                         id='title'
                         name='title'
                         control={control}
-                        rules={{ required: 'عنوان مقاله الزامی است' }}
+                        rules={{
+                            required: 'عنوان مقاله الزامی است',
+                            minLength: { value: 5, message: 'عنوان باید حداقل ۵ کاراکتر باشد' },
+                        }}
                         render={({ field }) => (
                             <Input invalid={errors.title && true} {...field} placeholder='برای مثال: معرفی ری‌اکت ' />
                         )}
@@ -72,10 +91,12 @@ const BasicInfo = ({ stepper, control, errors }) => {
                         id='googleTitle'
                         name='googleTitle'
                         control={control}
+                        rules={{ required: 'عنوان گوگل الزامی است' }}
                         render={({ field }) => (
                             <Input {...field} placeholder='عنوانی که در نتایج گوگل نمایش داده می‌شود' />
                         )}
                     />
+                    {errors.googleTitle && <FormFeedback className='d-block'>{errors.googleTitle.message}</FormFeedback>}
                 </Col>
 
                 <Col md='6' className='mb-1'>
@@ -84,10 +105,12 @@ const BasicInfo = ({ stepper, control, errors }) => {
                         id='keyword'
                         name='keyword'
                         control={control}
+                        rules={{ required: 'وارد کردن حداقل یک کلمه کلیدی الزامی است' }}
                         render={({ field }) => (
                             <Input {...field} placeholder='با کاما جدا کنید (برای مثال: ریکت, برنامه نویسی)' />
                         )}
                     />
+                    {errors.keyword && <FormFeedback className='d-block'>{errors.keyword.message}</FormFeedback>}
                 </Col>
 
                 <Col md='6' className='mb-1'>
@@ -96,10 +119,15 @@ const BasicInfo = ({ stepper, control, errors }) => {
                         id='miniDescribe'
                         name='miniDescribe'
                         control={control}
+                        rules={{
+                            required: 'چکیده مقاله الزامی است',
+                            minLength: { value: 20, message: 'چکیده باید حداقل ۲۰ کاراکتر باشد' }
+                        }}
                         render={({ field }) => (
                             <Input type='textarea' rows='3' {...field} placeholder='یک توضیح کوتاه برای نمایش در کارت مقاله...' />
                         )}
                     />
+                    {errors.miniDescribe && <FormFeedback className='d-block'>{errors.miniDescribe.message}</FormFeedback>}
                 </Col>
 
                 <Col md='6' className='mb-1'>
@@ -108,10 +136,12 @@ const BasicInfo = ({ stepper, control, errors }) => {
                         id='googleDescribe'
                         name='googleDescribe'
                         control={control}
+                        rules={{ required: 'توضیحات گوگل الزامی است' }}
                         render={({ field }) => (
                             <Input type='textarea' rows='3' {...field} placeholder='توضیحات متنی برای سئو و نمایش در گوگل...' />
                         )}
                     />
+                    {errors.googleDescribe && <FormFeedback className='d-block'>{errors.googleDescribe.message}</FormFeedback>}
                 </Col>
 
                 <Col md='6' className='mb-1 mt-1'>
@@ -136,7 +166,7 @@ const BasicInfo = ({ stepper, control, errors }) => {
                     <ArrowLeft size={14} className='align-middle me-sm-25 me-0' />
                     <span className='align-middle d-sm-inline-block d-none'>قبلی</span>
                 </Button>
-                <Button color='primary' className='btn-next' onClick={() => stepper.next()}>
+                <Button color='primary' className='btn-next' onClick={handleNext}>
                     <span className='align-middle d-sm-inline-block d-none'>بعدی</span>
                     <ArrowRight size={14} className='align-middle ms-sm-25 ms-0' />
                 </Button>
