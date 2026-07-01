@@ -9,25 +9,10 @@ import Select from "react-select";
 import { selectThemeColors } from "@utils";
 
 // ** Icons Imports
-import {
-  Slack,
-  User,
-  Settings,
-  Database,
-  Edit2,
-  MoreVertical,
-  FileText,
-  Trash2,
-  Archive,
-} from "react-feather";
 
 // ** Reactstrap Imports
 import {
   Badge,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Button,
   Modal,
   ModalHeader,
@@ -35,16 +20,21 @@ import {
   ModalFooter,
   Label,
   Input,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
-// import formatDate from "../../core/utils/formatDate";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
 import { useState } from "react";
 
-import { useSelector } from "react-redux";
 import profile from "/public/Profile.png";
 import ImageFallback from "../../common/ImageFallback";
+import { useGetTerm } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
+import formatDate from "../../../core/utils/formatDate";
+import { AlignJustify, MoreVertical, TrendingUp } from "react-feather";
 
 // ** Renders Client Columns
 const renderClient = (row) => {
@@ -75,72 +65,52 @@ const renderClient = (row) => {
 const renderRole = (row) => {
   return (
     <span className={`text-truncate text-capitalize align-middle text-primary`}>
-      {row.roles.join(", ")}
+      {/* {row.roles.join(", ")} */}
     </span>
   );
 };
 
 const statusObj = {
   active: "light-success",
-  deActive: "light-secondary",
+  deActive: "light-danger",
 };
 
 export const columns = [
   {
-    name: "User",
+    name: "#آیدی",
     sortable: true,
-    minWidth: "200px",
-    sortField: "fullName",
-    selector: (row) => row.fullName,
+    sortField: "id",
+    minWidth: "107px",
+    selector: (row) => row.id,
     cell: (row) => (
-      <div className="d-flex justify-content-left align-items-center">
-        {renderClient(row)}
-        <div className="d-flex flex-column">
-          <Link
-            to={`/Users/Detail/${row.id}`}
-            className="user_name text-truncate text-body"
-            // onClick={() => store.dispatch(getUser(row.id))}
-          >
-            <span className="fw-bolder">
-              {row.fName} {row.lName}
-            </span>
-          </Link>
-        </div>
-      </div>
+      <span className="text-truncate text-muted mb-0">{row.id}</span>
     ),
   },
   {
-    name: "Role",
+    name: "نام ترم ها",
     sortable: true,
     minWidth: "200px",
     sortField: "role",
-    selector: (row) => row.role,
-    cell: (row) => renderRole(row),
-  },
-  {
-    name: "Gmail",
-    minWidth: "300px",
-    sortable: true,
-    sortField: "gmail",
-    selector: (row) => row.gmail,
+    selector: (row) => row.termName,
     cell: (row) => (
-      <span className="text-truncate text-muted mb-0">{row.gmail}</span>
+      <span className="text-truncate text-muted mb-0">{row.termName}</span>
     ),
   },
+
   {
-    name: "Insert Date",
+    name: "تاریخ شروع / پایان",
     minWidth: "80px",
     sortable: true,
     sortField: "insertDate",
     selector: (row) => row.insertDate,
     cell: (row) => (
       <span className="text-truncate text-muted mb-0">
-        {/* {formatDate(row.insertDate)} */}
+        {formatDate(row.startDate)} تا {formatDate(row.endDate)}
       </span>
     ),
   },
   {
-    name: "Status",
+    name: "وضعیت",
     minWidth: "138px",
     sortable: true,
     sortField: "status",
@@ -150,42 +120,41 @@ export const columns = [
       return (
         <Badge
           className="text-capitalize"
-          color={row.active ? statusObj.active : statusObj.deActive}
+          color={row?.expire ? statusObj.active : statusObj.deActive}
           pill
         >
-          {row.active ? t("Active") : t("DeActive")}
+          {row.expire ? "  منقضی نشده " : "منقضی شده "}
         </Badge>
       );
     },
   },
+  // {
+  //   name: "isDelete",
+  //   minWidth: "80px",
+  //   sortable: true,
+  //   sortField: "isDelete",
+  //   selector: (row) => row.isDelete,
+  //   cell: (row) => {
+  //     const { t } = useTranslation();
+  //     return (
+  //       <Badge
+  //         className="text-capitalize"
+  //         color={row.isDelete ? statusObj.active : statusObj.deActive}
+  //         pill
+  //       >
+  //         {row.isDelete ? t("Deleted") : t("NotDeleted")}
+  //       </Badge>
+  //     );
+  //   },
+  // },
   {
-    name: "isDelete",
-    minWidth: "80px",
-    sortable: true,
-    sortField: "isDelete",
-    selector: (row) => row.isDelete,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <Badge
-          className="text-capitalize"
-          color={row.isDelete ? statusObj.active : statusObj.deActive}
-          pill
-        >
-          {row.isDelete ? t("Deleted") : t("NotDeleted")}
-        </Badge>
-      );
-    },
-  },
-  {
-    name: "Actions",
+    name: "اقدام",
     minWidth: "300px",
     cell: (row) => {
-      const params = useSelector((state) => state.usersSlice.params);
       const { t } = useTranslation();
       const navigate = useNavigate();
       const queryClient = useQueryClient();
-      // const { data: usersList } = useGetUserList(params);
+      const { data: termList } = useGetTerm();
       const [centeredModal, setCenteredModal] = useState(false);
       const [currentRole, setCurrentRole] = useState({
         value: "",
@@ -193,7 +162,7 @@ export const columns = [
       });
       const [currentAccess, setCurrentAccess] = useState(false);
       // ** User filter options
-      const rolesList = usersList?.data?.roles?.map((value) => {
+      const rolesList = termList?.data?.map((value) => {
         const roles = { value: value.id, label: value.name };
         return roles;
       });
@@ -222,71 +191,83 @@ export const columns = [
       // });
       return (
         <div className="column-action d-flex gap-1">
-          <Button.Ripple
-            onClick={() => navigate(`/Users/Detail/${row.id}`)}
-            color="info"
-            size="sm"
-          >
-            {t("Detail")}
-          </Button.Ripple>
-          <Button.Ripple
-            onClick={() => setCenteredModal(!centeredModal)}
-            color="warning"
-            size="sm"
-          >
-            {t("Access")}
-          </Button.Ripple>
-          <Modal
-            unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={() => setCenteredModal(!centeredModal)}
-            className="modal-dialog-centered"
-            style={{ fontFamily: "IRANYekanXFaNum" }}
-          >
-            <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
-              {t("Access")}
-            </ModalHeader>
-            <ModalBody>
-              <Label for="role-select">{t("Roles")}</Label>
-              <Select
-                isClearable={false}
-                value={currentRole}
-                options={roleOptions}
-                className="react-select"
-                classNamePrefix="select"
-                theme={selectThemeColors}
-                onChange={(data) => {
-                  setCurrentRole(data);
+          <UncontrolledDropdown>
+            <DropdownToggle tag="span">
+              <MoreVertical size={17} className="cursor-pointer" />
+            </DropdownToggle>
+            <DropdownMenu end>
+              <DropdownItem
+                tag="a"
+                href="/"
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCenteredModal(!centeredModal);
                 }}
-              />
-              <div className="form-check form-switch mt-2">
-                <Input
-                  type="switch"
-                  name="access"
-                  id="access"
-                  onChange={(event) => setCurrentAccess(event.target.checked)}
-                />
-                <Label for="access" className="form-check-label">
-                  {t("RemoveAccess")} / {t("AddAccess")}
-                </Label>
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                color="primary"
-                onClick={() =>
-                  currentRole.value == ""
-                    ? null
-                    : accessUserMutate({
-                        currentAccess,
-                        body: { roleId: currentRole.value, userId: row.id },
-                      })
-                }
               >
-                {t("SaveChanges")}
-              </Button>
-            </ModalFooter>
-          </Modal>
+                <AlignJustify size={14} className="me-50" />
+                <span className="align-middle">ویرایش</span>
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
+                href="/"
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCenteredModal(!centeredModal);
+                }}
+              >
+                <AlignJustify size={14} className="me-50" />
+                <span className="align-middle">ویرایش</span>
+              </DropdownItem>
+              {/* <Modal
+                unmountOnClose={true}
+                isOpen={centeredModal}
+                toggle={() => setCenteredModal(!centeredModal)}
+                className="modal-dialog-centered"
+                style={{ fontFamily: "IRANYekanXFaNum" }}
+              >
+                <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
+                  {t("CourseStatus")}
+                </ModalHeader>
+                <ModalBody>
+                  <Label for="role-select">{t("CourseStatusId")}</Label>
+                  <Select
+                    isClearable={false}
+                    value={currentRole}
+                    // defaultValue={{
+                    //   value: row.statusId,
+                    //   label: fundedStatus?.statusName,
+                    // }}
+                    options={roleOptions}
+                    className="react-select"
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    onChange={(data) => {
+                      setCurrentRole(data);
+                    }}
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color="primary"
+                    onClick={() => {
+                      const values = {
+                        CourseId: row.courseId,
+                        StatusId: currentRole.value,
+                      };
+                      const formData = formDataConverter(values);
+                      currentRole.value == ""
+                        ? null
+                        : updateStatusCourseMutate(formData);
+                    }}
+                  >
+                    {t("ApplyStatus")}
+                  </Button>
+                </ModalFooter>
+              </Modal> */}
+            </DropdownMenu>
+          </UncontrolledDropdown>
         </div>
       );
     },
