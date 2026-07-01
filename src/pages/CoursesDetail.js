@@ -7,6 +7,8 @@ import {
   useGetCourseReserve,
   useGetCourseSocialMedias,
   useGetCourseAssistance,
+  useGetAssistanceWork,
+  useGetStatus,
 } from "../core/services/api/CourseList/courseList.service";
 import { useState, useMemo } from "react";
 import Spinner from "@components/spinner/Fallback-spinner";
@@ -20,12 +22,16 @@ import GroupsList from "../components/courses/courseDetail/courseGroup/Table";
 import PaymentList from "../components/courses/courseDetail/coursePayments/Table";
 import SocialGroupList from "../components/courses/courseDetail/courseSocialGroups/Table";
 import MentorList from "../components/courses/courseDetail/courseMentors/Table";
+import MentorWorksList from "../components/courses/courseDetail/courseMentorWorks/Table";
 import { useGetUserList } from "../core/services/api/Users/users.service";
+import { useGetTechnology } from "../core/services/api/TechnologyManagement/Technology.service";
 
 const CoursesDetail = () => {
   const { courseId } = useParams();
   const [activeTab, setActiveTab] = useState("1");
 
+  const { isLoading: statusLoading } = useGetStatus();
+  const { isLoading: categoryLoading } = useGetTechnology();
   const { isLoading, data: courseDetail } = useGetCourseDetail(courseId);
   const { isLoading: usersLoading } = useGetUserList({ RowsOfPage: 1000 });
 
@@ -52,6 +58,9 @@ const CoursesDetail = () => {
   const { isLoading: courseMentorsLoading, data: courseMentors } =
     useGetCourseAssistance();
 
+  const { isLoading: assistanceWorkLoading, data: assistanceWork } =
+    useGetAssistanceWork();
+
   const reserveCourseWithGroup = courseReserves?.data?.map((value) => ({
     ...value,
     groupId: courseGroup?.data,
@@ -67,7 +76,7 @@ const CoursesDetail = () => {
       courseComments?.data?.comments?.filter(
         (value) => value.courseId == courseId,
       ),
-    [courseComments],
+    [courseComments, courseId],
   );
 
   const toggleTab = (tab) => {
@@ -80,15 +89,18 @@ const CoursesDetail = () => {
     courseGroupLoading ||
     courseSocialGroupLoading ||
     courseMentorsLoading ||
-    usersLoading ? (
+    assistanceWorkLoading ||
+    usersLoading ||
+    statusLoading ||
+    categoryLoading ? (
     <Spinner />
   ) : (
     <div className="invoice-preview-wrapper">
       <Row className="invoice-preview">
-        <Col xl={4} sm={12}>
+        <Col xl={3} sm={12}>
           <PreviewCard courseDetail={courseDetail?.data} />
         </Col>
-        <Col xl={8} sm={12}>
+        <Col xl={9} sm={12}>
           <CourseDetailTabs
             className="mb-2"
             activeTab={activeTab}
@@ -138,6 +150,16 @@ const CoursesDetail = () => {
             <TabPane tabId="7">
               <div className="app-user-list">
                 <MentorList data={courseMentors?.data} />
+              </div>
+            </TabPane>
+          </TabContent>
+          <TabContent activeTab={activeTab}>
+            <TabPane tabId="8">
+              <div className="app-user-list">
+                <MentorWorksList
+                  data={assistanceWork?.data}
+                  mentors={courseMentors?.data}
+                />
               </div>
             </TabPane>
           </TabContent>

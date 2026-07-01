@@ -66,3 +66,9 @@ export const addCourseAssistance = (body) =>
   postParams("CourseAssistance", body);
 export const updateCourseAssistance = (body) =>
   putParams("CourseAssistance", body);
+
+export const useGetAssistanceWork = () =>
+  useGetQuery("AssistanceWork", "AssistanceWork");
+
+export const addAssistanceWork = (body) => postParams("AssistanceWork", body);
+export const updateAssistanceWork = (body) => putParams("AssistanceWork", body);

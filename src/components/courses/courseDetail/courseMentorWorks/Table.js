@@ -1,14 +1,17 @@
 import { Fragment, useState, useEffect, useMemo } from "react";
-import { columns } from "./Columns";
+import { buildColumns } from "./Columns";
 import debounce from "debounce";
 import ReactPaginate from "react-paginate";
 import DataTable from "react-data-table-component";
-import { Row, Col, Card, Input } from "reactstrap";
+import { Row, Col, Card, Input, Button } from "reactstrap";
 import "@styles/react/libs/react-select/_react-select.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import SidebarNewWork from "./SideBar";
 
 const CustomHeader = ({
+  toggleSidebar,
   handlePerPage,
   rowsPerPage,
   handleFilter,
@@ -38,19 +41,28 @@ const CustomHeader = ({
         </Col>
         <Col
           xl="6"
-          className="d-flex align-items-sm-center justify-content-xl-end justify-content-start flex-xl-nowrap flex-wrap flex-sm-row flex-column pe-xl-1 p-0 mt-xl-0 mt-1"
+          className="d-flex align-items-sm-center justify-content-xl-end justify-content-start gap-1 flex-xl-nowrap flex-wrap flex-sm-row flex-column pe-xl-1 p-0 mt-xl-0 mt-1"
         >
           <div className="d-flex align-items-center">
-            <label className="mb-0" htmlFor="search-invoice">
+            <label className="mb-0" htmlFor="search-work">
               {t("Search")}
             </label>
             <Input
-              id="search-invoice"
+              id="search-work"
               className="ms-50 w-100"
               type="text"
               value={searchTerm}
               onChange={(e) => handleFilter(e.target.value)}
             />
+          </div>
+          <div className="d-flex align-items-center table-header-actions">
+            <Button
+              className="add-new-user"
+              color="primary"
+              onClick={toggleSidebar}
+            >
+              {t("AddWork")}
+            </Button>
           </div>
         </Col>
       </Row>
@@ -58,34 +70,38 @@ const CustomHeader = ({
   );
 };
 
-const PaymentList = ({ data }) => {
+const MentorWorksList = ({ data, mentors }) => {
+  const { courseId } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [debounceSearch, setDebounceSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const mergedData = useMemo(() => {
-    if (!data?.courseStudent) return [];
-    return data.courseStudent.map((student) => {
-      const payment = data.payments?.find(
-        (p) => p.studentId === student.studentId,
-      );
-      return {
-        ...student,
-        payment: payment ?? null,
-      };
-    });
-  }, [data]);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const courseMentors = useMemo(
+    () => (mentors ?? []).filter((m) => m.courseId === courseId),
+    [mentors, courseId],
+  );
+
+  const joinedData = useMemo(() => {
+    if (!data) return [];
+    return data
+      .filter((w) => courseMentors.some((m) => m.id === w.assistanceId))
+      .map((w) => ({
+        ...w,
+        mentorName: courseMentors.find((m) => m.id === w.assistanceId)
+          ?.assistanceName,
+      }));
+  }, [data, courseMentors]);
 
   const displayData = useMemo(() => {
-    if (!mergedData) return [];
-    if (debounceSearch.trim() === "") return mergedData;
-    return mergedData.filter((value) =>
-      `${value.user?.fName} ${value.user?.lName}`
-        .toLowerCase()
-        .includes(debounceSearch.toLowerCase()),
+    if (debounceSearch.trim() === "") return joinedData;
+    return joinedData.filter((value) =>
+      value.worktitle.toLowerCase().includes(debounceSearch.toLowerCase()),
     );
-  }, [debounceSearch, mergedData]);
+  }, [debounceSearch, joinedData]);
 
   const count = Number(Math.ceil(displayData?.length / rowsPerPage));
 
@@ -95,7 +111,6 @@ const PaymentList = ({ data }) => {
   }, [displayData, currentPage, rowsPerPage]);
 
   const handlePagination = (page) => setCurrentPage(page.selected + 1);
-
   const handlePerPage = (e) => setRowsPerPage(parseInt(e.currentTarget.value));
 
   const handleFilter = (val) => {
@@ -103,13 +118,16 @@ const PaymentList = ({ data }) => {
     handleSearch(val);
   };
 
-  const handleSearch = debounce((value) => {
-    setDebounceSearch(value.trim());
-  }, 1000);
+  const handleSearch = debounce(
+    (value) => setDebounceSearch(value.trim()),
+    1000,
+  );
 
   useEffect(() => {
     if (currentPage > count) setCurrentPage(count || 1);
   }, [count]);
+
+  const columns = useMemo(() => buildColumns(courseMentors), [courseMentors]);
 
   const CustomPagination = () => (
     <ReactPaginate
@@ -147,6 +165,7 @@ const PaymentList = ({ data }) => {
             data={currentPageData}
             subHeaderComponent={
               <CustomHeader
+                toggleSidebar={toggleSidebar}
                 searchTerm={searchTerm}
                 rowsPerPage={rowsPerPage}
                 handleFilter={handleFilter}
@@ -156,8 +175,13 @@ const PaymentList = ({ data }) => {
           />
         </div>
       </Card>
+      <SidebarNewWork
+        open={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+        mentors={courseMentors}
+      />
     </Fragment>
   );
 };
 
-export default PaymentList;
+export default MentorWorksList;

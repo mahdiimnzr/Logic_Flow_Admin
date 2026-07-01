@@ -1,4 +1,3 @@
-// useGetQuery.js
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../interceptor/interceptor.service";
 

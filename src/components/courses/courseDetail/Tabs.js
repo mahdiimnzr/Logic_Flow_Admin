@@ -1,16 +1,15 @@
 import { Nav, NavItem, NavLink } from "reactstrap";
 import {
   Menu,
-  Bell,
   Book,
   Send,
   Package,
   CreditCard,
   Users,
   UserCheck,
+  Briefcase,
 } from "react-feather";
 import { useTranslation } from "react-i18next";
-
 const CourseDetailTabs = ({ activeTab, toggleTab }) => {
   const { t } = useTranslation();
   return (
@@ -57,8 +56,13 @@ const CourseDetailTabs = ({ activeTab, toggleTab }) => {
           <span className="fw-bold">{t("Mentors")}</span>
         </NavLink>
       </NavItem>
+      <NavItem>
+        <NavLink active={activeTab === "8"} onClick={() => toggleTab("8")}>
+          <Briefcase size={18} className="me-50" />
+          <span className="fw-bold">{t("MentorWorks")}</span>
+        </NavLink>
+      </NavItem>
     </Nav>
   );
 };
-
 export default CourseDetailTabs;

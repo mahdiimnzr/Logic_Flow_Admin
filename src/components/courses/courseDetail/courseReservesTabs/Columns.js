@@ -1,7 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import Select from "react-select";
 import { selectThemeColors } from "@utils";
-import { Eye } from "react-feather";
 import {
   Badge,
   Button,
@@ -16,7 +15,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { acceptCourseReserve } from "../../../../core/services/api/Users/users.service";
-import formatPrice from "../../../../core/utils/formatPrice";
 import ImageFallback from "../../../common/ImageFallback";
 import courseImage from "../../../../assets/images/coursePng.png";
 
@@ -28,25 +26,22 @@ export const columns = [
     maxWidth: "300px",
     sortField: "studentName",
     selector: (row) => row.studentName,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex align-items-center gap-1 text-truncate">
-          <ImageFallback
-            className="me-1"
-            style={{ borderRadius: "100%", width: "32px", height: "32px" }}
-            fallback={courseImage}
-            src={row.studentphoto}
-          />
-          <Link
-            to={`/Users/Detail/${row.studentId}`}
-            className="user_name text-truncate text-body"
-          >
-            <span className="fw-bolder">{row.studentName}</span>
-          </Link>
-        </div>
-      );
-    },
+    cell: (row) => (
+      <div className="d-flex align-items-center gap-1 text-truncate">
+        <ImageFallback
+          className="me-1"
+          style={{ borderRadius: "100%", width: "32px", height: "32px" }}
+          fallback={courseImage}
+          src={row.studentphoto}
+        />
+        <Link
+          to={`/Users/Detail/${row.studentId}`}
+          className="user_name text-truncate text-body"
+        >
+          <span className="fw-bolder">{row.studentName}</span>
+        </Link>
+      </div>
+    ),
   },
   {
     name: "Student Email",
@@ -55,14 +50,11 @@ export const columns = [
     maxWidth: "300px",
     sortField: "studentEmail",
     selector: (row) => row.studentEmail,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex flex-column">
-          <span className="fw-bolder">{row.studentEmail}</span>
-        </div>
-      );
-    },
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <span className="fw-bolder">{row.studentEmail}</span>
+      </div>
+    ),
   },
   {
     name: "ReserveStatus",
@@ -118,6 +110,9 @@ export const columns = [
             toast.success(response.data.message, { id: context.toastId });
             queryClient.invalidateQueries({
               queryKey: [`CourseReserve-${courseId}`],
+            });
+            queryClient.invalidateQueries({
+              queryKey: [`CourseDetail-${courseId}`],
             });
             setCenteredModal(false);
           } else {

@@ -143,7 +143,7 @@ export const columns = [
 
       const rolesList = row?.groupId?.map((value) => ({
         value: value.groupId,
-        label: value.groupName,
+        label: value.groupName + ` (ظرفیت دوره :${value.groupCapacity})`,
       }));
 
       const { mutate: acceptReserveMutate } = useMutation({

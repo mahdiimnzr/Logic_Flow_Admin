@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Sidebar from "@components/sidebar";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Label, Form, Input } from "reactstrap";
+import { Button, Label, Form, Input, InputGroup } from "reactstrap";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useTranslation } from "react-i18next";
@@ -10,11 +10,13 @@ import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { addCourseGroup } from "../../../../core/services/api/CourseList/courseList.service";
 import formDataConverter from "../../../../core/utils/formDataConvertor";
+import Cleave from "cleave.js/react";
 
 const SidebarNewGroup = ({ open, toggleSidebar }) => {
   const { t } = useTranslation();
   const { courseId } = useParams();
   const queryClient = useQueryClient();
+  const options = { numeral: true, numeralThousandsGroupStyle: "thousand" };
 
   const defaultValues = {
     CourseId: courseId,
@@ -105,23 +107,29 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
         </div>
         <div className="mb-1">
           <Label className="form-label" for="GroupCapacity">
-            {t("CourseGroupCapacity")} <span className="text-danger">*</span>
+            {t("CourseGroupCapacity")}
           </Label>
           <Controller
             name="GroupCapacity"
             control={control}
             render={({ field }) => (
               <>
-                <Input
-                  id="GroupCapacity"
-                  placeholder={t("CourseGroupCapacityPlaceholder")}
-                  invalid={!!errors.GroupCapacity}
-                  {...field}
-                />
+                <InputGroup className="input-group-merge">
+                  <Cleave
+                    className={`form-control ${
+                      errors.GroupCapacity ? "is-invalid" : ""
+                    }`}
+                    placeholder={t("CourseGroupCapacity")}
+                    options={options}
+                    id="GroupCapacity"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.rawValue)}
+                  />
+                </InputGroup>
                 {errors.GroupCapacity && (
-                  <span className="text-danger" style={{ fontSize: "12px" }}>
+                  <div className="invalid-feedback d-block">
                     {t(errors.GroupCapacity.message)}
-                  </span>
+                  </div>
                 )}
               </>
             )}
