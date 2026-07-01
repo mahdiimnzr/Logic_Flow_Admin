@@ -2,12 +2,22 @@ import { lazy } from "react"
 
 import React from 'react'
 
-import BlogsList from "../../pages/BlogsList"
+const BlogsList = lazy(() => import("../../pages/BlogsList"))
+const BlogAdd = lazy(() => import("../../pages/BlogAdd"))
+
 
 const BlogsRoute = [
     {
-        path:"/blogs/list",
+        path: "/blogs/list",
         element: <BlogsList />,
+    },
+    {
+        path: "/blogs/add",
+        element: <BlogAdd />,
+    },
+    {
+        path: "/blogs/edit/:id",
+        element: <BlogAdd />,
     },
 ]
 

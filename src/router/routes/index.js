@@ -50,7 +50,6 @@ const Routes = [
   ...CommentsRoute,
   ...BlogsRoute,
   ...ManagementCoursesRoute,
-
   {
     path: "/error",
     element: <Error />,

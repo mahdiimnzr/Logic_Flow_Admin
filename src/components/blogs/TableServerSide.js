@@ -40,7 +40,7 @@ const DataTableServerSide = ({ statusFilter }) => {
     ],
     queryFn: () =>
       getAdminBlogsList({
-        PageNumber: currentPage,
+        pageNumber: currentPage,
         RowsOfPage: rowsPerPage,
         Query: searchValue,
         IsActive: statusFilter,
@@ -116,7 +116,6 @@ const DataTableServerSide = ({ statusFilter }) => {
                 onChange={(e) => handlePerPage(e)}
                 style={{ width: "5rem" }}
               >
-                <option value={7}>7</option>
                 <option value={10}>10</option>
                 <option value={25}>25</option>
                 <option value={50}>50</option>
