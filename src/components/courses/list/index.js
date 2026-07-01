@@ -1,29 +1,16 @@
-// ** React Imports
 import { Link } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
-
-// ** Table Columns
+import { useState, useMemo } from "react";
 import { columns } from "./columns";
-
-// ** Third Party Components
 import ReactPaginate from "react-paginate";
 import { ChevronDown } from "react-feather";
 import DataTable from "react-data-table-component";
-import Select from "react-select";
-
-// ** Reactstrap Imports
 import { Button, Input, Row, Col, Card } from "reactstrap";
-
-// ** Store & Actions
-// import { getData } from '../store'
-// import { useDispatch, useSelector } from 'react-redux'
-
-// ** Styles
 import "@styles/react/apps/app-invoice.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
 import { useDispatch } from "react-redux";
 import debounce from "debounce";
 import { updateCourseListParams } from "../../../redux/actions";
+import { useTranslation } from "react-i18next";
 
 const CustomHeader = ({
   handleFilter,
@@ -32,29 +19,14 @@ const CustomHeader = ({
   statusValue,
   handlePerPage,
   rowsPerPage,
-  Label,
 }) => {
-  // const [currentRole, setCurrentRole] = useState({
-  //   value: "",
-  //   label: t("RolesSelection"),
-  // });
-
-  // // ** course filter options
-  // const rolesList = usersList?.roles?.map((value) => {
-  //   const roles = { value: value.id, label: value.name };
-  //   return roles;
-  // });
-
-  // const roleOptions = [
-  //   { value: null, label: t("RolesSelection"), number: 0 },
-  //   ...(rolesList ?? {}),
-  // ];
+  const { t } = useTranslation();
   return (
     <div className="invoice-list-table-header w-100 py-2">
       <Row>
         <Col lg="6" className="d-flex align-items-center ">
           <div className="d-flex align-items-center me-2">
-            <label htmlFor="rows-per-page">Show</label>
+            <label htmlFor="rows-per-page">{t("RowsPerPage")}</label>
             <Input
               type="select"
               id="rows-per-page"
@@ -67,8 +39,8 @@ const CustomHeader = ({
               <option value="50">50</option>
             </Input>
           </div>
-          <Button tag={Link} to="/apps/invoice/add" color="primary">
-            Add Record
+          <Button tag={Link} to="/Courses/Add" color="primary">
+            {t("CreateNewCourse")}
           </Button>
         </Col>
         <Col
@@ -76,16 +48,14 @@ const CustomHeader = ({
           className="actions-right d-flex gap-1 align-items-center justify-content-lg-end flex-lg-nowrap flex-wrap mt-lg-0 mt-1 pe-lg-1 p-0"
         >
           <div className="d-flex align-items-center">
-            <label htmlFor="search-invoice">جستجو</label>
+            <label htmlFor="search-invoice">{t("Search")}</label>
             <Input
               id="search-invoice"
               className="ms-50 me-2 w-100"
               type="text"
               value={value}
-              onChange={(event) => {
-                handleFilter(event.target.value);
-              }}
-              placeholder="جستجو دوره ها..."
+              onChange={(event) => handleFilter(event.target.value)}
+              placeholder={t("SearchCourses")}
             />
           </div>
           <Input
@@ -94,36 +64,19 @@ const CustomHeader = ({
             value={statusValue}
             onChange={handleStatusValue}
           >
-            <option value={null}>انتخاب کنید</option>
-            <option value="costUp"> گران ترین</option>
-            <option value="costDown"> ارزان ترین</option>
+            <option value={null}>{t("SelectOption")}</option>
+            <option value="costUp">{t("MostExpensive")}</option>
+            <option value="costDown">{t("Cheapest")}</option>
           </Input>
         </Col>
-        {/* <Col md="4">
-          <Label for="role-select">{t("Roles")}</Label>
-          <Select
-            isClearable={false}
-            value={currentRole}
-            options={roleOptions}
-            className="react-select"
-            classNamePrefix="select"
-            theme={selectThemeColors}
-            onChange={(data) => {
-              setCurrentRole(data);
-              dispatch(updateParams({ key: "roleId", value: data.value }));
-            }}
-          />
-        </Col> */}
       </Row>
     </div>
   );
 };
 
 const InvoiceList = ({ courseList }) => {
-  // ** Redux
   const dispatch = useDispatch();
 
-  // ** States
   const [value, setValue] = useState("");
   const [sort, setSort] = useState("desc");
   const [sortColumn, setSortColumn] = useState("id");
@@ -131,10 +84,8 @@ const InvoiceList = ({ courseList }) => {
   const [statusValue, setStatusValue] = useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // ** Page Count
   const count = Number(Math.ceil(courseList?.totalCount / rowsPerPage));
 
-  // ** Handle Search
   const handleSearch = useMemo(
     () =>
       debounce((value) => {
@@ -143,12 +94,12 @@ const InvoiceList = ({ courseList }) => {
       }, 1000),
     [dispatch],
   );
+
   const handleFilter = (val) => {
     setValue(val);
     handleSearch(val);
   };
 
-  // ** Function in get data on rows per page
   const handlePerPage = (e) => {
     const value = parseInt(e.currentTarget.value);
     dispatch(
@@ -176,13 +127,13 @@ const InvoiceList = ({ courseList }) => {
     setStatusValue(e.target.value);
   };
 
-  // ** Function in get data on page change
   const handlePagination = (page) => {
     dispatch(
       updateCourseListParams({ key: "PageNumber", value: page.selected + 1 }),
     );
     setCurrentPage(page.selected + 1);
   };
+
   const CustomPagination = () => {
     return (
       <ReactPaginate
@@ -206,38 +157,9 @@ const InvoiceList = ({ courseList }) => {
     );
   };
 
-  const dataToRender = () => {
-    const filters = {
-      q: value,
-      status: statusValue,
-    };
-
-    const isFiltered = Object.keys(filters).some(function (k) {
-      return filters[k].length > 0;
-    });
-
-    // if (store.data.length > 0) {
-    //   return store.data
-    // } else if (store.data.length === 0 && isFiltered) {
-    //   return []
-    // } else {
-    //   return store.allData.slice(0, rowsPerPage)
-    // }
-  };
-
   const handleSort = (column, sortDirection) => {
     setSort(sortDirection);
     setSortColumn(column.sortField);
-    // dispatch(
-    //   getData({
-    //     q: value,
-    //     page: currentPage,
-    //     sort: sortDirection,
-    //     status: statusValue,
-    //     perPage: rowsPerPage,
-    //     sortColumn: column.sortField
-    //   })
-    // )
   };
 
   return (

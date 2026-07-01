@@ -1,263 +1,458 @@
-// ** Reactstrap Imports
-import { Card, CardBody, CardText, Row, Col, Table } from "reactstrap";
+import { useState } from "react";
+import Select from "react-select";
+import {
+  Card,
+  CardBody,
+  CardText,
+  Row,
+  Col,
+  Badge,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Label,
+} from "reactstrap";
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { selectThemeColors } from "@utils";
+import { Users, Calendar, Tag, Star } from "react-feather";
+import makeAnimated from "react-select/animated";
+const animatedComponents = makeAnimated();
+const orderOptions = (values) => {
+  if (values.length > 0)
+    return values
+      .filter((v) => v.isFixed)
+      .concat(values.filter((v) => !v.isFixed));
+};
+const styles = {
+  multiValue: (base, state) => {
+    return state.data.isFixed ? { ...base, opacity: "0.5" } : base;
+  },
+  multiValueLabel: (base, state) => {
+    return state.data.isFixed
+      ? { ...base, color: "#626262", paddingRight: 6 }
+      : base;
+  },
+  multiValueRemove: (base, state) => {
+    return state.data.isFixed ? { ...base, display: "none" } : base;
+  },
+};
 import image from "../../../assets/images/coursePng.png";
 import ImageFallback from "../../common/ImageFallback";
-import { ArrowUp, ArrowUpCircle, CornerRightUp, Users } from "react-feather";
 import formatPrice from "../../../core/utils/formatPrice";
 import formatDate from "../../../core/utils/formatDate";
+import {
+  activeCourse,
+  addCourseTechnology,
+  updateCourseStatus,
+} from "../../../core/services/api/CourseList/courseList.service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import formDataConverter from "../../../core/utils/formDataConvertor";
+import { Controller, useForm } from "react-hook-form";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const PreviewCard = ({ courseDetail }) => {
-  console.log(courseDetail);
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { courseId } = useParams();
+
+  const Status = queryClient.getQueryState(["CourseStatus"]);
+  const Category = queryClient.getQueryState(["Technology"]);
+
+  const fundedCategories = (courseDetail?.courseTeches ?? [])
+    .map((tech) => Category?.data?.data.find((value) => value.techName == tech))
+    .filter(Boolean);
+
+  const validationSchema = Yup.object({
+    TechnologyIds: Yup.array()
+      .min(1, t("CourseTechnologyIdRequired"))
+      .required(t("CourseTechnologyIdRequired")),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: { TechnologyIds: [] },
+    resolver: yupResolver(validationSchema),
+  });
+
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+
+  const [selectedCategory, setSelectedCategory] = useState(
+    orderOptions(
+      fundedCategories.map((value) => ({
+        value: value.id,
+        label: value.techName,
+        isFixed: true,
+      })),
+    ),
+  );
+  const [selectedStatus, setSelectedStatus] = useState({
+    value: courseDetail.statusId,
+    label: courseDetail?.statusName,
+  });
+
+  const statusOptions = Status?.data?.data?.map((value) => ({
+    value: value.id,
+    label: value.statusName,
+  }));
+
+  const categoryOptions = Category?.data?.data?.map((value) => ({
+    value: value.id,
+    label: value.techName,
+    isFixed: false,
+  }));
+
+  const toggleCategoryModal = () => setCategoryModalOpen((prev) => !prev);
+  const toggleStatusModal = () => setStatusModalOpen((prev) => !prev);
+
+  const { mutate: activeCourseMutate } = useMutation({
+    mutationFn: activeCourse,
+    onMutate: () => {
+      const toastId = toast.loading(t("Loading"));
+      return { toastId };
+    },
+    onSuccess: (response, _, context) => {
+      if (response?.data?.success === true) {
+        toast.success(response?.data?.message, { id: context.toastId });
+        queryClient.invalidateQueries({
+          queryKey: [`CourseDetail-${courseId}`],
+        });
+      } else {
+        toast.error(response?.data?.message, { id: context.toastId });
+      }
+    },
+    onError: (response, _, context) => {
+      toast.error(response?.data?.message, { id: context.toastId });
+    },
+  });
+
+  const { mutate: updateStatusCourseMutate } = useMutation({
+    mutationFn: updateCourseStatus,
+    onMutate: () => {
+      const toastId = toast.loading(t("Loading"));
+      return { toastId };
+    },
+    onSuccess: (response, _, context) => {
+      if (response?.data?.success === true) {
+        toast.success(response?.data?.message, { id: context.toastId });
+        queryClient.invalidateQueries({
+          queryKey: [`CourseDetail-${courseId}`],
+        });
+        toggleStatusModal();
+      } else {
+        toast.error(response?.data?.message, { id: context.toastId });
+      }
+    },
+    onError: (response, _, context) => {
+      toast.error(response?.data?.message, { id: context.toastId });
+    },
+  });
+
+  const { mutate: addTechnologies } = useMutation({
+    mutationFn: addCourseTechnology,
+    onMutate: () => {
+      const toastId = toast.loading(t("Loading"));
+      return { toastId };
+    },
+    onSuccess: (response, _, context) => {
+      if (response.data.success) {
+        toast.success(response?.data?.message, { id: context.toastId });
+        queryClient.invalidateQueries({
+          queryKey: [`CourseDetail-${courseId}`],
+        });
+        setSelectedCategory((prev) =>
+          prev.map((value) => ({ ...value, isFixed: true })),
+        );
+        toggleCategoryModal();
+      } else {
+        toast.error(response?.data?.message, { id: context.toastId });
+      }
+    },
+    onError: (response, _, context) => {
+      toast.error(response?.data?.message ?? t("ErrorOccurred"), {
+        id: context.toastId,
+      });
+    },
+  });
+
+  const fixedOnChange = (value, { action, removedValue }) => {
+    switch (action) {
+      case "remove-value":
+      case "pop-value":
+        if (removedValue.isFixed) return;
+        break;
+      case "clear":
+        value = categoryOptions.filter((v) => v.isFixed);
+        break;
+      default:
+        break;
+    }
+
+    value = orderOptions(value);
+    setSelectedCategory(value);
+    const newTechnologies = value
+      .filter((item) => !item.isFixed)
+      .map((item) => ({ techId: item.value }));
+    setValue("TechnologyIds", newTechnologies);
+  };
+
+  const onSubmit = (data) => {
+    addTechnologies({ courseId, body: data.TechnologyIds });
+  };
+
+  const handleToggleActive = () => {
+    activeCourseMutate({
+      active: courseDetail.active === true ? false : true,
+      id: courseId,
+    });
+  };
+
   return (
-    <Card className="invoice-preview-card">
-      <CardBody className="invoice-padding pb-0">
-        {/* Header */}
-        <div className="d-flex justify-content-center gap-5 flex-column invoice-spacing ">
-          {/* <div>
-            <div className="logo-wrapper">
-             
-              <svg viewBox="0 0 139 95" version="1.1" height="24">
-                <defs>
-                  <linearGradient
-                    id="invoice-linearGradient-1"
-                    x1="100%"
-                    y1="10.5120544%"
-                    x2="50%"
-                    y2="89.4879456%"
-                  >
-                    <stop stopColor="#000000" offset="0%"></stop>
-                    <stop stopColor="#FFFFFF" offset="100%"></stop>
-                  </linearGradient>
-                  <linearGradient
-                    id="invoice-linearGradient-2"
-                    x1="64.0437835%"
-                    y1="46.3276743%"
-                    x2="37.373316%"
-                    y2="100%"
-                  >
-                    <stop
-                      stopColor="#EEEEEE"
-                      stopOpacity="0"
-                      offset="0%"
-                    ></stop>
-                    <stop stopColor="#FFFFFF" offset="100%"></stop>
-                  </linearGradient>
-                </defs>
-                <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                  <g transform="translate(-400.000000, -178.000000)">
-                    <g transform="translate(400.000000, 178.000000)">
-                      <path
-                        className="text-primary"
-                        d="M-5.68434189e-14,2.84217094e-14 L39.1816085,2.84217094e-14 L69.3453773,32.2519224 L101.428699,2.84217094e-14 L138.784583,2.84217094e-14 L138.784199,29.8015838 C137.958931,37.3510206 135.784352,42.5567762 132.260463,45.4188507 C128.736573,48.2809251 112.33867,64.5239941 83.0667527,94.1480575 L56.2750821,94.1480575 L6.71554594,44.4188507 C2.46876683,39.9813776 0.345377275,35.1089553 0.345377275,29.8015838 C0.345377275,24.4942122 0.230251516,14.560351 -5.68434189e-14,2.84217094e-14 Z"
-                        style={{ fill: "currentColor" }}
-                      ></path>
-                      <path
-                        d="M69.3453773,32.2519224 L101.428699,1.42108547e-14 L138.784583,1.42108547e-14 L138.784199,29.8015838 C137.958931,37.3510206 135.784352,42.5567762 132.260463,45.4188507 C128.736573,48.2809251 112.33867,64.5239941 83.0667527,94.1480575 L56.2750821,94.1480575 L32.8435758,70.5039241 L69.3453773,32.2519224 Z"
-                        fill="url(#invoice-linearGradient-1)"
-                        opacity="0.2"
-                      ></path>
-                      <polygon
-                        fill="#000000"
-                        opacity="0.049999997"
-                        points="69.3922914 32.4202615 32.8435758 70.5039241 54.0490008 16.1851325"
-                      ></polygon>
-                      <polygon
-                        fill="#000000"
-                        opacity="0.099999994"
-                        points="69.3922914 32.4202615 32.8435758 70.5039241 58.3683556 20.7402338"
-                      ></polygon>
-                      <polygon
-                        fill="url(#invoice-linearGradient-2)"
-                        opacity="0.099999994"
-                        points="101.428699 0 83.0667527 94.1480575 130.378721 47.0740288"
-                      ></polygon>
-                    </g>
-                  </g>
-                </g>
-              </svg>
-              <h3 className="text-primary invoice-logo">Vuexy</h3>
-            </div>
-            <CardText className="mb-25">
-              Office 149, 450 South Brand Brooklyn
-            </CardText>
-            <CardText className="mb-25">
-              San Diego County, CA 91905, USA
-            </CardText>
-            <CardText className="mb-0">
-              +1 (123) 456 7891, +44 (876) 543 2198
-            </CardText>
-          </div> */}
+    <>
+      <Card className="invoice-preview-card overflow-hidden">
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "190px",
+            background:
+              "linear-gradient(180deg, rgba(20,20,30,0) 40%, rgba(20,20,30,0.55) 100%)",
+          }}
+        >
           <ImageFallback
             src={courseDetail?.imageAddress}
             fallback={image}
-            style={{
-              width: "350px",
-              height: "200px",
-              margin: "auto",
-            }}
+            style={{ width: "100%", height: "190px", objectFit: "cover" }}
           />
-          <div className="mt-md-0 mt-2">
-            <div className="invoice-date-wrapper">
-              <Users size={20} className="cursor-pointer mx-1" />
-              <p className="invoice-date-title">تعداد گروه ها:</p>
-              <p className="invoice-date">{courseDetail?.courseGroupTotal}</p>
-            </div>
-            <div className="invoice-date-wrapper">
-              <ArrowUpCircle size={20} className="cursor-pointer mx-1" />
-              <p className="invoice-date-title">تعداد کامنت ها:</p>
-              <p className="invoice-date">{courseDetail?.courseCommentTotal}</p>
-            </div>
-          </div>
-        </div>
-      </CardBody>
-      <hr className="invoice-spacing" />
-      <h2 className="p-1">جزیات</h2>
-      <CardBody className="invoice-padding pt-0">
-        <Row className="invoice-spacing">
-          <Col className="p-0" xl="7">
-            <div className="invoice-date-wrapper d-flex align-items-center">
-              <CardText className="mb-25">نام اساتید:</CardText>
-              <p className="invoice-date">{courseDetail?.teacherName}</p>
-            </div>
-            <div className="invoice-date-wrapper d-flex align-items-center">
-              <CardText className="mb-25">نام دوره:</CardText>
-              <p className="invoice-date">{courseDetail?.title}</p>
-            </div>
-            <div className="invoice-date-wrapper d-flex align-items-center">
-              <CardText className="mb-25">نوع دوره :</CardText>
-              <p className="invoice-date">{courseDetail?.statusName}</p>
-            </div>
-            <div className="invoice-date-wrapper d-flex align-items-center">
-              <CardText className="mb-25"> وضعیت دوره :</CardText>
-              <p className="invoice-date">
-                {courseDetail?.active == true ? "فعال" : "غیر فعال"}
-              </p>
-            </div>
-            <div className="invoice-date-wrapper d-flex align-items-center">
-              <CardText className="mb-25">قیمت :</CardText>
-              <p className="invoice-date">{formatPrice(courseDetail?.cost)}</p>
-            </div>
-            <div className="invoice-date-wrapper d-flex align-items-center">
-              <CardText className="mb-25">شروع دوره</CardText>
-              <p className="invoice-date">
-                {formatDate(courseDetail?.startTime)}
-              </p>
-            </div>
-            <div className="invoice-date-wrapper d-flex align-items-center">
-              <CardText className="mb-25">شروع دوره</CardText>
-              <p className="invoice-date">
-                {formatDate(courseDetail?.endTime)}
-              </p>
-            </div>
-          </Col>
-        </Row>
-      </CardBody>
-      {/* /Address and Contact */}
-
-      {/* Invoice Description */}
-      {/* <Table responsive>
-        <thead>
-          <tr>
-            <th className="py-1">Task description</th>
-            <th className="py-1">Rate</th>
-            <th className="py-1">Hours</th>
-            <th className="py-1">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="py-1">
-              <p className="card-text fw-bold mb-25">Native App Development</p>
-              <p className="card-text text-nowrap">
-                Developed a full stack native app using React Native, Bootstrap
-                & Python
-              </p>
-            </td>
-            <td className="py-1">
-              <span className="fw-bold">$60.00</span>
-            </td>
-            <td className="py-1">
-              <span className="fw-bold">30</span>
-            </td>
-            <td className="py-1">
-              <span className="fw-bold">$1,800.00</span>
-            </td>
-          </tr>
-          <tr className="border-bottom">
-            <td className="py-1">
-              <p className="card-text fw-bold mb-25">Ui Kit Design</p>
-              <p className="card-text text-nowrap">
-                Designed a UI kit for native app using Sketch, Figma & Adobe XD
-              </p>
-            </td>
-            <td className="py-1">
-              <span className="fw-bold">$60.00</span>
-            </td>
-            <td className="py-1">
-              <span className="fw-bold">20</span>
-            </td>
-            <td className="py-1">
-              <span className="fw-bold">$1200.00</span>
-            </td>
-          </tr>
-        </tbody>
-      </Table> */}
-      {/* /Invoice Description */}
-
-      {/* Total & Sales Person */}
-      {/* <CardBody className="invoice-padding pb-0">
-        <Row className="invoice-sales-total-wrapper">
-          <Col className="mt-md-0 mt-3" md="6" order={{ md: 1, lg: 2 }}>
-            <CardText className="mb-0">
-              <span className="fw-bold">Salesperson:</span>{" "}
-              <span className="ms-75">Alfie Solomons</span>
-            </CardText>
-          </Col>
-          <Col
-            className="d-flex justify-content-end"
-            md="6"
-            order={{ md: 2, lg: 1 }}
+          <Badge
+            color={courseDetail?.active ? "success" : "secondary"}
+            pill
+            className="px-2 py-50"
+            style={{
+              position: "absolute",
+              top: "12px",
+              insetInlineStart: "12px",
+              fontSize: "0.75rem",
+            }}
           >
-            <div className="invoice-total-wrapper">
-              <div className="invoice-total-item">
-                <p className="invoice-total-title">Subtotal:</p>
-                <p className="invoice-total-amount">$1800</p>
+            {courseDetail?.active ? t("Active") : t("DeActive")}
+          </Badge>
+        </div>
+        <CardBody className="invoice-padding pb-1 pt-2">
+          <h4 className="mb-0 fw-bold">{courseDetail?.title}</h4>
+          <CardText className="text-muted mb-2">
+            {courseDetail?.teacherName}
+          </CardText>
+          <Row className="g-1 mb-2 text-center">
+            <Col xs="6">
+              <div className="border rounded-2 py-1">
+                <Users size={16} className="mb-25" />
+                <div className="small text-muted">{t("CourseGroups")}</div>
+                <div className="fw-bold">
+                  {courseDetail?.courseGroupTotal ?? 0}
+                </div>
               </div>
-              <div className="invoice-total-item">
-                <p className="invoice-total-title">Discount:</p>
-                <p className="invoice-total-amount">$28</p>
+            </Col>
+            <Col xs="6">
+              <div className="border rounded-2 py-1">
+                <Star size={16} className="mb-25" />
+                <div className="small text-muted">{t("Rate")}</div>
+                <div className="fw-bold">{courseDetail?.courseRate ?? 0}</div>
               </div>
-              <div className="invoice-total-item">
-                <p className="invoice-total-title">Tax:</p>
-                <p className="invoice-total-amount">21%</p>
-              </div>
-              <hr className="my-50" />
-              <div className="invoice-total-item">
-                <p className="invoice-total-title">Total:</p>
-                <p className="invoice-total-amount">$1690</p>
-              </div>
-            </div>
-          </Col>
-        </Row>
-      </CardBody> */}
-      {/* /Total & Sales Person */}
-
-      {/* <hr className="invoice-spacing" /> */}
-
-      {/* Invoice Note */}
-      {/* <CardBody className="invoice-padding pt-0">
-        <Row>
-          <Col sm="12">
-            <span className="fw-bold">Note: </span>
-            <span>
-              It was a pleasure working with you and your team. We hope you will
-              keep us in mind for future freelance projects. Thank You!
+            </Col>
+          </Row>
+        </CardBody>
+        <hr className="my-0" />
+        <CardBody className="invoice-padding py-1">
+          <h6 className="text-uppercase text-muted mb-1 mt-1">{t("Detail")}</h6>
+          <div className="d-flex align-items-center justify-content-between py-50">
+            <span className="text-muted d-flex align-items-center">
+              {t("CourseStatus")}:
             </span>
-          </Col>
-        </Row>
-      </CardBody> */}
-      {/* /Invoice Note */}
-    </Card>
+            <span className="fw-semibold">
+              {courseDetail?.statusName ?? "—"}
+            </span>
+          </div>
+          <div className="d-flex align-items-center justify-content-between py-50">
+            <span className="text-muted d-flex align-items-center">
+              {t("CourseCost")}:
+            </span>
+            <span className="fw-semibold">
+              {formatPrice(courseDetail?.cost) ?? "—"}
+            </span>
+          </div>
+          <div className="d-flex align-items-center justify-content-between py-50">
+            <span className="text-muted d-flex align-items-center">
+              <Calendar size={14} className="me-50" />
+              {t("CourseStartTime")}:
+            </span>
+            <span className="fw-semibold">
+              {formatDate(courseDetail?.startTime) ?? "—"}
+            </span>
+          </div>
+          <div className="d-flex align-items-center justify-content-between py-50">
+            <span className="text-muted d-flex align-items-center">
+              <Calendar size={14} className="me-50" />
+              {t("CourseEndTime")}:
+            </span>
+            <span className="fw-semibold">
+              {formatDate(courseDetail?.endTime) ?? "—"}
+            </span>
+          </div>
+        </CardBody>
+        <hr className="my-0" />
+        <CardBody className="invoice-padding pt-1">
+          <Row className="g-1">
+            <Col xs="12">
+              <Link to={`/Courses/Edit/${courseDetail?.courseId}`}>
+                <Button
+                  color="primary"
+                  block
+                  className="d-flex align-items-center justify-content-center gap-1"
+                >
+                  {t("Edit")}
+                </Button>
+              </Link>
+            </Col>
+            <Col xs="12">
+              <Button
+                color={courseDetail?.active ? "danger" : "success"}
+                block
+                className="d-flex align-items-center justify-content-center gap-1"
+                onClick={handleToggleActive}
+              >
+                {courseDetail?.active ? t("DeActive") : t("Active")}
+              </Button>
+            </Col>
+            <Col xs="12">
+              <Button
+                color="info"
+                block
+                className="d-flex align-items-center justify-content-center gap-1"
+                onClick={toggleCategoryModal}
+              >
+                {t("AddCourseTechCategory")}
+              </Button>
+            </Col>
+            <Col xs="12">
+              <Button
+                color="warning"
+                block
+                className="d-flex align-items-center justify-content-center gap-1"
+                onClick={toggleStatusModal}
+              >
+                {t("CourseStatus")}
+              </Button>
+            </Col>
+          </Row>
+        </CardBody>
+      </Card>
+      <Modal
+        unmountOnClose={true}
+        isOpen={categoryModalOpen}
+        toggle={toggleCategoryModal}
+        className="modal-dialog-centered"
+        style={{ fontFamily: "IRANYekanXFaNum" }}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ModalHeader toggle={toggleCategoryModal}>
+            <Tag size={18} className="me-50" />
+            {t("AddCourseTechCategory")}
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-muted mb-1">
+              {t("AddCourseTechCategorySubtitle")}
+            </p>
+            <Label for="role-select">{t("CourseCategoryId")}</Label>
+            <Controller
+              name="TechnologyIds"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  isClearable={false}
+                  value={selectedCategory}
+                  styles={styles}
+                  isMulti
+                  onChange={fixedOnChange}
+                  theme={selectThemeColors}
+                  name="categories"
+                  className={`react-select ${
+                    errors.TechnologyIds ? "is-invalid" : ""
+                  }`}
+                  placeholder={t("CourseTechnologySelectPlaceholder")}
+                  classNamePrefix="select"
+                  options={categoryOptions}
+                  components={animatedComponents}
+                />
+              )}
+            />
+            {errors.TechnologyIds && (
+              <div className="invalid-feedback d-block">
+                {errors.TechnologyIds.message}
+              </div>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" outline onClick={toggleCategoryModal}>
+              {t("Cancel")}
+            </Button>
+            <Button type="submit" color="primary">
+              {t("SaveChanges")}
+            </Button>
+          </ModalFooter>
+        </form>
+      </Modal>
+      <Modal
+        unmountOnClose={true}
+        isOpen={statusModalOpen}
+        toggle={toggleStatusModal}
+        className="modal-dialog-centered"
+        style={{ fontFamily: "IRANYekanXFaNum" }}
+      >
+        <ModalHeader toggle={toggleStatusModal}>
+          {t("CourseStatus")}
+        </ModalHeader>
+        <ModalBody>
+          <p className="text-muted mb-1">{t("ApplyStatus")}</p>
+          <Label for="role-select">{t("CourseStatusId")}</Label>
+          <Select
+            isClearable={false}
+            value={selectedStatus}
+            options={statusOptions}
+            className="react-select"
+            classNamePrefix="select"
+            theme={selectThemeColors}
+            onChange={(data) => setSelectedStatus(data)}
+          />
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="primary"
+            onClick={() => {
+              const values = {
+                CourseId: courseDetail.courseId,
+                StatusId: selectedStatus.value,
+              };
+              const formData = formDataConverter(values);
+              selectedStatus.value == ""
+                ? null
+                : updateStatusCourseMutate(formData);
+            }}
+          >
+            {t("ApplyStatus")}
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </>
   );
 };
 

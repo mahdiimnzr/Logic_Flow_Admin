@@ -13,7 +13,7 @@ const themeConfig = {
     isRTL: true,
     skin: "light", // light, dark, bordered, semi-dark
     type: "vertical", // vertical, horizontal
-    contentWidth: "boxed", // full, boxed
+    contentWidth: "full", // full, boxed
     menu: {
       isHidden: false,
       isCollapsed: false,

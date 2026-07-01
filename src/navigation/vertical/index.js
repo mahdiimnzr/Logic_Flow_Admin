@@ -21,9 +21,9 @@ export default [
       },
       {
         id: "coursesAdd",
-        title: "ساخت دوره جدید",
+        title: "CreateNewCourse",
         icon: <Circle size={12} />,
-        navLink: "/Courses/add",
+        navLink: "/Courses/Add",
       },
     ],
   },
@@ -33,18 +33,49 @@ export default [
     icon: <Home size={20} />,
     children: [
       {
-        id:"blogs",
-        title:" لیست اخبار",
+        id: "blogs",
+        title: " لیست اخبار",
         icon: <Circle size={12} />,
-        navLink:"/blogs/list",
+        navLink: "/blogs/list",
       },
       {
-        id:"blogAdd",
-        title:"اضافه کردن مقاله",
+        id: "blogAdd",
+        title: "اضافه کردن مقاله",
         icon: <Circle size={12} />,
-        navLink:"/blogs/add",
+        navLink: "/blogs/add",
       },
-    ]
+    ],
+  },
+  {
+    id: "ManagementCourses",
+    title: "مدیریت دوره ها",
+    icon: <Home size={20} />,
+    children: [
+      {
+        id: "TechnologyManagementPage",
+        title: "مدیریت تکنولوژی",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/TechnologyManagement",
+      },
+      {
+        id: "LevelManagement",
+        title: "مدیریت سطح دوره ها",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/LevelManagement",
+      },
+      {
+        id: "StatusManagement",
+        title: "مدیریت وضعیت دوره ها",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/StatusManagement",
+      },
+      {
+        id: "TermsList",
+        title: "لیست ترم ها",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/TermsList",
+      },
+    ],
   },
   {
     id: "comments",

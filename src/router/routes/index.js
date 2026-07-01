@@ -17,7 +17,8 @@ import AuthRoute from "./Auth";
 import CoursesRoute from "./Courses";
 import DashboardRoute from "./Dashboard";
 import CommentsRoute from "./Comments";
-import BlogsRoute from "./Blogs"
+import BlogsRoute from "./Blogs";
+import ManagementCoursesRoute from "./ManagementCourse";
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -48,6 +49,7 @@ const Routes = [
   ...DashboardRoute,
   ...CommentsRoute,
   ...BlogsRoute,
+  ...ManagementCoursesRoute,
   {
     path: "/error",
     element: <Error />,
@@ -98,7 +100,7 @@ const MergeLayoutRoutes = (layout, defaultLayout) => {
             // eslint-disable-next-line multiline-ternary
             isObjEmpty(route.element.props) && isBlank === false
               ? // eslint-disable-next-line multiline-ternary
-              LayoutWrapper
+                LayoutWrapper
               : Fragment;
 
           route.element = (

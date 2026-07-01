@@ -1,45 +1,25 @@
-// ** React Imports
-import { Fragment, useState, useEffect } from "react";
-
-// ** Third Party Components
-import axios from "axios";
-
-// ** Reactstrap Imports
-import { Row, Col, TabContent, TabPane } from "reactstrap";
-
-// ** Demo Components
+import { Fragment, useState } from "react";
+import { Row, Col } from "reactstrap";
 import Spinner from "@components/spinner/Fallback-spinner";
-
-// import Tabs from "./Tabs";
 import Breadcrumbs from "@components/breadcrumbs";
 import EditInformation from "../components/courses/EditCourse/EditInformation";
-
-// ** Styles
 import "@styles/react/libs/flatpickr/flatpickr.scss";
 import "@styles/react/pages/page-account-settings.scss";
-import {
-  useGetUserDetail,
-  useGetUserList,
-} from "../core/services/api/Users/users.service";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Tabs from "../components/usersDetail/Tabs";
-import UserCourses from "../components/usersDetail/UserCourses";
-import UserReserveCourses from "../components/usersDetail/UserReserveCourses";
 import {
-  useGetCourseClassRooms,
   useGetCourseDetail,
+  useGetCourseClassRooms,
   useGetCourseLevels,
   useGetCourseTerms,
   useGetCourseTypes,
   useGetStatus,
 } from "../core/services/api/CourseList/courseList.service";
+import { useGetUserList } from "../core/services/api/Users/users.service";
 
 const CoursesEdit = () => {
   const { t } = useTranslation();
   const { courseId } = useParams();
-  // ** States
-  const [activeTab, setActiveTab] = useState("1");
 
   const { isLoading, data: courseDetail } = useGetCourseDetail(courseId);
   const { isLoading: loadingStatus } = useGetStatus();
@@ -50,10 +30,6 @@ const CoursesEdit = () => {
   const { isLoading: usersLoading, data: usersList } = useGetUserList({
     RowsOfPage: 1000,
   });
-
-  const toggleTab = (tab) => {
-    setActiveTab(tab);
-  };
 
   return isLoading ||
     loadingStatus ||

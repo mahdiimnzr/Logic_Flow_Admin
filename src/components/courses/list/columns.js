@@ -1,21 +1,13 @@
-// ** React Imports
-import { Fragment, useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-
-// ** Custom Components
 import Avatar from "@components/avatar";
 import Select from "react-select";
-
-// ** Utils
 import { selectThemeColors } from "@utils";
-
-// ** Reactstrap Imports
 import {
   Badge,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  UncontrolledTooltip,
   UncontrolledDropdown,
   Modal,
   ModalHeader,
@@ -24,24 +16,11 @@ import {
   Button,
   ModalFooter,
 } from "reactstrap";
-
-// ** Third Party Components
 import {
   Eye,
-  Send,
   Edit,
-  Copy,
-  Save,
-  Info,
-  Trash,
-  PieChart,
-  Download,
   TrendingUp,
-  CheckCircle,
   MoreVertical,
-  ArrowDownCircle,
-  Server,
-  Activity,
   AlignJustify,
 } from "react-feather";
 import formatPrice from "../../../core/utils/formatPrice";
@@ -49,26 +28,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   activeCourse,
   updateCourseStatus,
-  useGetCourseList,
-  useGetStatus,
 } from "../../../core/services/api/CourseList/courseList.service";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import formDataConverter from "../../../core/utils/formDataConvertor";
 import formatDate from "../../../core/utils/formatDate";
+import ImageFallback from "../../common/ImageFallback";
+import userImage from "/Profile.png";
 
-// ** Vars
-const invoiceStatusObj = {
-  Sent: { color: "light-secondary", icon: Send },
-  Paid: { color: "light-success", icon: CheckCircle },
-  Draft: { color: "light-primary", icon: Save },
-  Downloaded: { color: "light-info", icon: ArrowDownCircle },
-  "Past Due": { color: "light-danger", icon: Info },
-  "Partial Payment": { color: "light-warning", icon: PieChart },
-};
-
-// ** renders client column
 const renderClient = (row) => {
   const stateNum = Math.floor(Math.random() * 6),
     states = [
@@ -83,11 +50,11 @@ const renderClient = (row) => {
 
   if (row?.imageAddress?.length) {
     return (
-      <Avatar
+      <ImageFallback
         className="me-50"
-        img={row?.imageAddress}
-        width="32"
-        height="32"
+        style={{ borderRadius: "100%", width: "32px", height: "32px" }}
+        fallback={userImage}
+        src={row?.imageAddress}
       />
     );
   } else {
@@ -101,7 +68,7 @@ const renderClient = (row) => {
     );
   }
 };
-// ** Table columns
+
 export const columns = [
   {
     name: "مدرس",
@@ -112,7 +79,6 @@ export const columns = [
       <Link to={`/Courses/Detail/${row?.courseId}`}>{`${row?.fullName}`}</Link>
     ),
   },
-
   {
     name: "نام دوره",
     sortable: true,
@@ -137,7 +103,6 @@ export const columns = [
     sortable: true,
     minWidth: "150px",
     sortField: "total",
-    // selector: row => row.total,
     cell: (row) => <span>{formatPrice(row?.cost) || 0} تومان</span>,
   },
   {
@@ -146,14 +111,12 @@ export const columns = [
     name: "آخرین بروزرسانی",
     sortField: "dueDate",
     cell: (row) => formatDate(row?.lastUpdate),
-    // selector: row => row.dueDate
   },
   {
     sortable: true,
     name: "دوره های فعال و غیر فعال",
     minWidth: "164px",
     sortField: "balance",
-    // selector: row => row.balance,
     selector: (row) => row?.active,
     cell: (row) => (
       <Badge
@@ -244,7 +207,7 @@ export const columns = [
               >
                 <TrendingUp size={14} className="me-50" />
                 <span className="align-middle">
-                  {row.active == true ? "غیر فعال" : "فعال"}
+                  {row.active == true ? t("DeActive") : t("Active")}
                 </span>
               </DropdownItem>
               <DropdownItem
@@ -257,7 +220,7 @@ export const columns = [
                 }}
               >
                 <AlignJustify size={14} className="me-50" />
-                <span className="align-middle">وضعیت ها</span>
+                <span className="align-middle">{t("CourseStatus")}</span>
               </DropdownItem>
               <Modal
                 unmountOnClose={true}
@@ -267,10 +230,10 @@ export const columns = [
                 style={{ fontFamily: "IRANYekanXFaNum" }}
               >
                 <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
-                  وضعیت برگذاری دوره ها
+                  {t("CourseStatus")}
                 </ModalHeader>
                 <ModalBody>
-                  <Label for="role-select">وضعیت ها</Label>
+                  <Label for="role-select">{t("CourseStatusId")}</Label>
                   <Select
                     isClearable={false}
                     value={currentRole}
@@ -301,7 +264,7 @@ export const columns = [
                         : updateStatusCourseMutate(formData);
                     }}
                   >
-                    اعمال وضعیت
+                    {t("ApplyStatus")}
                   </Button>
                 </ModalFooter>
               </Modal>

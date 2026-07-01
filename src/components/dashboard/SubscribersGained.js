@@ -1,23 +1,28 @@
 // ** Icons Imports
-import { Users } from 'react-feather'
+import { Users } from "react-feather";
 
 // ** Custom Components
-import StatsWithAreaChart from './StatsWithAreaChart'
+import StatsWithAreaChart from "./StatsWithAreaChart";
 
-const SubscribersGained = ({ title, subscribers = 0, series = [], kFormatter }) => {
+const SubscribersGained = ({
+  title,
+  subscribers = 0,
+  series = [],
+  kFormatter,
+  color = "primary",
+}) => {
+  const formattedStats = kFormatter ? kFormatter(subscribers) : subscribers;
 
-    const formattedStats = kFormatter ? kFormatter(subscribers) : subscribers;
+  return (
+    <StatsWithAreaChart
+      icon={<Users size={21} />}
+      color={color}
+      stats={formattedStats}
+      statTitle={title}
+      series={series}
+      type="area"
+    />
+  );
+};
 
-    return (
-        <StatsWithAreaChart
-            icon={<Users size={21} />}
-            color='primary'
-            stats={formattedStats}
-            statTitle={title}
-            series={series}
-            type='area'
-        />
-    )
-}
-
-export default SubscribersGained
+export default SubscribersGained;

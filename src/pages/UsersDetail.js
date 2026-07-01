@@ -61,7 +61,7 @@ const UsersDetail = () => {
     .map((value, index) => ({
       ...value.data?.data,
       accept: userDetail?.data?.courseReserve[index]?.accept,
-      groupId: courseGroupQueries[index]?.data?.data?.[0]?.id,
+      groupId: courseGroupQueries[index]?.data?.data,
     }));
 
   const coursesLoading =

@@ -1,86 +1,51 @@
-// ** React Imports
-import { Link, useNavigate, useParams } from "react-router-dom";
-
-// ** Custom Components
-import Avatar from "@components/avatar";
+import { Link, useParams } from "react-router-dom";
 import Select from "react-select";
-
-// ** Utils
 import { selectThemeColors } from "@utils";
-
-// ** Icons Imports
-import {
-  Slack,
-  User,
-  Settings,
-  Database,
-  Edit2,
-  MoreVertical,
-  FileText,
-  Trash2,
-  Archive,
-  Eye,
-} from "react-feather";
-
-// ** Reactstrap Imports
+import { Eye } from "react-feather";
 import {
   Badge,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Button,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Label,
-  Input,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
-import formatDate from "../../core/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import {
-  acceptCourseReserve,
-  addUserAccess,
-  useGetUserList,
-} from "../../core/services/api/Users/users.service";
-import { useSelector } from "react-redux";
+import { acceptCourseReserve } from "../../core/services/api/Users/users.service";
 import formatPrice from "../../core/utils/formatPrice";
-import { t } from "i18next";
 import ImageFallback from "../common/ImageFallback";
 import courseImage from "../../assets/images/coursePng.png";
 
-const statusObj = {
-  active: "light-success",
-  deActive: "light-secondary",
-};
-
 export const columns = [
   {
-    name: "Course Title",
+    name: "CourseTitle",
     sortable: true,
     minWidth: "300px",
     sortField: "title",
     selector: (row) => row.title,
-    cell: (row) => (
-      <div className="d-flex align-items-center gap-1 text-truncate">
-        <ImageFallback
-          className="me-1"
-          style={{ borderRadius: "100%", width: "32px", height: "32px" }}
-          fallback={courseImage}
-          src={row.imageAddress}
-        />
-        <Link
-          to={`/Courses/Detail/${row.courseId}`}
-          className="user_name text-body text-truncate"
-        >
-          <span className="fw-bolder text-truncate">{row.title} </span>
-        </Link>
-      </div>
-    ),
+    cell: (row) => {
+      const { t } = useTranslation();
+      return (
+        <div className="d-flex align-items-center gap-1 text-truncate">
+          <ImageFallback
+            className="me-1"
+            style={{ borderRadius: "100%", width: "32px", height: "32px" }}
+            fallback={courseImage}
+            src={row.imageAddress}
+          />
+          <Link
+            to={`/Courses/Detail/${row.courseId}`}
+            className="user_name text-body text-truncate"
+          >
+            <span className="fw-bolder text-truncate">{row.title}</span>
+          </Link>
+        </div>
+      );
+    },
   },
   {
     name: "Teacher",
@@ -94,27 +59,30 @@ export const columns = [
           to={`/Users/Detail/${row.teacherId}`}
           className="user_name text-truncate text-body"
         >
-          <span className="fw-bolder">{row.teacherName} </span>
+          <span className="fw-bolder">{row.teacherName}</span>
         </Link>
       </div>
     ),
   },
   {
-    name: "course Cost",
+    name: "CourseCost",
     sortable: true,
     minWidth: "200px",
     sortField: "cost",
     selector: (row) => row.cost,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">
-          {formatPrice(row.cost)} {t("Toman")}
-        </span>
-      </div>
-    ),
+    cell: (row) => {
+      const { t } = useTranslation();
+      return (
+        <div className="d-flex flex-column">
+          <span className="fw-bolder">
+            {formatPrice(row.cost)} {t("Toman")}
+          </span>
+        </div>
+      );
+    },
   },
   {
-    name: "Course Capacity",
+    name: "CourseCapacity",
     sortable: true,
     minWidth: "200px",
     sortField: "capacity",
@@ -126,7 +94,7 @@ export const columns = [
     ),
   },
   {
-    name: "Course Status",
+    name: "CourseStatus",
     sortable: true,
     minWidth: "200px",
     sortField: "courseStatusName",
@@ -138,7 +106,7 @@ export const columns = [
     ),
   },
   {
-    name: "Reserve Status",
+    name: "ReserveStatus",
     minWidth: "60px",
     sortable: true,
     sortField: "status",
@@ -163,8 +131,21 @@ export const columns = [
     sortField: "capacity",
     selector: (row) => row.capacity,
     cell: (row) => {
+      const { t } = useTranslation();
       const { userId } = useParams();
       const queryClient = useQueryClient();
+      const [centeredModal, setCenteredModal] = useState(false);
+      const [groupError, setGroupError] = useState("");
+      const [currentRole, setCurrentRole] = useState({
+        value: null,
+        label: t("SelectGroup"),
+      });
+
+      const rolesList = row?.groupId?.map((value) => ({
+        value: value.groupId,
+        label: value.groupName + ` (ظرفیت دوره :${value.groupCapacity})`,
+      }));
+
       const { mutate: acceptReserveMutate } = useMutation({
         mutationFn: acceptCourseReserve,
         onMutate: () => {
@@ -177,6 +158,7 @@ export const columns = [
             queryClient.invalidateQueries({
               queryKey: [`UserDetail-${userId}`],
             });
+            setCenteredModal(false);
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
@@ -185,6 +167,30 @@ export const columns = [
           toast.error(response.data.message, { id: context.toastId });
         },
       });
+
+      const handleRoleChange = (data) => {
+        setCurrentRole(data);
+        if (data?.value) setGroupError("");
+      };
+
+      const handleSubmit = (data) => {
+        if (!currentRole.value) {
+          setGroupError(t("GroupRequired"));
+          return;
+        }
+        acceptReserveMutate({
+          courseId: row.courseId,
+          courseGroupId: currentRole.value ? currentRole.value : "",
+          studentId: userId,
+        });
+      };
+
+      const handleToggle = () => {
+        setCenteredModal(!centeredModal);
+        setGroupError("");
+        setCurrentRole({ value: null, label: t("SelectGroup") });
+      };
+
       return (
         <div className="d-flex align-items-center gap-1">
           <Link
@@ -193,21 +199,47 @@ export const columns = [
           >
             <Eye size={17} className="mx-1" />
           </Link>
-          {!row.accept && row.groupId && (
-            <Button.Ripple
-              onClick={() =>
-                acceptReserveMutate({
-                  courseId: row.courseId,
-                  courseGroupId: row.groupId ? row.groupId : "",
-                  studentId: userId,
-                })
-              }
-              color="warning"
-              size="sm"
-            >
+
+          {!row.accept && (
+            <Button.Ripple onClick={handleToggle} color="warning" size="sm">
               {t("AcceptComment")}
             </Button.Ripple>
           )}
+
+          <Modal
+            unmountOnClose={true}
+            isOpen={centeredModal}
+            toggle={handleToggle}
+            className="modal-dialog-centered"
+            style={{ fontFamily: "IRANYekanXFaNum" }}
+          >
+            <ModalHeader toggle={handleToggle}>{t("CourseGroups")}</ModalHeader>
+            <ModalBody>
+              <Label for="role-select">{t("SelectGroup")}</Label>
+              <Select
+                isClearable={false}
+                value={currentRole}
+                options={rolesList}
+                className={`react-select ${groupError ? "is-invalid" : ""}`}
+                classNamePrefix="select"
+                theme={selectThemeColors}
+                onChange={handleRoleChange}
+              />
+              {groupError && (
+                <div className="invalid-feedback d-block mt-25">
+                  {groupError}
+                </div>
+              )}
+            </ModalBody>
+            <ModalFooter className="d-flex justify-content-between">
+              <Button color="secondary" outline onClick={handleToggle}>
+                {t("Cancel")}
+              </Button>
+              <Button color="primary" onClick={handleSubmit}>
+                {t("ApplyStatus")}
+              </Button>
+            </ModalFooter>
+          </Modal>
         </div>
       );
     },
