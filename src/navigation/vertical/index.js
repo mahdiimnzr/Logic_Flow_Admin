@@ -51,6 +51,24 @@ export default [
         icon: <Circle size={12} />,
         navLink: "ManagementCourses/TechnologyManagement",
       },
+      {
+        id: "LevelManagement",
+        title: "مدیریت سطح دوره ها",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/LevelManagement",
+      },
+      {
+        id: "StatusManagement",
+        title: "مدیریت وضعیت دوره ها",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/StatusManagement",
+      },
+      {
+        id: "TermsList",
+        title: "لیست ترم ها",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/TermsList",
+      },
     ],
   },
   {
