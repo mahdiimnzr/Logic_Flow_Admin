@@ -1,32 +1,25 @@
-// ** React Imports
 import { Fragment } from "react";
-
-// ** Reactstrap Imports
 import { Row, Col } from "reactstrap";
-
-// ** Demo Components
 import WizardHorizontal from "../components/courses/add/AddCourse";
-// ** Demo Components
 import Spinner from "@components/spinner/Fallback-spinner";
-
-// ** Custom Components
 import BreadCrumbs from "@components/breadcrumbs";
 import { useGetCourseAdd } from "../core/services/api/CourseList/courseList.service";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const CourseAdd = () => {
+  const { t } = useTranslation();
   const { isLoading } = useGetCourseAdd();
-  const params = useSelector((state) => state.addCourseSlice.params);
-  console.log(params);
+
   return isLoading ? (
     <Spinner />
   ) : (
     <Fragment>
       <BreadCrumbs
-        title="ساخت دوره"
+        title={t("CreateNewCourse")}
         data={[
-          { title: "دوره ها", link: "/courses/List" },
-          { title: "ساخت دوره" },
+          { title: t("Courses"), link: "/courses/List" },
+          { title: t("CreateNewCourse") },
         ]}
       />
       <Row>

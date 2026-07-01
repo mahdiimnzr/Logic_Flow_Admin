@@ -17,7 +17,6 @@ const CustomHeader = ({
   searchTerm,
 }) => {
   const { t } = useTranslation();
-
   return (
     <div className="invoice-list-table-header w-100 me-1 ms-50 mt-2 mb-75">
       <Row>
@@ -71,8 +70,6 @@ const CustomHeader = ({
 };
 
 const GroupsList = ({ data }) => {
-  const { t } = useTranslation();
-
   const [searchTerm, setSearchTerm] = useState("");
   const [debounceSearch, setDebounceSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

@@ -9,8 +9,7 @@ import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { addCourseAssistance } from "../../../../core/services/api/CourseList/courseList.service";
 import Sidebar from "@components/sidebar";
-import { useMemo } from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const validationSchema = Yup.object({
   userId: Yup.number().typeError("UserIdRequired").required("UserIdRequired"),

@@ -1,4 +1,3 @@
-import React from "react";
 import { Fragment } from "react";
 import StatsVertical from "@components/widgets/stats/StatsVertical";
 import { Users, MessageSquare, UserCheck, Book } from "react-feather";
@@ -12,7 +11,6 @@ import {
   CardText,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
-
 const CourseDetail = ({ data }) => {
   const { t } = useTranslation();
   return (
@@ -69,5 +67,4 @@ const CourseDetail = ({ data }) => {
     </Fragment>
   );
 };
-
 export default CourseDetail;

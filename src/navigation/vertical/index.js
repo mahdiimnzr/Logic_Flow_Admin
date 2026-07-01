@@ -21,7 +21,7 @@ export default [
       },
       {
         id: "coursesAdd",
-        title: "ساخت دوره جدید",
+        title: "CreateNewCourse",
         icon: <Circle size={12} />,
         navLink: "/Courses/add",
       },

@@ -71,7 +71,6 @@ const CustomHeader = ({
 };
 
 const MentorList = ({ data }) => {
-  const { t } = useTranslation();
   const { courseId } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [debounceSearch, setDebounceSearch] = useState("");
@@ -108,13 +107,9 @@ const MentorList = ({ data }) => {
     handleSearch(val);
   };
 
-  const handleSearch = useMemo(
-    () =>
-      debounce((value) => {
-        setDebounceSearch(value.trim());
-      }, 1000),
-    [displayData],
-  );
+  const handleSearch = debounce((value) => {
+    setDebounceSearch(value.trim());
+  }, 1000);
 
   useEffect(() => {
     if (currentPage > count) setCurrentPage(count || 1);

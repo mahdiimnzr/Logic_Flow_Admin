@@ -9,6 +9,7 @@ import {
   Label,
   Col,
   Input,
+  InputGroup,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +22,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
 import formDataConverter from "../../../../core/utils/formDataConvertor";
+import Cleave from "cleave.js/react";
 
 const validationSchema = Yup.object({
   GroupName: Yup.string().required("CourseGroupNameRequired"),
@@ -35,14 +37,11 @@ export const columns = [
     maxWidth: "300px",
     sortField: "groupName",
     selector: (row) => row.groupName,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex align-items-center gap-1 text-truncate">
-          <span className="fw-bolder">{row.groupName}</span>
-        </div>
-      );
-    },
+    cell: (row) => (
+      <div className="d-flex align-items-center gap-1 text-truncate">
+        <span className="fw-bolder">{row.groupName}</span>
+      </div>
+    ),
   },
   {
     name: "TeacherName",
@@ -51,14 +50,11 @@ export const columns = [
     maxWidth: "250px",
     sortField: "teacherName",
     selector: (row) => row.teacherName,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex flex-column">
-          <span className="fw-bolder">{row.teacherName}</span>
-        </div>
-      );
-    },
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <span className="fw-bolder">{row.teacherName}</span>
+      </div>
+    ),
   },
   {
     name: "GroupCapacity",
@@ -67,14 +63,11 @@ export const columns = [
     maxWidth: "150px",
     sortField: "groupCapacity",
     selector: (row) => row.groupCapacity,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex flex-column">
-          <span className="fw-bolder">{row.groupCapacity}</span>
-        </div>
-      );
-    },
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <span className="fw-bolder">{row.groupCapacity}</span>
+      </div>
+    ),
   },
   {
     name: "Actions",
@@ -84,6 +77,7 @@ export const columns = [
     sortField: "capacity",
     selector: (row) => row.capacity,
     cell: (row) => {
+      const options = { numeral: true, numeralThousandsGroupStyle: "thousand" };
       const { t } = useTranslation();
       const { courseId } = useParams();
       const queryClient = useQueryClient();
@@ -169,7 +163,6 @@ export const columns = [
           >
             {t("Remove")}
           </Button.Ripple>
-
           <Modal
             unmountOnClose={true}
             isOpen={centeredModal}
@@ -213,12 +206,18 @@ export const columns = [
                     control={control}
                     render={({ field }) => (
                       <>
-                        <Input
-                          id="GroupCapacity"
-                          placeholder={t("CourseGroupCapacityPlaceholder")}
-                          invalid={!!errors.GroupCapacity}
-                          {...field}
-                        />
+                        <InputGroup className="input-group-merge">
+                          <Cleave
+                            className={`form-control ${
+                              errors.GroupCapacity ? "is-invalid" : ""
+                            }`}
+                            placeholder={t("CourseGroupCapacity")}
+                            options={options}
+                            id="GroupCapacity"
+                            value={field.value}
+                            onChange={(e) => field.onChange(e.target.rawValue)}
+                          />
+                        </InputGroup>
                         {errors.GroupCapacity && (
                           <div className="invalid-feedback d-block">
                             {t(errors.GroupCapacity.message)}

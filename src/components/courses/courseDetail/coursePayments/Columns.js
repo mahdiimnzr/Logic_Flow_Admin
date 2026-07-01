@@ -13,26 +13,23 @@ export const columns = [
     minWidth: "200px",
     sortField: "fName",
     selector: (row) => row.user?.fName,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex align-items-center gap-1">
-          <ImageFallback
-            style={{ borderRadius: "100%", width: "32px", height: "32px" }}
-            fallback={userImage}
-            src={row.user?.imageAddress}
-          />
-          <Link
-            to={`/Users/Detail/${row.studentId}`}
-            className="user_name text-body text-truncate"
-          >
-            <span className="fw-bolder">
-              {row.user?.fName} {row.user?.lName}
-            </span>
-          </Link>
-        </div>
-      );
-    },
+    cell: (row) => (
+      <div className="d-flex align-items-center gap-1">
+        <ImageFallback
+          style={{ borderRadius: "100%", width: "32px", height: "32px" }}
+          fallback={userImage}
+          src={row.user?.imageAddress}
+        />
+        <Link
+          to={`/Users/Detail/${row.studentId}`}
+          className="user_name text-body text-truncate"
+        >
+          <span className="fw-bolder">
+            {row.user?.fName} {row.user?.lName}
+          </span>
+        </Link>
+      </div>
+    ),
   },
   {
     name: "GroupName",
@@ -55,7 +52,7 @@ export const columns = [
       return (
         <span className="fw-bolder">
           {row.payment
-            ? `${formatPrice(Number(row.payment.Paid))} ${t("Toman")}`
+            ? formatPrice(Number(row.payment.Paid)) + " " + t("Toman")
             : "-"}
         </span>
       );

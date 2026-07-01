@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import Table from "../components/comments/Table";
 import Spinner from "@components/spinner/Fallback-spinner";
 import { useSelector } from "react-redux";
@@ -18,6 +18,7 @@ const Comments = () => {
   const { isLoading: usersLoading, data: usersList } = useGetUserList({
     RowsOfPage: 1000,
   });
+
   useEffect(() => {
     refetch();
   }, [params]);
@@ -26,10 +27,7 @@ const Comments = () => {
     <Spinner />
   ) : (
     <Fragment>
-      <Breadcrumbs
-        title={t("UsersList")}
-        data={[{ title: t("Users") }, { title: t("UsersList") }]}
-      />
+      <Breadcrumbs title={t("Comments")} data={[{ title: t("Comments") }]} />
       <div className="app-user-list">
         <Table
           commentsList={courseCommentsList?.data}

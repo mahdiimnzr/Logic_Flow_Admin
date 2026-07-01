@@ -1,48 +1,17 @@
-// ** React Imports
-import { Link, useNavigate } from "react-router-dom";
-
-// ** Custom Components
-import Avatar from "@components/avatar";
-import Select from "react-select";
-
-// ** Utils
-import { selectThemeColors } from "@utils";
-
-// ** Icons Imports
-import {
-  Slack,
-  User,
-  Settings,
-  Database,
-  Edit2,
-  MoreVertical,
-  FileText,
-  Trash2,
-  Archive,
-} from "react-feather";
-
-// ** Reactstrap Imports
+import { Link } from "react-router-dom";
 import {
   Badge,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Button,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Label,
-  Input,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
-import formatDate from "../../../../core/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import profile from "/public/Profile.png";
 import { acceptCourseComment } from "../../../../core/services/api/Comments/comments.service";
 
 const statusObj = {
@@ -58,19 +27,16 @@ export const columns = [
     sortable: true,
     sortField: "writer",
     selector: (row) => row.author,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex flex-column">
-          <Link
-            to={`/Users/Detail/${row.userId}`}
-            className="user_name text-truncate text-body"
-          >
-            <span className="fw-bolder">{row.author}</span>
-          </Link>
-        </div>
-      );
-    },
+    cell: (row) => (
+      <div className="d-flex flex-column">
+        <Link
+          to={`/Users/Detail/${row.userId}`}
+          className="user_name text-truncate text-body"
+        >
+          <span className="fw-bolder">{row.author}</span>
+        </Link>
+      </div>
+    ),
   },
   {
     name: "Title",
@@ -120,9 +86,9 @@ export const columns = [
     maxWidth: "200px",
     cell: (row) => {
       const { t } = useTranslation();
-      const navigate = useNavigate();
       const queryClient = useQueryClient();
       const [centeredModal, setCenteredModal] = useState(false);
+
       const { mutate: acceptCommentMutate } = useMutation({
         mutationFn: acceptCourseComment,
         onMutate: () => {
@@ -143,6 +109,7 @@ export const columns = [
           toast.error(response.data.message, { id: context.toastId });
         },
       });
+
       return (
         <div className="column-action d-flex gap-1">
           <Button.Ripple
