@@ -143,7 +143,7 @@ export const columns = [
             className="me-50 cursor-pointer"
             onClick={() => setShow(true)}
           />
-          <Modal
+          {/* <Modal
             unmountOnClose={true}
             isOpen={centeredModal}
             toggle={() => setCenteredModal(!centeredModal)}
@@ -171,8 +171,8 @@ export const columns = [
                 {t("Cancel")}
               </Button>
             </ModalFooter>
-          </Modal>
-          <Modal
+          </Modal> */}
+          {/* <Modal
             isOpen={show}
             toggle={() => setShow(!show)}
             className="modal-dialog-centered modal-lg"
@@ -261,7 +261,7 @@ export const columns = [
                 </Col>
               </Row>
             </ModalBody>
-          </Modal>
+          </Modal> */}
         </div>
       );
     },
