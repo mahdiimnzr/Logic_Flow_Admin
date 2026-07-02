@@ -5,6 +5,9 @@ const TechnologyManagement = lazy(() =>
 );
 const LevelManagement = lazy(() => import("../../pages/LevelManagement"));
 const StatusManagement = lazy(() => import("../../pages/StatusManagement"));
+const DepartmentsManagement = lazy(() =>
+  import("../../pages/DepartmentsManagement"),
+);
 const Terms = lazy(() => import("../../pages/Terms"));
 const ManagementCoursesRoute = [
   {
@@ -18,6 +21,10 @@ const ManagementCoursesRoute = [
   {
     path: "ManagementCourses/StatusManagement",
     element: <StatusManagement />,
+  },
+  {
+    path: "ManagementCourses/DepartmentsManagement",
+    element: <DepartmentsManagement />,
   },
   {
     path: "ManagementCourses/TermsList",
