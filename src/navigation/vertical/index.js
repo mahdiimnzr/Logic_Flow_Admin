@@ -70,6 +70,12 @@ export default [
         navLink: "ManagementCourses/StatusManagement",
       },
       {
+        id: "DepartmentsManagements",
+        title: "مدیریت بخش ها",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/DepartmentsManagement",
+      },
+      {
         id: "TermsList",
         title: "لیست ترم ها",
         icon: <Circle size={12} />,

@@ -224,23 +224,7 @@ export const columns = [
                     <FormFeedback>Please enter a valid Username</FormFeedback>
                   )}
                 </Col>
-                {/* <Col xs={12}>
-                  <ImageDropZone
-                    currentImage={row?.iconAddress}
-                    error={
-                      errors.iconAddress ? t(errors.iconAddress.message) : null
-                    }
-                    onChange={(files) => {
-                      if (files.length > 0) {
-                        setValue("iconAddress", URL.createObjectURL(files[0]), {
-                          shouldValidate: true,
-                        });
-                      } else {
-                        setValue("iconAddress", "", { shouldValidate: true });
-                      }
-                    }}
-                  />
-                </Col> */}
+
                 <Col xs={12} className="text-center mt-2 pt-50">
                   <Button type="submit" className="me-1" color="primary">
                     تغیرات

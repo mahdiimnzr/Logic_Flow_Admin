@@ -13,11 +13,6 @@ import { Edit } from "react-feather";
 
 // ** Reactstrap Imports
 import {
-  Badge,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Button,
   Modal,
   ModalHeader,
@@ -39,6 +34,7 @@ import ImageFallback from "../../common/ImageFallback";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import ImageDropZone from "../../common/ImageDropZone";
+import { updateTechnology } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const validationSchema = Yup.object({
   techName: Yup.string().required("CourseTitleRequired"),
@@ -64,7 +60,7 @@ const renderClient = (row) => {
         className="me-1"
         color={row.avatarColor || "light-primary"}
         content={
-          row?.levelName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"
+          row?.techName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"
         }
       />
     );
@@ -72,7 +68,7 @@ const renderClient = (row) => {
 };
 export const columns = [
   {
-    name: "",
+    name: "تکنولوژی",
     sortable: true,
     minWidth: "200px",
     sortField: "iconAddress",
@@ -80,35 +76,21 @@ export const columns = [
     cell: (row) => (
       <div className="d-flex justify-content-left align-items-center">
         {renderClient(row)}
-        {/* <div className="d-flex flex-column">
-          <span className="text-truncate text-muted mb-0">{row.levelName}</span>
-        </div> */}
+        <div className="d-flex flex-column">
+          <span className="text-truncate text-muted mb-0">{row.techName}</span>
+        </div>
       </div>
-    ),
-  },
-  {
-    name: "نام سطح",
-    minWidth: "80px",
-    sortable: true,
-    sortField: "levelName",
-    selector: (row) => row.levelName,
-    cell: (row) => (
-      <span className="text-truncate text-muted mb-0">
-        {row.levelName ? row.levelName : "-"}
-      </span>
     ),
   },
 
   {
-    name: "توضیحات سطح",
+    name: "توضیحات تکنولوژی",
     minWidth: "80px",
     sortable: true,
-    sortField: "levelName",
-    selector: (row) => row.levelName,
+    sortField: "describe",
+    selector: (row) => row.describe,
     cell: (row) => (
-      <span className="text-truncate text-muted mb-0">
-        {row.levelName ? row.levelName : "-"}
-      </span>
+      <span className="text-truncate text-muted mb-0">{row.describe}</span>
     ),
   },
 
@@ -123,7 +105,12 @@ export const columns = [
       const [show, setShow] = useState(false);
       const queryClient = useQueryClient();
 
-      const defaultValues = {};
+      const defaultValues = {
+        techName: row.techName ?? "",
+        describe: row.describe ?? "",
+        iconAddress: row.iconAddress ?? "",
+        id: row.id ?? "",
+      };
 
       // ** Hooks
       const {
@@ -133,17 +120,41 @@ export const columns = [
         formState: { errors },
       } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
-      const onSubmit = (data) => {};
+      const { mutate: updateTechnologyMutate } = useMutation({
+        mutationFn: updateTechnology,
+        onMutate: () => {
+          const toastId = toast.loading(t("Loading"));
+          return { toastId };
+        },
+        onSuccess: (response, _, context) => {
+          toast.success(" تکنولوژی ویرایش شد", { id: context.toastId });
+          queryClient.invalidateQueries({
+            queryKey: [`Technology`],
+          });
+          setShow(!show);
+        },
+        onError: (response, _, context) => {
+          toast.error(response.data.message, { id: context.toastId });
+        },
+      });
+
+      const onSubmit = (data) => {
+        updateTechnologyMutate(data);
+      };
 
       return (
-        <div className="column-action d-flex gap-1">
+        <div className="column-action d-flex gap-1 align-items-center">
           ویرایش
-          <Edit
-            size={17}
-            className="me-50 cursor-pointer"
-            onClick={() => setShow(true)}
-          />
-          {/* <Modal
+          <Edit size={17} className="me-50 " onClick={() => setShow(true)} />
+          <Button.Ripple
+            onClick={() => setCenteredModal(!centeredModal)}
+            color="info"
+            size="sm"
+          >
+            {" "}
+            جزعیات
+          </Button.Ripple>
+          <Modal
             unmountOnClose={true}
             isOpen={centeredModal}
             toggle={() => setCenteredModal(!centeredModal)}
@@ -171,8 +182,8 @@ export const columns = [
                 {t("Cancel")}
               </Button>
             </ModalFooter>
-          </Modal> */}
-          {/* <Modal
+          </Modal>
+          <Modal
             isOpen={show}
             toggle={() => setShow(!show)}
             className="modal-dialog-centered modal-lg"
@@ -261,7 +272,7 @@ export const columns = [
                 </Col>
               </Row>
             </ModalBody>
-          </Modal> */}
+          </Modal>
         </div>
       );
     },
