@@ -1,9 +1,60 @@
-import { Badge } from "reactstrap";
-import React from 'react'
+import { Badge, Input, Spinner } from "reactstrap";
+import { React, useState } from 'react'
 import { classNames } from 'classnames';
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+import { toggleBlogStatus } from "../../core/services/api/blogs/blogs.service";
 
 const baseURL = import.meta.env.VITE_BASE_URL || "";
 import defaultIMG from "../../assets/images/coursePng.png"
+
+const StatusToggleCell = ({ row }) => {
+
+    const initStatus = row.isActive === true || row.active === true;
+    const [isActive, setIsActive] = useState(initStatus);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleToggle = async (e) => {
+        const newsStatus = e.target.checked;
+        setIsActive(newsStatus);
+        setIsLoading(true);
+
+        const formData = new FormData();
+        formData.append("Active", newsStatus);
+        formData.append("Id", row.id);
+
+        try {
+            const result = await toggleBlogStatus(formData);
+            if (result) {
+                toast.success("وضعیت مقاله با موفقیت بروز رسانی شد!");
+            } else {
+                setIsActive(!newsStatus);
+                toast.error("خطا در بروزرسانی وضعیت");
+            }
+        } catch (error) {
+            setIsActive(!newsStatus);
+            toast.error("مشکلی در برقراری ارتباط با سرور پیش آمد!");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="d-flex align-items-center">
+            <div className="form-check form-switch">
+                <Input
+                    type="switch"
+                    id={`status-switch-${row.id}`}
+                    checked={isActive}
+                    onChange={handleToggle}
+                    disabled={isLoading}
+                />
+            </div>
+            {isLoading && <Spinner size="sm" color="primary" className="ms-50" />}
+        </div>
+    )
+
+};
 
 const BlogsColumns = [
     {
@@ -58,24 +109,21 @@ const BlogsColumns = [
     {
         name: "وضعیت",
         sortable: true,
-        selector: row => row.isActive,
-        cell: row => {
-            const isItemActive = row.isActive === true || row.active === true;
-            return (
-                <Badge color={isItemActive ? "light-success" : "light-danger"} pill>
-                    {isItemActive ? "فعال" : "غیرفعال"}
-                </Badge>
-            )
-        }
+        cell: row => <StatusToggleCell row={row} />
     },
     {
         name: "عملیات",
         minWidth: "100px",
-        cell: row => (
-            <div className="d-flex">
-                <span className="cursor-pointer text-primary me-1">ویرایش</span>
-            </div>
-        )
+        cell: row => {
+            return (
+                <div className="d-flex align-items-center">
+                    <Link to={`/blogs/edit/${row.id}`}
+                        className="text-primary me-1 text-decoration-none" >
+                        ویرایش
+                    </Link>
+                </div>
+            )
+        }
     },
 ]
 

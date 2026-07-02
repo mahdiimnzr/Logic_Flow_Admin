@@ -24,7 +24,7 @@ import SocialGroupList from "../components/courses/courseDetail/courseSocialGrou
 import MentorList from "../components/courses/courseDetail/courseMentors/Table";
 import MentorWorksList from "../components/courses/courseDetail/courseMentorWorks/Table";
 import { useGetUserList } from "../core/services/api/Users/users.service";
-import { useGetTechnology } from "../core/services/api/TechnologyManagement/Technology.service";
+import { useGetTechnology } from "../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const CoursesDetail = () => {
   const { courseId } = useParams();

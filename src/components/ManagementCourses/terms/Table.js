@@ -1,5 +1,6 @@
 // ** React Imports
 import { Fragment, useState, useEffect, useMemo } from "react";
+import { useForm, Controller } from "react-hook-form";
 
 // ** Invoice List Sidebar
 import Sidebar from "./TermsSideBar";
@@ -30,6 +31,10 @@ import {
   CardBody,
   CardTitle,
   CardHeader,
+  ModalHeader,
+  ModalBody,
+  FormFeedback,
+  Modal,
 } from "reactstrap";
 
 // ** Styles
@@ -37,7 +42,20 @@ import "@styles/react/libs/react-select/_react-select.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
+import { postTerm } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
+import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+const validationSchema = Yup.object({
+  termName: Yup.string().required("نام الزامی است"),
+  startDate: Yup.string().required(" انتخواب زمان الزامی است"),
+  endDate: Yup.string().required(" انتخواب زمان الزامی است"),
+});
 // ** Table Header
 const CustomHeader = ({
   toggleSidebar,
@@ -48,6 +66,48 @@ const CustomHeader = ({
 }) => {
   // ** I18n
   const { t } = useTranslation();
+  const [show, setShow] = useState(false);
+  const queryClient = useQueryClient();
+
+  const departments = queryClient.getQueryState(["Departments"]);
+  console.log(departments?.data?.data);
+
+  const defaultValues = {
+    termName: "",
+    startDate: "",
+    endDate: "",
+  };
+
+  // ** Hooks
+  const {
+    control,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+
+  const { mutate: postTermMutation } = useMutation({
+    mutationFn: postTerm,
+    onMutate: () => {
+      const toastId = toast.loading(t("Loading"));
+      return { toastId };
+    },
+    onSuccess: (response, _, context) => {
+      toast.success(response.data.message, { id: context.toastId });
+      queryClient.invalidateQueries({ queryKey: ["Term"] });
+      setShow(false);
+      setValue("termName", "");
+      setValue("startDate", "");
+      setValue("endDate", "");
+    },
+    onError: (response, _, context) => {
+      toast.error(response.data.message, { id: context.toastId });
+    },
+  });
+
+  const onSubmit = (data) => {
+    postTermMutation(data);
+  };
   return (
     <div className="invoice-list-table-header w-100 me-1 ms-50 mt-2 mb-75">
       <Row>
@@ -85,23 +145,291 @@ const CustomHeader = ({
               onChange={(e) => handleFilter(e.target.value)}
             />
           </div>
-
-          <div className="d-flex align-items-center table-header-actions">
-            <Button
-              className="add-new-user"
-              color="primary"
-              onClick={toggleSidebar}
-            >
-              {t("CreateNewUser")}
-            </Button>
+          <div className="d-flex align-items-center gap-1">
+            <div className="d-flex align-items-center table-header-actions">
+              <Button
+                onClick={() => setShow(true)}
+                className="add-new-user"
+                color="primary"
+              >
+                افزودن ترم
+              </Button>
+            </div>
+            <div className="d-flex align-items-center table-header-actions">
+              <Button
+                className="add-new-user"
+                color="primary"
+                onClick={() => setShow(true)}
+              >
+                افزودن زمان
+              </Button>
+            </div>
           </div>
         </Col>
       </Row>
+      <Modal
+        isOpen={show}
+        toggle={() => setShow(!show)}
+        className="modal-dialog-centered modal-lg"
+      >
+        <ModalHeader
+          className="bg-transparent"
+          toggle={() => setShow(!show)}
+        ></ModalHeader>
+        <ModalBody className="px-sm-5 mx-50 pb-5">
+          <div className="text-center mb-2">
+            <h1 className="mb-1">افزودن ترم</h1>
+          </div>
+          <Row
+            tag="form"
+            className="gy-1 pt-75"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <Col xs={12}>
+              <Label className="form-label" for="termName">
+                نام ترم
+              </Label>
+              <Controller
+                name="termName"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="termName"
+                    placeholder=" نام ترم"
+                    invalid={errors.termName && true}
+                  />
+                )}
+              />
+              {errors.termName && (
+                <span className="invalid-feedback d-block">
+                  {errors.termName.message}
+                </span>
+              )}
+            </Col>
+            <Col md="6" className="mb-1">
+              <Label className="form-label" for="startDate">
+                زمان شروع
+              </Label>
+              <Controller
+                name="startDate"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <DatePicker
+                      id="startDate"
+                      calendar={persian}
+                      locale={persian_fa}
+                      calendarPosition="bottom-right"
+                      value={field.value ? new Date(field.value) : null}
+                      editable={false}
+                      placeholder={t("DatePlaceholder")}
+                      onChange={(date) => {
+                        if (date) {
+                          field.onChange(date.toDate().toISOString());
+                        } else {
+                          field.onChange(null);
+                        }
+                      }}
+                      inputClass={`form-control ${
+                        errors.startDate ? "is-invalid" : ""
+                      }`}
+                      containerStyle={{ width: "100%" }}
+                    />
+                    {errors.startDate && (
+                      <span className="invalid-feedback d-block">
+                        {errors.startDate.message}
+                      </span>
+                    )}
+                  </>
+                )}
+              />
+            </Col>
+
+            <Col md="6" className="mb-1">
+              <Label className="form-label" for="endDate">
+                زمان پایان
+              </Label>
+              <Controller
+                name="endDate"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <DatePicker
+                      id="endDate"
+                      calendar={persian}
+                      locale={persian_fa}
+                      calendarPosition="bottom-right"
+                      value={field.value ? new Date(field.value) : null}
+                      editable={false}
+                      placeholder={t("DatePlaceholder")}
+                      onChange={(date) => {
+                        if (date) {
+                          field.onChange(date.toDate().toISOString());
+                        } else {
+                          field.onChange(null);
+                        }
+                      }}
+                      inputClass={`form-control ${
+                        errors.endDate ? "is-invalid" : ""
+                      }`}
+                      containerStyle={{ width: "100%" }}
+                    />
+                    {errors.endDate && (
+                      <span className="invalid-feedback d-block">
+                        {errors.endDate.message}
+                      </span>
+                    )}
+                  </>
+                )}
+              />
+            </Col>
+
+            <Col xs={12} className="text-center mt-2 pt-50">
+              <Button type="submit" className="me-1" color="primary">
+                تغیرات
+              </Button>
+              <Button color="secondary" outline onClick={() => setShow(false)}>
+                منصرف
+              </Button>
+            </Col>
+          </Row>
+        </ModalBody>
+      </Modal>
+      <Modal
+        isOpen={show}
+        toggle={() => setShow(!show)}
+        className="modal-dialog-centered modal-lg"
+      >
+        <ModalHeader
+          className="bg-transparent"
+          toggle={() => setShow(!show)}
+        ></ModalHeader>
+        <ModalBody className="px-sm-5 mx-50 pb-5">
+          <div className="text-center mb-2">
+            <h1 className="mb-1">ساخت تاریخ بسته بودن</h1>
+          </div>
+          <Row
+            tag="form"
+            className="gy-1 pt-75"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <Col xs={12}>
+              <Label className="form-label" for="termName">
+                نام ترم
+              </Label>
+              <Controller
+                name="termName"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="termName"
+                    placeholder=" نام ترم"
+                    invalid={errors.termName && true}
+                  />
+                )}
+              />
+              {errors.termName && (
+                <span className="invalid-feedback d-block">
+                  {errors.termName.message}
+                </span>
+              )}
+            </Col>
+            <Col md="6" className="mb-1">
+              <Label className="form-label" for="startDate">
+                زمان شروع
+              </Label>
+              <Controller
+                name="startDate"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <DatePicker
+                      id="startDate"
+                      calendar={persian}
+                      locale={persian_fa}
+                      calendarPosition="bottom-right"
+                      value={field.value ? new Date(field.value) : null}
+                      editable={false}
+                      placeholder={t("DatePlaceholder")}
+                      onChange={(date) => {
+                        if (date) {
+                          field.onChange(date.toDate().toISOString());
+                        } else {
+                          field.onChange(null);
+                        }
+                      }}
+                      inputClass={`form-control ${
+                        errors.startDate ? "is-invalid" : ""
+                      }`}
+                      containerStyle={{ width: "100%" }}
+                    />
+                    {errors.startDate && (
+                      <span className="invalid-feedback d-block">
+                        {errors.startDate.message}
+                      </span>
+                    )}
+                  </>
+                )}
+              />
+            </Col>
+
+            <Col md="6" className="mb-1">
+              <Label className="form-label" for="endDate">
+                زمان پایان
+              </Label>
+              <Controller
+                name="endDate"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <DatePicker
+                      id="endDate"
+                      calendar={persian}
+                      locale={persian_fa}
+                      calendarPosition="bottom-right"
+                      value={field.value ? new Date(field.value) : null}
+                      editable={false}
+                      placeholder={t("DatePlaceholder")}
+                      onChange={(date) => {
+                        if (date) {
+                          field.onChange(date.toDate().toISOString());
+                        } else {
+                          field.onChange(null);
+                        }
+                      }}
+                      inputClass={`form-control ${
+                        errors.endDate ? "is-invalid" : ""
+                      }`}
+                      containerStyle={{ width: "100%" }}
+                    />
+                    {errors.endDate && (
+                      <span className="invalid-feedback d-block">
+                        {errors.endDate.message}
+                      </span>
+                    )}
+                  </>
+                )}
+              />
+            </Col>
+
+            <Col xs={12} className="text-center mt-2 pt-50">
+              <Button type="submit" className="me-1" color="primary">
+                تغیرات
+              </Button>
+              <Button color="secondary" outline onClick={() => setShow(false)}>
+                منصرف
+              </Button>
+            </Col>
+          </Row>
+        </ModalBody>
+      </Modal>
     </div>
   );
 };
 
-const UsersList = ({ TermList }) => {
+const UsersList = ({ termList }) => {
   // ** Redux
   const dispatch = useDispatch();
 
@@ -109,37 +437,23 @@ const UsersList = ({ TermList }) => {
   const { t } = useTranslation();
 
   // ** States
-  const [sort, setSort] = useState("desc");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState("id");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentRole, setCurrentRole] = useState({
-    value: "",
-    label: t("RolesSelection"),
-  });
-  const [currentStatus, setCurrentStatus] = useState({
-    value: "",
-    label: t("StatusSelection"),
-  });
-  const [currentIsDelete, setCurrentIsDelete] = useState({
-    value: "",
-    label: t("DeleteSelection"),
-  });
+  const [debounceSearch, setDebounceSearch] = useState("");
 
-  // ** Function to toggle sidebar
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const displayData = useMemo(() => {
-    if (!TermList) return [];
-    if (debounceSearch.trim() === "") return TermList;
+    if (!termList) return [];
+    if (debounceSearch.trim() === "") return termList;
     else {
-      return TermList.filter((value) =>
-        value.techName.toLowerCase().includes(debounceSearch.toLowerCase()),
+      return termList.filter((value) =>
+        value.termName.toLowerCase().includes(debounceSearch.toLowerCase()),
       );
     }
-  }, []);
+  }, [debounceSearch, termList]);
 
   const count = Number(Math.ceil(displayData?.length / rowsPerPage));
 
@@ -164,7 +478,7 @@ const UsersList = ({ TermList }) => {
     setSearchTerm(val);
     handleSearch(val);
   };
-
+  console.log(debounceSearch);
   const handleSearch = useMemo(
     () =>
       debounce((value) => {
@@ -206,75 +520,6 @@ const UsersList = ({ TermList }) => {
 
   return (
     <Fragment>
-      <Card>
-        <CardHeader>
-          <CardTitle tag="h4">{t("Filters")}</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <Row>
-            <Col md="4">
-              <Label for="role-select">{t("Roles")}</Label>
-              <Select
-                isClearable={false}
-                value={currentRole}
-                // options={roleOptions}
-                className="react-select"
-                classNamePrefix="select"
-                theme={selectThemeColors}
-                onChange={(data) => {
-                  setCurrentRole(data);
-                  dispatch(updateParams({ key: "roleId", value: data.value }));
-                }}
-              />
-            </Col>
-            <Col md="4">
-              <Label for="status-select">{t("Status")}</Label>
-              <Select
-                theme={selectThemeColors}
-                isClearable={false}
-                className="react-select"
-                classNamePrefix="select"
-                // options={statusOptions}
-                value={currentStatus}
-                onChange={(data) => {
-                  setCurrentStatus(data);
-                  const value =
-                    data.value === "active"
-                      ? true
-                      : data.value === "deActive"
-                      ? false
-                      : data.value;
-                  dispatch(updateParams({ key: "IsActiveUser", value: value }));
-                }}
-              />
-            </Col>
-            <Col md="4">
-              <Label for="delete-select">{t("isDelete")}</Label>
-              <Select
-                isClearable={false}
-                value={currentIsDelete}
-                // options={deleteOptions}
-                className="react-select"
-                classNamePrefix="select"
-                theme={selectThemeColors}
-                onChange={(data) => {
-                  setCurrentIsDelete(data);
-                  const value =
-                    data.value === "delete"
-                      ? true
-                      : data.value === "notDeleted"
-                      ? false
-                      : data.value;
-                  dispatch(
-                    updateParams({ key: "IsDeletedUser", value: value }),
-                  );
-                }}
-              />
-            </Col>
-          </Row>
-        </CardBody>
-      </Card>
-
       <Card className="overflow-hidden">
         <div className="react-dataTable">
           <DataTable
