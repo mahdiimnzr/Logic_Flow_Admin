@@ -108,3 +108,33 @@ export const updateNewsFile = async (formData) => {
     }
     
 };
+
+export const createNewsCategory = async (formData) => {
+    try {
+        const response = await apiClient.post("/News/CreateNewsCategory",formData);
+        
+        if (response && response.status === 200) {
+            return response.data;
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error Creating Category!", error);
+        throw error;
+    }
+};
+
+export const updateNewsCategory = async (formData) => {
+    try {
+        const response = await apiClient.put("/News/UpdateNewsCategory", formData);
+        
+        if (response && response.status === 200) {
+            return response.data;
+        }
+        return null;
+    } catch (error) {
+        
+        console.error("Error Updating Category!", error);
+        throw error;
+    }
+};

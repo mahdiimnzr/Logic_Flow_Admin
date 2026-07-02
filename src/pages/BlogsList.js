@@ -63,7 +63,7 @@ const BlogsList = () => {
                         icon={<Slash size={22} />}
                         color="primary"
                         isActive={setStatusFilter === false}
-                        onClick={() => setStatusFilter(flase)}
+                        onClick={() => setStatusFilter(false)}
                     />
                 </Col>
             </Row>
