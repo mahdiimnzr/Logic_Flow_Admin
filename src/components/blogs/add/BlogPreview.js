@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { Button, Row, Col, Card, CardBody, Badge } from 'reactstrap'
 import { ArrowLeft, ArrowRight, Check } from 'react-feather'
 
+import defaultIMG from "../../../assets/images/coursePng.png"
 const baseURL = import.meta.env.VITE_BASE_URL || ""
 
 const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
@@ -9,13 +10,20 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
     const data = watch()
 
     let previewImage = null;
+
     if (data.image) {
+
         if (typeof data.image === 'string') {
 
-            previewImage = data.image.startsWith('http') ? data.image : `${baseURL}/${data.image}`;
-
+            if (data.image !== "null" && data.image !== "") {
+                previewImage = data.image.startsWith('http') ? data.image : `${baseURL}/${data.image}`;
+            }
         } else {
-            previewImage = URL.createObjectURL(data.image);
+
+            const file = (data.image instanceof FileList || Array.isArray(data.image)) ? data.image[0] : data.image;
+            if (file) {
+                previewImage = URL.createObjectURL(file);
+            }
         }
     }
 
@@ -59,6 +67,10 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
                                     alt="کاور مقاله"
                                     className="img-fluid rounded shadow-sm"
                                     style={{ maxHeight: '220px', objectFit: 'cover', width: '100%' }}
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = defaultIMG;
+                                    }}
                                 />
                             ) : (
                                 <div className="bg-light d-flex justify-content-center align-items-center rounded w-100" style={{ height: '200px' }}>

@@ -11,7 +11,7 @@ const CategoryModal = ({ isOpen, toggle, initialData, refetch }) => {
 
     const isEditMode = !!initialData
 
-    const { control, handleSubmit, reset, formState: { errors } } = useForm({
+    const { control, register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
             CategoryName: "",
             GoogleTitle: "",
@@ -55,7 +55,15 @@ const CategoryModal = ({ isOpen, toggle, initialData, refetch }) => {
         formData.append("GoogleDescribe", data.GoogleDescribe)
         formData.append("IconName", data.IconName)
         formData.append("IconAddress", data.IconAddress)
-        formData.append("Image", data.Image)
+
+        if (data.Image && data.Image.length > 0 && typeof data.Image !== 'string') {
+
+            formData.append("Image", data.Image[0])
+        } else {
+
+            formData.append("Image", data.Image)
+        }
+
 
         try {
             if (isEditMode) {
@@ -125,6 +133,18 @@ const CategoryModal = ({ isOpen, toggle, initialData, refetch }) => {
                             )}
                         />
                         {errors.GoogleDescribe && <FormFeedback className='d-block'>{errors.GoogleDescribe.message}</FormFeedback>}
+                    </Col>
+                    <Col sm='12' className='mb-1'>
+                        <Label for='Image'>تصویر دسته‌بندی</Label>
+                        <Input
+                            type='file'
+                            id='Image'
+                            accept='image/*'
+                            {...register('Image')}
+                        />
+                        <small className='text-muted mt-50 d-block'>
+                            انتخاب تصویر برای این دسته‌بندی اختیاری است.
+                        </small>
                     </Col>
                 </Row>
             </ModalBody>

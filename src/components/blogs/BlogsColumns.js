@@ -57,7 +57,7 @@ const StatusToggleCell = ({ row }) => {
 };
 
 const BlogsColumns = [
-    {
+{
         name: "مقاله",
         sortable: true,
         minWidth: "300px",
@@ -70,7 +70,10 @@ const BlogsColumns = [
                     : `${baseURL}/${row.currentImageAddressTumb}`;
             }
             return (
-                <div className='d-flex align-items-center'>
+                <Link 
+                    to={`/blogs/view/${row.id}`} 
+                    className='d-flex align-items-center text-decoration-none text-body'
+                >
                     <img
                         src={imgSrc}
                         alt={row.title}
@@ -84,12 +87,12 @@ const BlogsColumns = [
                         }}
                     />
                     <div className='d-flex flex-column'>
-                        <span className='fw-bolder'>{row.title}</span>
+                        <span className='fw-bolder cursor-pointer text-primary'>{row.title}</span>
                         <small className='text-truncate text-muted mb-0' style={{ maxWidth: '200px' }}>
                             {row.miniDescribe || 'بدون توضیحات'}
                         </small>
                     </div>
-                </div>
+                </Link>
             )
         }
     },
