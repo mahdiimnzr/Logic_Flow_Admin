@@ -275,5 +275,20 @@
   "Cheapest": "ارزان ترین",
   "SelectOption": "انتخاب کنید",
   "SearchCourses": "جستجو دوره ها...",
-  "RowsPerPage": "نمایش"
+  "RowsPerPage": "نمایش",
+  "DepartmentsList": "لیست بخش‌ها",
+  "DepartmentsManagement": "مدیریت بخش‌ها",
+  "Departments": "بخش‌ها",
+  "DepartmentsCount": "مجموع بخش‌ها",
+  "Department": "بخش",
+  "DepartmentName": "نام بخش",
+  "DepartmentNamePlaceholder": "نام بخش",
+  "DepartmentNameRequired": "نام بخش الزامی است",
+  "AddDepartment": "افزودن بخش",
+  "EditDepartment": "ویرایش بخش",
+  "Building": "ساختمان",
+  "BuildingPlaceholder": "ساختمان را انتخاب کنید",
+  "BuildingRequired": "انتخاب ساختمان الزامی است",
+  "Floor": "طبقه",
+  "SearchDepartments": "جستجوی بخش‌ها..."
 }
