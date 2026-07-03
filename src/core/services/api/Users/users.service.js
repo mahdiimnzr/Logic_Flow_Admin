@@ -5,6 +5,9 @@ import useGetQueries from "../../common/useGetQueries";
 
 export const useGetUserList = (params) =>
   useGetQuery("UsersList", "User/UserMannage", params);
+export const useGetUsers = (params) =>
+  useGetQuery("Users", "User/UserMannage", params);
+
 export const createUser = (body) => postParams("User/CreateUser", body);
 export const useGetUserDetail = (params) =>
   useGetQuery(`UserDetail-${params}`, `User/UserDetails/${params}`);
