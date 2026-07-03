@@ -11,6 +11,9 @@ import BlogCover from '../components/blogs/add/BlogCover';
 import BlogPreview from '../components/blogs/add/BlogPreview';
 import { createNewsBlog, getNewsById, updateNews, updateNewsFile } from '../core/services/api/blogs/blogs.service';
 
+import defaultIMG from "../assets/images/coursePng.png"
+const baseURL = import.meta.env.VITE_BASE_URL || ""
+
 const BlogAdd = () => {
 
   const ref = useRef(null)
