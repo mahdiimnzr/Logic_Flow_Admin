@@ -55,6 +55,7 @@ const validationSchema = Yup.object({
   termName: Yup.string().required("نام الزامی است"),
   startDate: Yup.string().required(" انتخواب زمان الزامی است"),
   endDate: Yup.string().required(" انتخواب زمان الزامی است"),
+  departmentId: Yup.string().required(" انتخواب بخش الزامی است"),
 });
 // ** Table Header
 const CustomHeader = ({
@@ -67,16 +68,27 @@ const CustomHeader = ({
   // ** I18n
   const { t } = useTranslation();
   const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const queryClient = useQueryClient();
 
   const departments = queryClient.getQueryState(["Departments"]);
-  console.log(departments?.data?.data);
 
   const defaultValues = {
     termName: "",
     startDate: "",
     endDate: "",
+    departmentId: "",
   };
+
+  const [currentClassRoom, setCurrentClassRoom] = useState({
+    value: null,
+    label: "انتخواب کنید",
+  });
+
+  const departmentList = departments?.data?.data?.map((value) => {
+    const terms = { value: value.id, label: value.depName };
+    return terms;
+  });
 
   // ** Hooks
   const {
@@ -159,7 +171,7 @@ const CustomHeader = ({
               <Button
                 className="add-new-user"
                 color="primary"
-                onClick={() => setShow(true)}
+                onClick={() => setShowModal(true)}
               >
                 افزودن زمان
               </Button>
@@ -207,6 +219,38 @@ const CustomHeader = ({
                 </span>
               )}
             </Col>
+            <Col sm="12" className="mb-1">
+              <Label for="departmentId">بخش</Label>
+              <Controller
+                name="departmentId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    theme={selectThemeColors}
+                    isClearable={false}
+                    className={`react-select ${
+                      errors.departmentId ? "is-invalid" : ""
+                    }`}
+                    classNamePrefix="select"
+                    options={departmentList}
+                    value={currentClassRoom}
+                    placeholder={""}
+                    id="departmentId"
+                    name="departmentId"
+                    onChange={(data) => {
+                      setCurrentClassRoom(data);
+                      setValue("departmentId", data.value);
+                    }}
+                  />
+                )}
+              />
+              {errors.departmentId && (
+                <div className="invalid-feedback d-block">
+                  {t(errors.departmentId.message)}
+                </div>
+              )}
+            </Col>
+
             <Col md="6" className="mb-1">
               <Label className="form-label" for="startDate">
                 زمان شروع
@@ -297,13 +341,13 @@ const CustomHeader = ({
         </ModalBody>
       </Modal>
       <Modal
-        isOpen={show}
-        toggle={() => setShow(!show)}
+        isOpen={showModal}
+        toggle={() => setShowModal(!showModal)}
         className="modal-dialog-centered modal-lg"
       >
         <ModalHeader
           className="bg-transparent"
-          toggle={() => setShow(!show)}
+          toggle={() => setShowModal(!showModal)}
         ></ModalHeader>
         <ModalBody className="px-sm-5 mx-50 pb-5">
           <div className="text-center mb-2">
@@ -418,7 +462,11 @@ const CustomHeader = ({
               <Button type="submit" className="me-1" color="primary">
                 تغیرات
               </Button>
-              <Button color="secondary" outline onClick={() => setShow(false)}>
+              <Button
+                color="secondary"
+                outline
+                onClick={() => setShowModal(false)}
+              >
                 منصرف
               </Button>
             </Col>
@@ -545,8 +593,6 @@ const UsersList = ({ termList }) => {
           />
         </div>
       </Card>
-
-      {/* <SidebarNewUsers open={sidebarOpen} toggleSidebar={toggleSidebar} /> */}
     </Fragment>
   );
 };
