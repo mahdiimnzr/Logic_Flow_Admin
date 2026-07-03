@@ -106,13 +106,13 @@ export const updateNewsFile = async (formData) => {
         console.error("Error updating news file!", error);
         throw error;
     }
-    
+
 };
 
 export const createNewsCategory = async (formData) => {
     try {
-        const response = await apiClient.post("/News/CreateNewsCategory",formData);
-        
+        const response = await apiClient.post("/News/CreateNewsCategory", formData);
+
         if (response && response.status === 200) {
             return response.data;
         }
@@ -127,14 +127,46 @@ export const createNewsCategory = async (formData) => {
 export const updateNewsCategory = async (formData) => {
     try {
         const response = await apiClient.put("/News/UpdateNewsCategory", formData);
-        
+
         if (response && response.status === 200) {
             return response.data;
         }
         return null;
     } catch (error) {
-        
+
         console.error("Error Updating Category!", error);
+        throw error;
+    }
+};
+
+export const getNewsComments = async (newsId) => {
+    try {
+        const response = await apiClient.get(`/News/GetNewsComments?NewsId=${newsId}`);
+
+        if (response && response.status === 200) {
+            return response.data;
+        }
+
+        return null;
+    } catch (error) {
+
+        console.error("Error fetching comments!", error);
+        throw error;
+    }
+};
+
+export const getRepliesComments = async (commentId) => {
+    try {
+
+        const response = await apiClient.get(`/News/GetRepliesComments?Id=${commentId}`);
+        if (response && response.status === 200) {
+            return response.data;
+        }
+
+        return null;
+    } catch (error) {
+
+        console.error("Error fetching replies!", error);
         throw error;
     }
 };
