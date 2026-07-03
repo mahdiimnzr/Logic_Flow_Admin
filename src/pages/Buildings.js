@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useMemo, useState, memo } from "react";
 import Spinner from "../@core/components/spinner/Fallback-spinner";
 import Table from "../components/buildings/Table";
 import {
@@ -6,6 +6,7 @@ import {
   Col,
   FormFeedback,
   Input,
+  InputGroup,
   Label,
   Modal,
   ModalBody,
@@ -15,77 +16,69 @@ import {
 import SubscribersGained from "../components/buildings/SubscribersGained";
 import { useTranslation } from "react-i18next";
 import Breadcrumbs from "@components/breadcrumbs";
-import {
-  addDepartments,
-  useGetBuildings,
-  useGetDepartments,
-} from "../core/services/api/ManagementCourses/ManagementCourses.service";
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
-import Select from "react-select";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { selectThemeColors } from "@utils";
 import toast from "react-hot-toast";
-import { useGetAddressByCoordination } from "../core/services/api/buildings/buildings.service";
+import Cleave from "cleave.js/react";
+import {
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
+import {
+  addBuildings,
+  getAddressByCoordination,
+  useGetAddressByCoordination,
+} from "../core/services/api/buildings/buildings.service";
+import { useGetBuildings } from "../core/services/api/ManagementCourses/ManagementCourses.service";
+
+const MapMarker = ({ position, setPosition, setValue }) => {
+  const map = useMap();
+
+  useMapEvents({
+    click(e) {
+      setPosition([e.latlng.lat, e.latlng.lng]);
+      setValue("latitude", e.latlng.lat);
+      setValue("longitude", e.latlng.lng);
+    },
+  });
+
+  useEffect(() => {
+    map.flyTo(position, map.getZoom(), { animate: true, duration: 0.5 });
+  }, [position]);
+
+  return position === null ? null : <Marker position={position} />;
+};
 
 const Buildings = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const formatAddressFromProperties = (properties) => {
-    if (!properties) return "";
-    const parts = [
-      properties.name,
-      properties.housenumber,
-      properties.street,
-      properties.city,
-      properties.state,
-      properties.country,
-    ];
-    return parts.filter(Boolean).join(", ");
+  const options = {
+    numeral: true,
+    numeralThousandsGroupStyle: "thousand",
   };
-
-  const { isLoading, isFetching, data: buildings } = useGetBuildings();
-
-  const addressesQueries = useGetAddressByCoordination(
-    buildings?.data ?? [],
-    !isLoading && !!buildings,
-  );
-  const buildingsList = buildings?.data
-    .filter((_, index) => addressesQueries[index]?.isSuccess)
-    .map((value, index) => ({
-      ...value,
-      buildingAddress:
-        formatAddressFromProperties(
-          addressesQueries[index]?.data?.data?.features[0].properties,
-        ) ?? "آدرسی یافت نشد!",
-    }));
-
-  const dataLoading =
-    addressesQueries.some((value) => value.isLoading) || isLoading;
 
   const [addModal, setAddModal] = useState(false);
 
-  const [currentBuilding, setCurrentBuilding] = useState({
-    value: "",
-    label: t("BuildingPlaceholder"),
-  });
-
-  const buildingsOptions =
-    buildingsList?.map((value) => ({
-      value: value.id,
-      label: `${value.buildingName} ( ${t("Floor")} : ${value.floor} )`,
-    })) || [];
+  const [position, setPosition] = useState([35.6944, 51.4215]);
 
   const validationSchema = Yup.object({
-    depName: Yup.string().required("DepartmentNameRequired"),
-    buildingId: Yup.string().required("BuildingRequired"),
+    buildingName: Yup.string().required("DepartmentNameRequired"),
+    floor: Yup.string().required("BuildingRequired"),
+    latitude: Yup.string().required("BuildingRequired"),
+    longitude: Yup.string().required("BuildingRequired"),
   });
 
   const defaultValues = {
-    depName: "",
-    buildingId: "",
+    buildingName: "",
+    floor: "",
+    latitude: "",
+    longitude: "",
   };
 
   const {
@@ -98,37 +91,76 @@ const Buildings = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const { mutate: addDepartmentsMutate } = useMutation({
-    mutationFn: addDepartments,
+  const { isLoading, isFetching, data: buildings } = useGetBuildings();
+
+  const addressesQueries = useGetAddressByCoordination(
+    buildings?.data ?? [],
+    !isLoading,
+  );
+
+  const formatAddressFromProperties = (properties) => {
+    if (!properties) return "";
+
+    return [
+      properties.name,
+      properties.housenumber,
+      properties.street,
+      properties.city,
+      properties.state,
+      properties.country,
+    ]
+      .filter(Boolean)
+      .join(", ");
+  };
+
+  const buildingsList = useMemo(() => {
+    return (buildings?.data ?? []).map((item, index) => ({
+      ...item,
+      buildingAddress:
+        addressesQueries[index]?.data?.data?.features?.length > 0
+          ? formatAddressFromProperties(
+              addressesQueries[index].data.data.features[0].properties,
+            )
+          : "آدرسی یافت نشد!",
+    }));
+  }, [buildings, addressesQueries]);
+
+  const dataLoading =
+    addressesQueries.some((item) => item.isLoading) || isLoading;
+
+  const toggleAddModal = () => {
+    setAddModal((prev) => !prev);
+  };
+
+  const { mutate: addBuildingMutate, isPending: isSaving } = useMutation({
+    mutationFn: addBuildings,
     onMutate: () => {
       const toastId = toast.loading(t("Loading"));
       return { toastId };
     },
-
     onSuccess: (response, _, context) => {
       toast.success(response.data.message, {
         id: context.toastId,
       });
-
       queryClient.invalidateQueries({
-        queryKey: ["Departments"],
+        queryKey: ["Buildings"],
       });
-
       toggleAddModal();
+      setValue("buildingName", "");
+      setValue("floor", "");
+      setValue("latitude", "");
+      setValue("longitude", "");
     },
-
-    onError: (response, _, context) => {
-      toast.error(response.data.message, {
+    onError: (error, _, context) => {
+      toast.error(error?.response?.data?.message || t("SomethingWentWrong"), {
         id: context.toastId,
       });
     },
   });
 
   const onSubmit = (data) => {
-    addDepartmentsMutate(data);
+    addBuildingMutate(data);
   };
-
-  const toggleAddModal = () => setAddModal(!addModal);
 
   return dataLoading ? (
     <Spinner />
@@ -143,100 +175,124 @@ const Buildings = () => {
       />
 
       <Row>
-        <Col className="mb-1 mb-xl-0" xl="3" sm="12">
+        <Col xl="3" sm="12">
           <SubscribersGained
             title={t("DepartmentsCount")}
-            subscribers={buildingsList?.length || 0}
+            subscribers={buildingsList.length}
             series={[
               {
                 name: t("Departments"),
-                data: [0, 25, 15, 50, 35, 70, buildingsList?.length || 0],
+                data: [0, 25, 15, 50, 35, 70, buildingsList.length],
               },
             ]}
           />
+
           <div className="d-flex align-items-center table-header-actions">
-            <Button
-              block
-              className="add-new-user"
-              color="primary"
-              onClick={toggleAddModal}
-            >
+            <Button block color="primary" onClick={toggleAddModal}>
               {t("AddDepartment")}
             </Button>
+
             <Modal
               isOpen={addModal}
               toggle={toggleAddModal}
-              className="modal-dialog-centered"
-              style={{ fontFamily: "IRANYekanXFaNum" }}
+              className="modal-dialog-centered modal-lg"
+              style={{
+                fontFamily: "IRANYekanXFaNum",
+              }}
             >
-              <ModalHeader className="bg-transparent" toggle={toggleAddModal} />
+              <ModalHeader toggle={toggleAddModal} />
+
               <ModalBody className="px-sm-5 mx-50 pb-5">
                 <div className="text-center mb-2">
-                  <h1 className="mb-1">{t("AddDepartment")}</h1>
+                  <h1>{t("AddDepartment")}</h1>
                 </div>
+
                 <Row
                   tag="form"
-                  className="gy-1 pt-75"
+                  className="gy-1"
                   onSubmit={handleSubmit(onSubmit)}
                 >
                   <Col xs={12}>
-                    <Label className="form-label" for="depName">
-                      {t("DepartmentName")}
-                    </Label>
+                    <Label className="form-label">{t("DepartmentName")}</Label>
+
                     <Controller
-                      name="depName"
+                      name="buildingName"
                       control={control}
                       render={({ field }) => (
                         <Input
                           {...field}
-                          id="depName"
+                          invalid={!!errors.buildingName}
                           placeholder={t("DepartmentNamePlaceholder")}
-                          invalid={!!errors.depName}
                         />
                       )}
                     />
-                    {errors.depName && (
-                      <FormFeedback>{t(errors.depName.message)}</FormFeedback>
-                    )}
-                  </Col>
-                  <Col xs={12}>
-                    <Label className="form-label" for="buildingId">
-                      {t("Building")}
-                    </Label>
-                    <Controller
-                      name="buildingId"
-                      control={control}
-                      render={() => (
-                        <Select
-                          theme={selectThemeColors}
-                          isClearable={false}
-                          className={`react-select ${
-                            errors.buildingId ? "is-invalid" : ""
-                          }`}
-                          classNamePrefix="select"
-                          options={buildingsOptions}
-                          value={currentBuilding}
-                          placeholder={t("BuildingPlaceholder")}
-                          id="buildingId"
-                          name="buildingId"
-                          onChange={(data) => {
-                            setCurrentBuilding(data);
-                            setValue("buildingId", data.value);
-                          }}
-                        />
-                      )}
-                    />
-                    {errors.buildingId && (
+
+                    {errors.buildingName && (
                       <FormFeedback>
-                        {t(errors.buildingId.message)}
+                        {t(errors.buildingName.message)}
                       </FormFeedback>
                     )}
                   </Col>
-                  <Col
-                    xs={12}
-                    className="text-center mt-2 pt-50 d-flex justify-content-between"
-                  >
-                    <Button type="submit" className="me-1" color="primary">
+
+                  <Col xs={12}>
+                    <Label className="form-label">{t("Building")}</Label>
+
+                    <Controller
+                      name="floor"
+                      control={control}
+                      render={({ field }) => (
+                        <>
+                          <InputGroup>
+                            <Cleave
+                              className={`form-control ${
+                                errors.floor ? "is-invalid" : ""
+                              }`}
+                              options={options}
+                              value={field.value}
+                              placeholder={t("CourseFloor")}
+                              onChange={(e) =>
+                                field.onChange(e.target.rawValue)
+                              }
+                            />
+                          </InputGroup>
+
+                          {errors.floor && (
+                            <div className="invalid-feedback d-block">
+                              {t(errors.floor.message)}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    />
+                  </Col>
+                  <Col xs={12}>
+                    <Label className="form-label">انتخاب موقعیت</Label>
+                    <MapContainer
+                      center={position}
+                      zoom={13}
+                      style={{
+                        width: "100%",
+                        height: "270px",
+                        borderRadius: "16px",
+                        zIndex: "10",
+                      }}
+                    >
+                      <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <MapMarker
+                        position={position}
+                        setPosition={setPosition}
+                        setValue={setValue}
+                      />
+                    </MapContainer>
+                    {(errors.latitude || errors.longitude) && (
+                      <div className="invalid-feedback d-block">
+                        لطفا موقعیت مکانی را انتخاب کنید
+                      </div>
+                    )}
+                  </Col>
+
+                  <Col xs={12} className="d-flex justify-content-between mt-2">
+                    <Button color="primary" type="submit">
                       {t("SaveChanges")}
                     </Button>
 
@@ -249,6 +305,7 @@ const Buildings = () => {
             </Modal>
           </div>
         </Col>
+
         <Col xl="9" sm="12">
           <div className="app-user-list">
             <Table buildings={buildingsList} isFetching={isFetching} />
