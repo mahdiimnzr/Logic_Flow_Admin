@@ -3,7 +3,7 @@ const formatDate = (date) => {
   const event = new Date(date);
   const options = {
     day: "numeric",
-    month: "numeric",
+    month: "long",
     year: "numeric",
   };
   return event.toLocaleDateString("fa-IR", options);

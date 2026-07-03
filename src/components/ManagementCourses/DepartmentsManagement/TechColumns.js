@@ -1,17 +1,7 @@
-// ** React Imports
-import { Link, useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
-
-// ** Custom Components
-import Avatar from "@components/avatar";
-
-// ** Utils
+import { Controller, useForm } from "react-hook-form";
+import Select from "react-select";
 import { selectThemeColors } from "@utils";
-
-// ** Icons Imports
-import { Edit } from "react-feather";
-
-// ** Reactstrap Imports
+import { Edit, Eye } from "react-feather";
 import {
   Button,
   Modal,
@@ -22,116 +12,93 @@ import {
   Input,
   Row,
   Col,
+  FormFeedback,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-
-import { useSelector } from "react-redux";
-import profile from "/public/Profile.png";
-import ImageFallback from "../../common/ImageFallback";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import ImageDropZone from "../../common/ImageDropZone";
-import { updateTechnology } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
+import { updateDepartments } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 
-const validationSchema = Yup.object({
-  techName: Yup.string().required("CourseTitleRequired"),
-  describe: Yup.string().required("CourseDescribeRequired"),
-  iconAddress: Yup.string().required(" عکس الزامی است"),
-});
-
-// ** Renders Client Columns
-const renderClient = (row) => {
-  if (row?.iconAddress) {
-    return (
-      <ImageFallback
-        className="me-1"
-        style={{ borderRadius: "100%", width: "32px", height: "32px" }}
-        src={row.iconAddress}
-        fallback={profile}
-      />
-    );
-  } else {
-    return (
-      <Avatar
-        initials
-        className="me-1"
-        color={row.avatarColor || "light-primary"}
-        content={
-          row?.techName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"
-        }
-      />
-    );
-  }
-};
-export const columns = [
+export const columns = (t) => [
   {
-    name: "تکنولوژی",
+    name: t("DepartmentName"),
     sortable: true,
     minWidth: "200px",
-    sortField: "iconAddress",
-    selector: (row) => row.iconAddress,
+    sortField: "buildingName",
+    selector: (row) => row.buildingName,
     cell: (row) => (
-      <div className="d-flex justify-content-left align-items-center">
-        {renderClient(row)}
-        <div className="d-flex flex-column">
-          <span className="text-truncate text-muted mb-0">{row.techName}</span>
-        </div>
-      </div>
+      <span className="text-truncate text-muted mb-0">{row.depName}</span>
     ),
   },
 
   {
-    name: "توضیحات تکنولوژی",
+    name: t("Building"),
     minWidth: "80px",
     sortable: true,
-    sortField: "describe",
-    selector: (row) => row.describe,
+    sortField: "buildingName",
+    selector: (row) => row.buildingName,
     cell: (row) => (
-      <span className="text-truncate text-muted mb-0">{row.describe}</span>
+      <span className="text-truncate text-muted mb-0">
+        {row.buildingName + " ( طبقه: " + row.building.floor + " )"}
+      </span>
     ),
   },
 
   {
-    name: "اقدام",
+    name: t("Actions"),
     minWidth: "50px",
     cell: (row) => {
       const { t } = useTranslation();
-      const [centeredModal, setCenteredModal] = useState(false);
-
-      // ** States
-      const [show, setShow] = useState(false);
       const queryClient = useQueryClient();
 
-      const defaultValues = {
-        techName: row.techName ?? "",
-        describe: row.describe ?? "",
-        iconAddress: row.iconAddress ?? "",
-        id: row.id ?? "",
-      };
+      const buildings = queryClient.getQueryState(["Buildings"]);
 
-      // ** Hooks
+      const [editModal, setEditModal] = useState(false);
+      const [detailModal, setDetailModal] = useState(false);
+      const [currentBuilding, setCurrentBuilding] = useState({
+        value: row.buildingId,
+        label: row.buildingName + " ( طبقه: " + row.building.floor + " )",
+      });
+
+      const buildingsOptions = buildings?.data?.data?.map((value) => {
+        const building = {
+          value: value.id,
+          label: value.buildingName + " ( طبقه: " + value.floor + " )",
+        };
+        return building;
+      });
+
+      const validationSchema = Yup.object({
+        depName: Yup.string().required("DepartmentNameRequired"),
+        buildingId: Yup.string().required("BuildingRequired"),
+      });
+      const defaultValues = {
+        id: row.id ?? "",
+        depName: row.depName ?? "",
+        buildingId: row.buildingId ?? "",
+      };
       const {
         control,
-        setValue,
         handleSubmit,
+        setValue,
         formState: { errors },
       } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
-      const { mutate: updateTechnologyMutate } = useMutation({
-        mutationFn: updateTechnology,
+      const { mutate: updateDepartmentsMutate } = useMutation({
+        mutationFn: updateDepartments,
         onMutate: () => {
           const toastId = toast.loading(t("Loading"));
           return { toastId };
         },
         onSuccess: (response, _, context) => {
-          toast.success(" تکنولوژی ویرایش شد", { id: context.toastId });
+          toast.success(response.data.message, { id: context.toastId });
           queryClient.invalidateQueries({
-            queryKey: [`Technology`],
+            queryKey: [`Departments`],
           });
-          setShow(!show);
+          toggleEditModal();
         },
         onError: (response, _, context) => {
           toast.error(response.data.message, { id: context.toastId });
@@ -139,62 +106,69 @@ export const columns = [
       });
 
       const onSubmit = (data) => {
-        updateTechnologyMutate(data);
+        updateDepartmentsMutate(data);
       };
+
+      const toggleDetailModal = () => setDetailModal(!detailModal);
+      const toggleEditModal = () => setEditModal(!editModal);
 
       return (
         <div className="column-action d-flex gap-1 align-items-center">
-          ویرایش
-          <Edit size={17} className="me-50 " onClick={() => setShow(true)} />
-          <Button.Ripple
-            onClick={() => setCenteredModal(!centeredModal)}
-            color="info"
-            size="sm"
-          >
-            {" "}
-            جزعیات
-          </Button.Ripple>
+          <Eye
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={toggleDetailModal}
+          />
           <Modal
             unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={() => setCenteredModal(!centeredModal)}
+            isOpen={detailModal}
+            toggle={toggleDetailModal}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
-              {t("Comments")}
+            <ModalHeader toggle={toggleDetailModal}>
+              {t("Department")}
             </ModalHeader>
             <ModalBody>
               <div className="mb-1 d-flex flex-column">
-                <Label>{t("CommentTitle")}</Label>
-                <span className="text-muted mb-0">{row.techName}</span>
+                <Label>{t("DepartmentName")}</Label>
+                <span className="text-muted mb-0">{row.depName}</span>
               </div>
               <div className="mb-1 d-flex flex-column">
-                <Label>{t("CommentDescribe")}</Label>
-                <span className="text-muted mb-0">{row.describe}</span>
+                <Label>{t("Building")}</Label>
+                <span className="text-muted mb-0">
+                  {row.buildingName + " ( طبقه: " + row.building.floor + " )"}
+                </span>
               </div>
             </ModalBody>
-            <ModalFooter>
+            <ModalFooter className="d-flex justify-content-between">
               <Button
                 color="primary"
-                onClick={() => setCenteredModal(!centeredModal)}
+                onClick={() => {
+                  toggleDetailModal();
+                  toggleEditModal();
+                }}
               >
+                {t("Edit")}
+              </Button>
+              <Button color="secondary" outline onClick={toggleDetailModal}>
                 {t("Cancel")}
               </Button>
             </ModalFooter>
           </Modal>
           <Modal
-            isOpen={show}
-            toggle={() => setShow(!show)}
-            className="modal-dialog-centered modal-lg"
+            isOpen={editModal}
+            toggle={toggleEditModal}
+            className="modal-dialog-centered"
+            style={{ fontFamily: "IRANYekanXFaNum" }}
           >
             <ModalHeader
               className="bg-transparent"
-              toggle={() => setShow(!show)}
+              toggle={toggleEditModal}
             ></ModalHeader>
             <ModalBody className="px-sm-5 mx-50 pb-5">
               <div className="text-center mb-2">
-                <h1 className="mb-1">ادیت کردن تکنولوژی ها</h1>
+                <h1 className="mb-1">{t("EditDepartment")}</h1>
               </div>
               <Row
                 tag="form"
@@ -202,72 +176,72 @@ export const columns = [
                 onSubmit={handleSubmit(onSubmit)}
               >
                 <Col xs={12}>
-                  <Label className="form-label" for="techName">
-                    نام تکنولوژی
+                  <Label className="form-label" for="depName">
+                    {t("DepartmentName")}
                   </Label>
                   <Controller
-                    name="techName"
+                    name="depName"
                     control={control}
                     render={({ field }) => (
                       <Input
                         {...field}
-                        id="techName"
-                        placeholder="   نام تکنولوژی"
-                        invalid={errors.techName && true}
+                        id="depName"
+                        placeholder={t("DepartmentNamePlaceholder")}
+                        invalid={!!errors.depName}
                       />
                     )}
                   />
-                  {errors.techName && (
-                    <FormFeedback>Please enter a valid Username</FormFeedback>
+                  {errors.depName && (
+                    <FormFeedback>{t(errors.depName.message)}</FormFeedback>
                   )}
                 </Col>
                 <Col xs={12}>
-                  <Label className="form-label" for="describe">
-                    توضیحات
+                  <Label className="form-label" for="buildingId">
+                    {t("Building")}
                   </Label>
                   <Controller
-                    name="describe"
+                    name="buildingId"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        id="describe"
-                        placeholder="توضیحات"
-                        invalid={errors.describe && true}
+                      <Select
+                        theme={selectThemeColors}
+                        isClearable={false}
+                        className={`react-select ${
+                          errors.buildingId ? "is-invalid" : ""
+                        }`}
+                        classNamePrefix="select"
+                        options={buildingsOptions}
+                        value={currentBuilding}
+                        placeholder={t("BuildingPlaceholder")}
+                        id="buildingId"
+                        name="buildingId"
+                        onChange={(data) => {
+                          setCurrentBuilding(data);
+                          setValue("buildingId", data.value);
+                        }}
                       />
                     )}
                   />
-                  {errors.describe && (
-                    <FormFeedback>Please enter a valid Username</FormFeedback>
+                  {errors.buildingId && (
+                    <FormFeedback>{t(errors.buildingId.message)}</FormFeedback>
                   )}
                 </Col>
-                <Col xs={12}>
-                  <ImageDropZone
-                    currentImage={row?.iconAddress}
-                    error={
-                      errors.iconAddress ? t(errors.iconAddress.message) : null
-                    }
-                    onChange={(files) => {
-                      if (files.length > 0) {
-                        setValue("iconAddress", URL.createObjectURL(files[0]), {
-                          shouldValidate: true,
-                        });
-                      } else {
-                        setValue("iconAddress", "", { shouldValidate: true });
-                      }
-                    }}
-                  />
-                </Col>
-                <Col xs={12} className="text-center mt-2 pt-50">
+                <Col
+                  xs={12}
+                  className="text-center mt-2 pt-50 d-flex justify-content-between"
+                >
                   <Button type="submit" className="me-1" color="primary">
-                    تغیرات
+                    {t("SaveChanges")}
                   </Button>
                   <Button
                     color="secondary"
                     outline
-                    onClick={() => setShow(false)}
+                    onClick={() => {
+                      toggleEditModal();
+                      toggleDetailModal();
+                    }}
                   >
-                    منصرف
+                    {t("Cancel")}
                   </Button>
                 </Col>
               </Row>

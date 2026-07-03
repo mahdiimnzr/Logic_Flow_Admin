@@ -19,3 +19,7 @@ export const postTerm = (body) => postParams("/Term", body);
 export const updateTerm = (body) => putParams("/Term", body);
 
 export const useGetDepartments = () => useGetQuery("Departments", "Department");
+export const updateDepartments = (body) => putParams("Department", body);
+export const addDepartments = (body) => postParams("Department", body);
+
+export const useGetBuildings = () => useGetQuery("Buildings", "Building");

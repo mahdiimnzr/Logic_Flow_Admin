@@ -1,16 +1,13 @@
-// ** React Imports
-import { Fragment, useState, memo } from "react";
+import { Fragment, useState, useEffect, memo } from "react";
 import { Query, useQuery } from "@tanstack/react-query";
 
 import { getAdminBlogsList } from "../../core/services/api/blogs/blogs.service";
 import BlogsColumns from "./BlogsColumns";
 
-// ** Third Party Components
 import ReactPaginate from "react-paginate";
 import { ChevronDown } from "react-feather";
 import DataTable from "react-data-table-component";
 
-// ** Reactstrap Imports
 import {
   Card,
   CardHeader,
@@ -25,24 +22,34 @@ import { isAction } from "@reduxjs/toolkit";
 import { useNavbarColor } from "./../../utility/hooks/useNavbarColor";
 
 const DataTableServerSide = ({ statusFilter }) => {
-  // ** States
+
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("")
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+
+      setDebouncedSearchValue(searchValue);
+    }, 1000);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchValue]);
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: [
       "adminBlogs",
       currentPage,
       rowsPerPage,
-      searchValue,
+      debouncedSearchValue,
       statusFilter,
     ],
     queryFn: () =>
       getAdminBlogsList({
         pageNumber: currentPage,
         RowsOfPage: rowsPerPage,
-        Query: searchValue,
+        Query: debouncedSearchValue,
         IsActive: statusFilter,
       }),
     keepPreviousData: true,
@@ -51,24 +58,20 @@ const DataTableServerSide = ({ statusFilter }) => {
   const blogsData = data?.news || [];
   const totalCount = data?.totalCount || 0;
 
-  // ** Function to handle filter
   const handleFilter = (e) => {
     setSearchValue(e.target.value);
     setCurrentPage(1);
   };
 
-  // ** Function to handle Pagination and get data
   const handlePagination = (page) => {
     setCurrentPage(page.selected + 1);
   };
 
-  // ** Function to handle per page
   const handlePerPage = (e) => {
     setRowsPerPage(parseInt(e.target.value));
     setCurrentPage(1);
   };
 
-  // ** Custom Pagination
   const CustomPagination = () => {
     const count = Math.ceil(totalCount / rowsPerPage);
 
