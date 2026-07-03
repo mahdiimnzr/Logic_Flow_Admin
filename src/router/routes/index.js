@@ -19,6 +19,7 @@ import DashboardRoute from "./Dashboard";
 import CommentsRoute from "./Comments";
 import BlogsRoute from "./Blogs";
 import ManagementCoursesRoute from "./ManagementCourse";
+import BuildingRoute from "./Buildings";
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -26,15 +27,10 @@ const getLayout = {
   horizontal: <HorizontalLayout />,
 };
 
-// ** Document title
-const TemplateTitle = "%s - Vuexy React Admin Template";
-
 // ** Default Route
 const DefaultRoute = "/Dashboard";
 
-const Home = lazy(() => import("../../pages/Home"));
 const Error = lazy(() => import("../../pages/Error"));
-const Sample = lazy(() => import("../../pages/Sample"));
 
 // ** Merge Routes
 const Routes = [
@@ -50,6 +46,7 @@ const Routes = [
   ...CommentsRoute,
   ...BlogsRoute,
   ...ManagementCoursesRoute,
+  ...BuildingRoute,
   {
     path: "/error",
     element: <Error />,
@@ -137,4 +134,4 @@ const getRoutes = (layout) => {
   return AllRoutes;
 };
 
-export { DefaultRoute, TemplateTitle, Routes, getRoutes };
+export { DefaultRoute, Routes, getRoutes };

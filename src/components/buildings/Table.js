@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { columns } from "./TechColumns";
+import { columns } from "./BuildingsColumn";
 import debounce from "debounce";
 import ReactPaginate from "react-paginate";
 import DataTable from "react-data-table-component";
@@ -64,7 +64,7 @@ const CustomHeader = ({
   );
 };
 
-const DepartmentsList = ({ departments, isFetching }) => {
+const BuildingsList = ({ buildings, isFetching }) => {
   const { t } = useTranslation();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,14 +73,14 @@ const DepartmentsList = ({ departments, isFetching }) => {
   const [debounceSearch, setDebounceSearch] = useState("");
 
   const displayData = useMemo(() => {
-    if (!departments) return [];
+    if (!buildings) return [];
 
-    if (!debounceSearch.trim()) return departments;
+    if (!debounceSearch.trim()) return buildings;
 
-    return departments.filter((value) =>
-      value.depName.toLowerCase().includes(debounceSearch.toLowerCase()),
+    return buildings.filter((value) =>
+      value.buildingName.toLowerCase().includes(debounceSearch.toLowerCase()),
     );
-  }, [departments, debounceSearch]);
+  }, [buildings, debounceSearch]);
 
   const count = Math.ceil(displayData.length / rowsPerPage);
 
@@ -166,4 +166,4 @@ const DepartmentsList = ({ departments, isFetching }) => {
   );
 };
 
-export default DepartmentsList;
+export default BuildingsList;

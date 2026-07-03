@@ -1,5 +1,12 @@
 import { title } from "process";
-import { Home, Airplay, Circle, Users, MessageSquare } from "react-feather";
+import {
+  Home,
+  Airplay,
+  Circle,
+  Users,
+  MessageSquare,
+  Database,
+} from "react-feather";
 
 export default [
   {
@@ -100,5 +107,11 @@ export default [
     title: "Users",
     icon: <Users size={20} />,
     navLink: "/Users/List",
+  },
+  {
+    id: "buildings",
+    title: "Buildings",
+    icon: <Database size={20} />,
+    navLink: "/Buildings/List",
   },
 ];

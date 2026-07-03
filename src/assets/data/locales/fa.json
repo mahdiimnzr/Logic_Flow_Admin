@@ -290,5 +290,7 @@
   "BuildingPlaceholder": "ساختمان را انتخاب کنید",
   "BuildingRequired": "انتخاب ساختمان الزامی است",
   "Floor": "طبقه",
-  "SearchDepartments": "جستجوی بخش‌ها..."
+  "SearchDepartments": "جستجوی بخش‌ها...",
+  "Buildings": "ساختمان ها",
+  "BuildingAddress": "آدرس ساختمان"
 }
