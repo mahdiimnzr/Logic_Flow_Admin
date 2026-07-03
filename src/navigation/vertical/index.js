@@ -29,7 +29,7 @@ export default [
   },
   {
     id: "blogsPage",
-    title: "اخبار",
+    title: "مدیریت اخبار",
     icon: <Home size={20} />,
     children: [
       {
@@ -43,6 +43,12 @@ export default [
         title: "اضافه کردن مقاله",
         icon: <Circle size={12} />,
         navLink: "/blogs/add",
+      },
+      {
+        id: "blogCategory",
+        title: "دسته بندی مقالات",
+        icon: <Circle size={12} />,
+        navLink: "/blogs/categories",
       },
     ],
   },

@@ -4,6 +4,7 @@ import React from 'react'
 
 const BlogsList = lazy(() => import("../../pages/BlogsList"))
 const BlogAdd = lazy(() => import("../../pages/BlogAdd"))
+const BlogCategory = lazy(() => import("../../pages/BlogCategory"))
 
 
 const BlogsRoute = [
@@ -18,6 +19,10 @@ const BlogsRoute = [
     {
         path: "/blogs/edit/:id",
         element: <BlogAdd />,
+    },
+    {
+        path: "/blogs/categories",
+        element: <BlogCategory />,
     },
 ]
 
