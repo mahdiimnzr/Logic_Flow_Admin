@@ -117,7 +117,8 @@ const BuildingsList = ({ buildings, isFetching }) => {
   }, [count, currentPage]);
 
   const CustomPagination = () => (
-    <div className="d-flex align-items-center justify-content-end">
+    <div className="d-flex align-items-center justify-content-end gap-1">
+      {isFetching && <Spinner />}
       <ReactPaginate
         previousLabel=""
         nextLabel=""
@@ -133,7 +134,6 @@ const BuildingsList = ({ buildings, isFetching }) => {
         pageLinkClassName="page-link"
         containerClassName="pagination react-paginate justify-content-end my-2 pe-1"
       />
-      {isFetching && <Spinner />}
     </div>
   );
 

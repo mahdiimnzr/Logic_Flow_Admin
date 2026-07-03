@@ -1,7 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
 import { selectThemeColors } from "@utils";
-import { Edit, Eye } from "react-feather";
+import { Edit, Eye, MoreVertical, TrendingUp } from "react-feather";
 import {
   Button,
   Modal,
@@ -13,6 +13,11 @@ import {
   Row,
   Col,
   FormFeedback,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Badge,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +26,7 @@ import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { updateDepartments } from "../../core/services/api/ManagementCourses/ManagementCourses.service";
+import { activeBuildings } from "../../core/services/api/buildings/buildings.service";
 
 export const columns = (t) => [
   {
@@ -47,7 +53,22 @@ export const columns = (t) => [
       </span>
     ),
   },
-
+  {
+    sortable: true,
+    name: "دوره های فعال و غیر فعال",
+    minWidth: "164px",
+    sortField: "balance",
+    selector: (row) => row?.active,
+    cell: (row) => (
+      <Badge
+        className="text-capitalize"
+        color={row?.active ? "light-success" : "light-primary"}
+        pill
+      >
+        {row?.active ? "فعال" : "غیر فعال"}
+      </Badge>
+    ),
+  },
   {
     name: t("Actions"),
     minWidth: "50px",
@@ -88,8 +109,8 @@ export const columns = (t) => [
         formState: { errors },
       } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
 
-      const { mutate: updateDepartmentsMutate } = useMutation({
-        mutationFn: updateDepartments,
+      const { mutate: activeDepartmentMutate } = useMutation({
+        mutationFn: activeBuildings,
         onMutate: () => {
           const toastId = toast.loading(t("Loading"));
           return { toastId };
@@ -97,9 +118,8 @@ export const columns = (t) => [
         onSuccess: (response, _, context) => {
           toast.success(response.data.message, { id: context.toastId });
           queryClient.invalidateQueries({
-            queryKey: [`Departments`],
+            queryKey: [`Buildings`],
           });
-          toggleEditModal();
         },
         onError: (response, _, context) => {
           toast.error(response.data.message, { id: context.toastId });
@@ -120,6 +140,30 @@ export const columns = (t) => [
             className="me-50 cursor-pointer"
             onClick={toggleDetailModal}
           />
+          <UncontrolledDropdown>
+            <DropdownToggle tag="span">
+              <MoreVertical size={17} className="cursor-pointer" />
+            </DropdownToggle>
+            <DropdownMenu end>
+              <DropdownItem
+                tag="a"
+                href="/"
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  activeDepartmentMutate({
+                    active: row.active === true ? false : true,
+                    id: row.id,
+                  });
+                }}
+              >
+                <TrendingUp size={14} className="me-50" />
+                <span className="align-middle">
+                  {row.active == true ? t("DeActive") : t("Active")}
+                </span>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
           <Modal
             unmountOnClose={true}
             isOpen={detailModal}
