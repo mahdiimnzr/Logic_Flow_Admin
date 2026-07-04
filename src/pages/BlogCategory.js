@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import { React, useState, Fragment } from 'react'
 import { Row, Col, Button, Card, CardHeader, CardTitle } from 'reactstrap'
 import { Layers, Plus } from 'react-feather'
 import { useQuery } from '@tanstack/react-query'
 import { getNewsCategories } from '../core/services/api/blogs/blogs.service'
-import BlogFilterCard from '../components/blogs/BlogFilterCard'
 import CategoryTable from '../components/blogs/category/CategoryTable'
 import CategoryModal from '../components/blogs/category/CategoryModal'
+import BreadCrumbs from "@components/breadcrumbs"
+import SubscribersGained from '../components/blogs/category/SubscribersGained'
 
 const BlogCategory = () => {
 
@@ -30,38 +31,64 @@ const BlogCategory = () => {
 
     const totalCategoriesCount = categories ? categories.length : 0
 
+    const categoryChartData = [
+        {
+            name: 'دسته‌بندی‌ها',
+            data: [5, 12, 8, 15, 10, 22, 15]
+        }
+    ]
+
     return (
-        <div className='app-user-list'>
-            <Row className='align-items-center mb-2'>
-                <Col lg="4" md="6" sm="12" className='mb-2 mb-md-0'>
-                    <BlogFilterCard
-                        title="کل دسته‌بندی‌ها"
-                        count={totalCategoriesCount}
-                        icon={<Layers size={22} />}
-                        color="primary"
-                    />
-                </Col>
+        <Fragment>
 
-                <Col lg="8" md="6" sm="12" className='d-flex justify-content-md-end justify-content-start'>
-                    <Button color='primary' className='d-flex align-items-center' onClick={toggleModal}>
-                        <Plus size={18} className='me-50' />
-                        <span className='fw-bold'>افزودن دسته‌بندی جدید</span>
-                    </Button>
-                </Col>
-            </Row>
+            <BreadCrumbs
+                title="دسته بندی مقالات"
+                data={[
+                    { title: " مقالات", link: "/blogs/list" }, { title: "دسته بندی‌ها" }
+                ]}
+            />
+            <div className='app-user-list'>
+                <Row>
+                    <Col xl="3" lg="4" md="4" sm="12" className="mb-2">
+                        <div className="d-flex flex-column h-100">
 
-            <CategoryTable
-                data={categories || []}
-                isLoading={isLoading}
-                onEditClick={handleEditCategory}
-            />
-            <CategoryModal
-                isOpen={isModalOpen}
-                toggle={toggleModal}
-                initialData={selectedCategory}
-                refetch={refetch}
-            />
-        </div>
+                            <SubscribersGained
+                                title="کل دسته‌بندی‌ها"
+                                subscribers={totalCategoriesCount?.toString() || "0"}
+                                series={categoryChartData}
+                                color="primary"
+                                icon={<Layers size={21} />}
+                            />
+
+                            <Button
+                                color='primary'
+                                className='w-100 mt-1 d-flex align-items-center justify-content-center'
+                                onClick={toggleModal}
+                            >
+                                <Plus size={15} className='me-50' />
+                                <span className='fw-bold'>افزودن دسته‌بندی جدید</span>
+                            </Button>
+
+                        </div>
+                    </Col>
+
+                    <Col xl="9" lg="8" md="8" sm="12">
+                        <CategoryTable
+                            data={categories || []}
+                            isLoading={isLoading}
+                            onEditClick={handleEditCategory}
+                        />
+                    </Col>
+                </Row>
+
+                <CategoryModal
+                    isOpen={isModalOpen}
+                    toggle={toggleModal}
+                    initialData={selectedCategory}
+                    refetch={refetch}
+                />
+            </div>
+        </Fragment>
     )
 }
 
