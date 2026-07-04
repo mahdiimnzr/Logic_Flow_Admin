@@ -49,7 +49,7 @@ const Terms = () => {
       /> */}
       <div className="app-user-list">
         <Row>
-          <Col lg="3" sm="7">
+          <Col lg="4" sm="7">
             <StatsHorizontal
               color="primary"
               statTitle="کل ترم ها"
@@ -59,23 +59,23 @@ const Terms = () => {
               }
             />
           </Col>
-          <Col lg="3" sm="6">
+          <Col lg="4" sm="6">
             <StatsHorizontal
               color="success"
               statTitle="ترم های منقضی نشده"
               icon={<Activity size={20} />}
               renderStats={
-                <h3 className="fw-bolder mb-75">{totalExpire?.length}</h3>
+                <h3 className="fw-bolder mb-75">{totalUnExpire?.length}</h3>
               }
             />
           </Col>
-          <Col lg="3" sm="6">
+          <Col lg="4" sm="6">
             <StatsHorizontal
               color="danger"
               statTitle="ترم های منقضی شده"
               icon={<Slash size={20} />}
               renderStats={
-                <h3 className="fw-bolder mb-75">{totalUnExpire?.length}</h3>
+                <h3 className="fw-bolder mb-75">{totalExpire?.length}</h3>
               }
             />
           </Col>

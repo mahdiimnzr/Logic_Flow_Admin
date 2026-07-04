@@ -22,6 +22,7 @@ import {
   Input,
   Row,
   Col,
+  FormFeedback,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -144,7 +145,6 @@ export const columns = [
 
       return (
         <div className="column-action d-flex gap-1 align-items-center">
-          ویرایش
           <Edit size={17} className="me-50 " onClick={() => setShow(true)} />
           <Button.Ripple
             onClick={() => setCenteredModal(!centeredModal)}
@@ -218,7 +218,7 @@ export const columns = [
                     )}
                   />
                   {errors.techName && (
-                    <FormFeedback>Please enter a valid Username</FormFeedback>
+                    <FormFeedback>{t(errors.techName.message)}</FormFeedback>
                   )}
                 </Col>
                 <Col xs={12}>
@@ -238,7 +238,7 @@ export const columns = [
                     )}
                   />
                   {errors.describe && (
-                    <FormFeedback>Please enter a valid Username</FormFeedback>
+                    <FormFeedback>{t(errors.describe.message)}</FormFeedback>
                   )}
                 </Col>
                 <Col xs={12}>

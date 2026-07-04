@@ -14,14 +14,10 @@ import { postStatus } from "../../../core/services/api/ManagementCourses/Managem
 
 const defaultValues = {
   statusName: "",
-  describe: "",
-  statusNumber: "",
 };
 
 const validationSchema = Yup.object({
   statusName: Yup.string().required("نام الزامی است"),
-  describe: Yup.string().required("توضیحات الزامی است"),
-  statusNumber: Yup.string().required(" عکس الزامی است"),
 });
 
 const SidebarNewUsers = ({ open, toggleSidebar }) => {
@@ -94,56 +90,6 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
                 {errors.statusName && (
                   <span className="text-danger" style={{ fontSize: "12px" }}>
                     {t(errors.statusName.message)}
-                  </span>
-                )}
-              </>
-            )}
-          />
-        </div>
-
-        <div className="mb-1">
-          <Label className="form-label" for="describe">
-            توضیحات <span className="text-danger">*</span>
-          </Label>
-          <Controller
-            name="describe"
-            control={control}
-            render={({ field }) => (
-              <>
-                <Input
-                  id="describe"
-                  placeholder={"توضیحات"}
-                  invalid={!!errors.describe}
-                  {...field}
-                />
-                {errors.describe && (
-                  <span className="text-danger" style={{ fontSize: "12px" }}>
-                    {t(errors.describe.message)}
-                  </span>
-                )}
-              </>
-            )}
-          />
-        </div>
-
-        <div className="mb-1">
-          <Label className="form-label" for="statusNumber">
-            عدد <span className="text-danger">*</span>
-          </Label>
-          <Controller
-            name="statusNumber"
-            control={control}
-            render={({ field }) => (
-              <>
-                <Input
-                  id="statusNumber"
-                  placeholder={"...عدد"}
-                  invalid={!!errors.statusNumber}
-                  {...field}
-                />
-                {errors.statusNumber && (
-                  <span className="text-danger" style={{ fontSize: "12px" }}>
-                    {t(errors.statusNumber.message)}
                   </span>
                 )}
               </>

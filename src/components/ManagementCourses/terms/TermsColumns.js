@@ -34,12 +34,9 @@ import { useState } from "react";
 
 import profile from "/public/Profile.png";
 import ImageFallback from "../../common/ImageFallback";
-import {
-  updateTerm,
-  useGetTerm,
-} from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
+import { updateTerm } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 import formatDate from "../../../core/utils/formatDate";
-import { AlignJustify, MoreVertical, TrendingUp } from "react-feather";
+import { AlignJustify, MoreVertical } from "react-feather";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as Yup from "yup";
@@ -47,6 +44,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import EditCloseDateModal from "./EditCloseDateModal";
 
 // ** Renders Client Columns
 const renderClient = (row) => {
@@ -127,16 +125,16 @@ export const columns = [
     minWidth: "138px",
     sortable: true,
     sortField: "status",
-    selector: (row) => row.active,
+    selector: (row) => row.expire,
     cell: (row) => {
       const { t } = useTranslation();
       return (
         <Badge
           className="text-capitalize"
-          color={row?.expire ? statusObj.active : statusObj.deActive}
+          color={row?.expire ? statusObj.deActive : statusObj.active}
           pill
         >
-          {row.expire ? "  منقضی نشده " : "منقضی شده "}
+          {row.expire ? "منقضی شده " : "منقضی نشده "}
         </Badge>
       );
     },
@@ -148,19 +146,16 @@ export const columns = [
       const { t } = useTranslation();
       const queryClient = useQueryClient();
       const [centeredModal, setCenteredModal] = useState(false);
+      const [updateCloseDateModal, setUpdateCloseDateModal] = useState(false);
+
+      const toggleUpdateCloseDate = () =>
+        setUpdateCloseDateModal(!updateCloseDateModal);
 
       const validationSchema = Yup.object({
         termName: Yup.string().required(".........."),
         startDate: Yup.string().required("........."),
         endDate: Yup.string().required("..........."),
       });
-
-      // // ** User filter options
-      // const rolesList = termList?.data?.map((value) => {
-      //   const roles = { value: value.id, label: value.name };
-      //   return roles;
-      // });
-      // const roleOptions = [...(rolesList ?? [])];
 
       const defaultValues = {
         id: row?.id ?? "",
@@ -169,6 +164,17 @@ export const columns = [
         endDate: row?.endDate ?? null,
         expire: row?.expire ?? false,
       };
+
+      const [currentStatus, setCurrentStatus] = useState({
+        value: row?.expire ? "active" : "deActive",
+        label: row.expire ? "منقضی شده" : "منقضی نشده",
+      });
+
+      const statusOptions = [
+        // { value: null, label: t("StatusSelection") },
+        { value: "active", label: "منقضی شده" },
+        { value: "deActive", label: "منقضی نشده" },
+      ];
 
       const {
         control,
@@ -210,8 +216,6 @@ export const columns = [
             </DropdownToggle>
             <DropdownMenu end>
               <DropdownItem
-                tag="a"
-                href="/"
                 className="w-100"
                 onClick={(e) => {
                   e.preventDefault();
@@ -221,23 +225,15 @@ export const columns = [
                 <AlignJustify size={14} className="me-50" />
                 <span className="align-middle">ویرایش ترم</span>
               </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="/"
-                className="w-100"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCenteredModal(!centeredModal);
-                }}
-              >
+              <DropdownItem className="w-100" onClick={toggleUpdateCloseDate}>
                 <AlignJustify size={14} className="me-50" />
-                <span className="align-middle">ویرایش</span>
+                <span className="align-middle">ویرایش زمان</span>
               </DropdownItem>
-
               <Modal
+                style={{ fontFamily: "IRANYekanXFaNum" }}
                 isOpen={centeredModal}
                 toggle={() => setCenteredModal(!centeredModal)}
-                className="modal-dialog-centered modal-lg"
+                className="modal-dialog-centered"
               >
                 <ModalHeader
                   className="bg-transparent"
@@ -245,7 +241,7 @@ export const columns = [
                 ></ModalHeader>
                 <ModalBody className="px-sm-5 mx-50 pb-5">
                   <div className="text-center mb-2">
-                    <h1 className="mb-1">افزودن ترم</h1>
+                    <h1 className="mb-1">ویرایش اطلاعات ترم</h1>
                   </div>
                   <Row
                     tag="form"
@@ -312,7 +308,6 @@ export const columns = [
                         )}
                       />
                     </Col>
-
                     <Col md="6" className="mb-1">
                       <Label className="form-label" for="endDate">
                         زمان پایان
@@ -351,7 +346,27 @@ export const columns = [
                         )}
                       />
                     </Col>
-
+                    <Col md="12">
+                      <Label for="status-select">{t("Status")}</Label>
+                      <Select
+                        theme={selectThemeColors}
+                        isClearable={false}
+                        className="react-select"
+                        classNamePrefix="select"
+                        options={statusOptions}
+                        value={currentStatus}
+                        onChange={(data) => {
+                          setCurrentStatus(data);
+                          const value =
+                            data.value === "active"
+                              ? true
+                              : data.value === "deActive"
+                              ? false
+                              : data.value;
+                          setValue("expire", value);
+                        }}
+                      />
+                    </Col>
                     <Col xs={12} className="text-center mt-2 pt-50">
                       <Button type="submit" className="me-1" color="primary">
                         تغیرات
@@ -367,52 +382,11 @@ export const columns = [
                   </Row>
                 </ModalBody>
               </Modal>
-              {/* <Modal
-                unmountOnClose={true}
-                isOpen={centeredModal}
-                toggle={() => setCenteredModal(!centeredModal)}
-                className="modal-dialog-centered"
-                style={{ fontFamily: "IRANYekanXFaNum" }}
-              >
-                <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
-                  {t("CourseStatus")}
-                </ModalHeader>
-                <ModalBody>
-                  <Label for="role-select">{t("CourseStatusId")}</Label>
-                  <Select
-                    isClearable={false}
-                    value={currentRole}
-                    // defaultValue={{
-                    //   value: row.statusId,
-                    //   label: fundedStatus?.statusName,
-                    // }}
-                    options={roleOptions}
-                    className="react-select"
-                    classNamePrefix="select"
-                    theme={selectThemeColors}
-                    onChange={(data) => {
-                      setCurrentRole(data);
-                    }}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="primary"
-                    onClick={() => {
-                      const values = {
-                        CourseId: row.courseId,
-                        StatusId: currentRole.value,
-                      };
-                      const formData = formDataConverter(values);
-                      currentRole.value == ""
-                        ? null
-                        : updateStatusCourseMutate(formData);
-                    }}
-                  >
-                    {t("ApplyStatus")}
-                  </Button>
-                </ModalFooter>
-              </Modal> */}
+              <EditCloseDateModal
+                toggleUpdate={toggleUpdateCloseDate}
+                isOpen={updateCloseDateModal}
+                row={row}
+              />
             </DropdownMenu>
           </UncontrolledDropdown>
         </div>

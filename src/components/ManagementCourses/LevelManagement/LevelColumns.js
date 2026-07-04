@@ -137,7 +137,6 @@ export const columns = [
 
       return (
         <div className="column-action d-flex gap-1">
-          ویرایش
           <Edit
             size={17}
             className="me-50 cursor-pointer"

@@ -37,9 +37,7 @@ import * as Yup from "yup";
 import { updateStatus } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const validationSchema = Yup.object({
-  statusName: Yup.string().required("CourseTitleRequired"),
-  describe: Yup.string().required(" توضیات الزامی است"),
-  statusNumber: Yup.string().required(" توضیات الزامی است"),
+  statusName: Yup.string().required("پر کردن فیلد  الزامی است"),
 });
 
 // ** Renders Client Columns
@@ -144,12 +142,11 @@ export const columns = [
 
       return (
         <div className="column-action d-flex gap-1">
-          ویرایش
           <Edit size={17} className="me-50 " onClick={() => setShow(true)} />
           <Modal
             isOpen={show}
             toggle={() => setShow(!show)}
-            className="modal-dialog-centered modal-lg"
+            className="modal-dialog-centered "
           >
             <ModalHeader
               className="bg-transparent"
@@ -175,56 +172,15 @@ export const columns = [
                       <Input
                         {...field}
                         id="statusName"
-                        placeholder="   نام تکنولوژی"
+                        placeholder="تام وضعیت"
                         invalid={errors.statusName && true}
                       />
                     )}
                   />
                   {errors.statusName && (
-                    <FormFeedback>Please enter a valid Username</FormFeedback>
+                    <FormFeedback>{t(errors.statusName.message)}</FormFeedback>
                   )}
                 </Col>
-                <Col xs={12}>
-                  <Label className="form-label" for="describe">
-                    توضیحات
-                  </Label>
-                  <Controller
-                    name="describe"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        id="describe"
-                        placeholder="توضیحات"
-                        invalid={errors.describe && true}
-                      />
-                    )}
-                  />
-                  {errors.describe && (
-                    <FormFeedback>Please enter a valid Username</FormFeedback>
-                  )}
-                </Col>
-                <Col xs={12}>
-                  <Label className="form-label" for="statusNumber">
-                    عدد
-                  </Label>
-                  <Controller
-                    name="statusNumber"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        id="statusNumber"
-                        placeholder="statusNumber"
-                        invalid={errors.describe && true}
-                      />
-                    )}
-                  />
-                  {errors.describe && (
-                    <FormFeedback>Please enter a valid Username</FormFeedback>
-                  )}
-                </Col>
-
                 <Col xs={12} className="text-center mt-2 pt-50">
                   <Button type="submit" className="me-1" color="primary">
                     تغیرات
