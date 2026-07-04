@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, Fragment } from 'react'
 import { useForm } from 'react-hook-form'
 import { FileText, Image, Type, Eye } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -10,6 +10,8 @@ import BlogContent from '../components/blogs/add/BlogContent';
 import BlogCover from '../components/blogs/add/BlogCover';
 import BlogPreview from '../components/blogs/add/BlogPreview';
 import { createNewsBlog, getNewsById, updateNews, updateNewsFile } from '../core/services/api/blogs/blogs.service';
+import BreadCrumbs from "@components/breadcrumbs"
+
 
 import defaultIMG from "../assets/images/coursePng.png"
 const baseURL = import.meta.env.VITE_BASE_URL || ""
@@ -24,7 +26,7 @@ const BlogAdd = () => {
 
   const [originalData, setOriginalData] = useState(null)
 
-  const {id} = useParams()
+  const { id } = useParams()
 
   const {
     control,
@@ -199,15 +201,24 @@ const BlogAdd = () => {
   ]
 
   return (
-    <div className='modern-vertical-wizard'>
-      <Wizard
-        type="modern-vertical"
-        ref={ref}
-        steps={steps}
-        options={{ linear: false }}
-        instance={e => setStepper(e)}
+    <Fragment >
+
+      <BreadCrumbs
+        title=" "
+        data={[
+          { title: " مقالات", link:"/blogs/list" }, { title: "  افزودن مقاله " }
+        ]}
       />
-    </div>
+      <div className='modern-vertical-wizard'>
+        <Wizard
+          type="modern-vertical"
+          ref={ref}
+          steps={steps}
+          options={{ linear: false }}
+          instance={e => setStepper(e)}
+        />
+      </div>
+    </Fragment>
   )
 }
 
