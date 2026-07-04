@@ -3,7 +3,7 @@ import { columns } from "./BuildingsColumn";
 import debounce from "debounce";
 import ReactPaginate from "react-paginate";
 import DataTable from "react-data-table-component";
-import { Row, Col, Card, Input, Spinner } from "reactstrap";
+import { Row, Col, Card, Input, Spinner, Label } from "reactstrap";
 import "@styles/react/libs/react-select/_react-select.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
 import { useTranslation } from "react-i18next";
@@ -43,19 +43,18 @@ const CustomHeader = ({
           className="d-flex align-items-center justify-content-xl-end justify-content-start p-0"
         >
           <div className="d-flex align-items-center">
-            <label htmlFor="rows-per-page">{t("RowsPerPage")}</label>
-
+            <Label for="rows-per-page">{t("RowsPerPage")}</Label>
             <Input
-              className="mx-50"
+              className="dataTable-select mx-1"
               type="select"
               id="rows-per-page"
               value={rowsPerPage}
               onChange={handlePerPage}
               style={{ width: "5rem" }}
             >
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
             </Input>
           </div>
         </Col>

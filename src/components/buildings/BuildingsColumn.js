@@ -27,6 +27,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { updateDepartments } from "../../core/services/api/ManagementCourses/ManagementCourses.service";
 import { activeBuildings } from "../../core/services/api/buildings/buildings.service";
+import EditBuildingsModal from "./EditBuildingsModal";
 
 export const columns = (t) => [
   {
@@ -164,6 +165,7 @@ export const columns = (t) => [
                 className="w-100"
                 onClick={(e) => {
                   e.preventDefault();
+                  toggleEditModal();
                   // activeDepartmentMutate({
                   //   active: row.active === true ? false : true,
                   //   id: row.id,
@@ -212,97 +214,11 @@ export const columns = (t) => [
               </Button>
             </ModalFooter>
           </Modal>
-          <Modal
+          <EditBuildingsModal
             isOpen={editModal}
             toggle={toggleEditModal}
-            className="modal-dialog-centered"
-            style={{ fontFamily: "IRANYekanXFaNum" }}
-          >
-            <ModalHeader
-              className="bg-transparent"
-              toggle={toggleEditModal}
-            ></ModalHeader>
-            <ModalBody className="px-sm-5 mx-50 pb-5">
-              <div className="text-center mb-2">
-                <h1 className="mb-1">{t("EditDepartment")}</h1>
-              </div>
-              <Row
-                tag="form"
-                className="gy-1 pt-75"
-                onSubmit={handleSubmit(onSubmit)}
-              >
-                <Col xs={12}>
-                  <Label className="form-label" for="depName">
-                    {t("DepartmentName")}
-                  </Label>
-                  <Controller
-                    name="depName"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        id="depName"
-                        placeholder={t("DepartmentNamePlaceholder")}
-                        invalid={!!errors.depName}
-                      />
-                    )}
-                  />
-                  {errors.depName && (
-                    <FormFeedback>{t(errors.depName.message)}</FormFeedback>
-                  )}
-                </Col>
-                <Col xs={12}>
-                  <Label className="form-label" for="buildingId">
-                    {t("Building")}
-                  </Label>
-                  <Controller
-                    name="buildingId"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        theme={selectThemeColors}
-                        isClearable={false}
-                        className={`react-select ${
-                          errors.buildingId ? "is-invalid" : ""
-                        }`}
-                        classNamePrefix="select"
-                        options={buildingsOptions}
-                        value={currentBuilding}
-                        placeholder={t("BuildingPlaceholder")}
-                        id="buildingId"
-                        name="buildingId"
-                        onChange={(data) => {
-                          setCurrentBuilding(data);
-                          setValue("buildingId", data.value);
-                        }}
-                      />
-                    )}
-                  />
-                  {errors.buildingId && (
-                    <FormFeedback>{t(errors.buildingId.message)}</FormFeedback>
-                  )}
-                </Col>
-                <Col
-                  xs={12}
-                  className="text-center mt-2 pt-50 d-flex justify-content-between"
-                >
-                  <Button type="submit" className="me-1" color="primary">
-                    {t("SaveChanges")}
-                  </Button>
-                  <Button
-                    color="secondary"
-                    outline
-                    onClick={() => {
-                      toggleEditModal();
-                      toggleDetailModal();
-                    }}
-                  >
-                    {t("Cancel")}
-                  </Button>
-                </Col>
-              </Row>
-            </ModalBody>
-          </Modal>
+            data={row}
+          />
         </div>
       );
     },
