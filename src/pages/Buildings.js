@@ -22,6 +22,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import Cleave from "cleave.js/react";
+import "leaflet/dist/leaflet.css";
 import {
   MapContainer,
   Marker,
@@ -173,7 +174,6 @@ const Buildings = () => {
           { title: t("DepartmentsManagement") },
         ]}
       />
-
       <Row>
         <Col xl="3" sm="12">
           <SubscribersGained
@@ -186,27 +186,29 @@ const Buildings = () => {
               },
             ]}
           />
-
           <div className="d-flex align-items-center table-header-actions">
             <Button block color="primary" onClick={toggleAddModal}>
               {t("AddDepartment")}
             </Button>
-
             <Modal
               isOpen={addModal}
               toggle={toggleAddModal}
+              onOpened={() => {
+                setValue("buildingName", "");
+                setValue("floor", "");
+                setValue("latitude", "");
+                setValue("longitude", "");
+              }}
               className="modal-dialog-centered modal-lg"
               style={{
                 fontFamily: "IRANYekanXFaNum",
               }}
             >
               <ModalHeader toggle={toggleAddModal} />
-
               <ModalBody className="px-sm-5 mx-50 pb-5">
                 <div className="text-center mb-2">
                   <h1>{t("AddDepartment")}</h1>
                 </div>
-
                 <Row
                   tag="form"
                   className="gy-1"
@@ -214,7 +216,6 @@ const Buildings = () => {
                 >
                   <Col xs={12}>
                     <Label className="form-label">{t("DepartmentName")}</Label>
-
                     <Controller
                       name="buildingName"
                       control={control}
@@ -226,17 +227,14 @@ const Buildings = () => {
                         />
                       )}
                     />
-
                     {errors.buildingName && (
                       <FormFeedback>
                         {t(errors.buildingName.message)}
                       </FormFeedback>
                     )}
                   </Col>
-
                   <Col xs={12}>
                     <Label className="form-label">{t("Building")}</Label>
-
                     <Controller
                       name="floor"
                       control={control}
@@ -255,7 +253,6 @@ const Buildings = () => {
                               }
                             />
                           </InputGroup>
-
                           {errors.floor && (
                             <div className="invalid-feedback d-block">
                               {t(errors.floor.message)}
@@ -268,7 +265,7 @@ const Buildings = () => {
                   <Col xs={12}>
                     <Label className="form-label">انتخاب موقعیت</Label>
                     <MapContainer
-                      center={position}
+                      center={[35.6944, 51.4215]}
                       zoom={13}
                       style={{
                         width: "100%",
@@ -277,7 +274,10 @@ const Buildings = () => {
                         zIndex: "10",
                       }}
                     >
-                      <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <TileLayer
+                        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                      />
                       <MapMarker
                         position={position}
                         setPosition={setPosition}
@@ -290,12 +290,10 @@ const Buildings = () => {
                       </div>
                     )}
                   </Col>
-
                   <Col xs={12} className="d-flex justify-content-between mt-2">
                     <Button color="primary" type="submit">
                       {t("SaveChanges")}
                     </Button>
-
                     <Button color="secondary" outline onClick={toggleAddModal}>
                       {t("Cancel")}
                     </Button>
@@ -305,7 +303,6 @@ const Buildings = () => {
             </Modal>
           </div>
         </Col>
-
         <Col xl="9" sm="12">
           <div className="app-user-list">
             <Table buildings={buildingsList} isFetching={isFetching} />

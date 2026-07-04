@@ -42,7 +42,6 @@ import "./@core/assets/fonts/feather/iconfont.css";
 import "./@core/assets/fonts/iranYekan/iranYekan.css";
 import "./@core/scss/core.scss";
 import "./assets/scss/style.scss";
-import "./configs/leafletConfig";
 
 // ** Service Worker
 import * as serviceWorker from "./serviceWorker";
