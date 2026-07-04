@@ -146,8 +146,6 @@ export const columns = (t) => [
             </DropdownToggle>
             <DropdownMenu end>
               <DropdownItem
-                tag="a"
-                href="/"
                 className="w-100"
                 onClick={(e) => {
                   e.preventDefault();
@@ -161,6 +159,19 @@ export const columns = (t) => [
                 <span className="align-middle">
                   {row.active == true ? t("DeActive") : t("Active")}
                 </span>
+              </DropdownItem>
+              <DropdownItem
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  // activeDepartmentMutate({
+                  //   active: row.active === true ? false : true,
+                  //   id: row.id,
+                  // });
+                }}
+              >
+                <Edit size={14} className="me-50" />
+                <span className="align-middle">ویرایش</span>
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
