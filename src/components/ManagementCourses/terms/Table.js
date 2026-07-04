@@ -2,9 +2,6 @@
 import { Fragment, useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 
-// ** Invoice List Sidebar
-import Sidebar from "./TermsSideBar";
-
 // ** Table Columns
 import { columns } from "./TermsColumns";
 
@@ -47,9 +44,15 @@ import * as Yup from "yup";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-import { postTerm } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
+import {
+  postAddTermCloseDate,
+  postTerm,
+} from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { use } from "react";
+import { TRUE } from "sass";
+import AddCloseDateModal from "./AddCloseDateModal";
 
 const validationSchema = Yup.object({
   termName: Yup.string().required("نام الزامی است"),
@@ -59,6 +62,7 @@ const validationSchema = Yup.object({
 });
 // ** Table Header
 const CustomHeader = ({
+  termList,
   toggleSidebar,
   handlePerPage,
   rowsPerPage,
@@ -68,10 +72,16 @@ const CustomHeader = ({
   // ** I18n
   const { t } = useTranslation();
   const [show, setShow] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [addCloseDateModal, setAddCloseDateModal] = useState(false);
   const queryClient = useQueryClient();
-
   const departments = queryClient.getQueryState(["Departments"]);
+
+  const toggleAddCloseDate = () => setAddCloseDateModal(!addCloseDateModal);
+
+  const [currentClassRoom, setCurrentClassRoom] = useState({
+    value: null,
+    label: "انتخواب کنید",
+  });
 
   const defaultValues = {
     termName: "",
@@ -79,11 +89,6 @@ const CustomHeader = ({
     endDate: "",
     departmentId: "",
   };
-
-  const [currentClassRoom, setCurrentClassRoom] = useState({
-    value: null,
-    label: "انتخواب کنید",
-  });
 
   const departmentList = departments?.data?.data?.map((value) => {
     const terms = { value: value.id, label: value.depName };
@@ -111,6 +116,7 @@ const CustomHeader = ({
       setValue("termName", "");
       setValue("startDate", "");
       setValue("endDate", "");
+      setValue("departmentId", "");
     },
     onError: (response, _, context) => {
       toast.error(response.data.message, { id: context.toastId });
@@ -119,6 +125,7 @@ const CustomHeader = ({
 
   const onSubmit = (data) => {
     postTermMutation(data);
+    console.log(data);
   };
   return (
     <div className="invoice-list-table-header w-100 me-1 ms-50 mt-2 mb-75">
@@ -171,7 +178,7 @@ const CustomHeader = ({
               <Button
                 className="add-new-user"
                 color="primary"
-                onClick={() => setShowModal(true)}
+                onClick={toggleAddCloseDate}
               >
                 افزودن زمان
               </Button>
@@ -182,6 +189,7 @@ const CustomHeader = ({
       <Modal
         isOpen={show}
         toggle={() => setShow(!show)}
+        style={{ fontFamily: "IRANYekanXFaNum" }}
         className="modal-dialog-centered modal-lg"
       >
         <ModalHeader
@@ -289,7 +297,6 @@ const CustomHeader = ({
                 )}
               />
             </Col>
-
             <Col md="6" className="mb-1">
               <Label className="form-label" for="endDate">
                 زمان پایان
@@ -328,7 +335,6 @@ const CustomHeader = ({
                 )}
               />
             </Col>
-
             <Col xs={12} className="text-center mt-2 pt-50">
               <Button type="submit" className="me-1" color="primary">
                 تغیرات
@@ -340,139 +346,11 @@ const CustomHeader = ({
           </Row>
         </ModalBody>
       </Modal>
-      <Modal
-        isOpen={showModal}
-        toggle={() => setShowModal(!showModal)}
-        className="modal-dialog-centered modal-lg"
-      >
-        <ModalHeader
-          className="bg-transparent"
-          toggle={() => setShowModal(!showModal)}
-        ></ModalHeader>
-        <ModalBody className="px-sm-5 mx-50 pb-5">
-          <div className="text-center mb-2">
-            <h1 className="mb-1">ساخت تاریخ بسته بودن</h1>
-          </div>
-          <Row
-            tag="form"
-            className="gy-1 pt-75"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <Col xs={12}>
-              <Label className="form-label" for="termName">
-                نام ترم
-              </Label>
-              <Controller
-                name="termName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="termName"
-                    placeholder=" نام ترم"
-                    invalid={errors.termName && true}
-                  />
-                )}
-              />
-              {errors.termName && (
-                <span className="invalid-feedback d-block">
-                  {errors.termName.message}
-                </span>
-              )}
-            </Col>
-            <Col md="6" className="mb-1">
-              <Label className="form-label" for="startDate">
-                زمان شروع
-              </Label>
-              <Controller
-                name="startDate"
-                control={control}
-                render={({ field }) => (
-                  <>
-                    <DatePicker
-                      id="startDate"
-                      calendar={persian}
-                      locale={persian_fa}
-                      calendarPosition="bottom-right"
-                      value={field.value ? new Date(field.value) : null}
-                      editable={false}
-                      placeholder={t("DatePlaceholder")}
-                      onChange={(date) => {
-                        if (date) {
-                          field.onChange(date.toDate().toISOString());
-                        } else {
-                          field.onChange(null);
-                        }
-                      }}
-                      inputClass={`form-control ${
-                        errors.startDate ? "is-invalid" : ""
-                      }`}
-                      containerStyle={{ width: "100%" }}
-                    />
-                    {errors.startDate && (
-                      <span className="invalid-feedback d-block">
-                        {errors.startDate.message}
-                      </span>
-                    )}
-                  </>
-                )}
-              />
-            </Col>
-
-            <Col md="6" className="mb-1">
-              <Label className="form-label" for="endDate">
-                زمان پایان
-              </Label>
-              <Controller
-                name="endDate"
-                control={control}
-                render={({ field }) => (
-                  <>
-                    <DatePicker
-                      id="endDate"
-                      calendar={persian}
-                      locale={persian_fa}
-                      calendarPosition="bottom-right"
-                      value={field.value ? new Date(field.value) : null}
-                      editable={false}
-                      placeholder={t("DatePlaceholder")}
-                      onChange={(date) => {
-                        if (date) {
-                          field.onChange(date.toDate().toISOString());
-                        } else {
-                          field.onChange(null);
-                        }
-                      }}
-                      inputClass={`form-control ${
-                        errors.endDate ? "is-invalid" : ""
-                      }`}
-                      containerStyle={{ width: "100%" }}
-                    />
-                    {errors.endDate && (
-                      <span className="invalid-feedback d-block">
-                        {errors.endDate.message}
-                      </span>
-                    )}
-                  </>
-                )}
-              />
-            </Col>
-
-            <Col xs={12} className="text-center mt-2 pt-50">
-              <Button type="submit" className="me-1" color="primary">
-                تغیرات
-              </Button>
-              <Button
-                color="secondary"
-                outline
-                onClick={() => setShowModal(false)}
-              >
-                منصرف
-              </Button>
-            </Col>
-          </Row>
-        </ModalBody>
-      </Modal>
+      <AddCloseDateModal
+        toggle={toggleAddCloseDate}
+        termList={termList}
+        isOpen={addCloseDateModal}
+      />
     </div>
   );
 };
@@ -582,6 +460,7 @@ const UsersList = ({ termList }) => {
             data={currentPageData}
             subHeaderComponent={
               <CustomHeader
+                termList={termList}
                 store={currentPageData}
                 searchTerm={searchTerm}
                 rowsPerPage={rowsPerPage}

@@ -102,7 +102,7 @@ const CommentsList = ({ commentsList, usersList }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState("id");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(12);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentTeacher, setCurrentTeacher] = useState({
     value: "",
