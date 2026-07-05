@@ -1,6 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
-import { selectThemeColors } from "@utils";
+import { useForm } from "react-hook-form";
 import { Edit, Eye, MoreVertical, TrendingUp } from "react-feather";
 import {
   Button,
@@ -9,10 +7,6 @@ import {
   ModalBody,
   ModalFooter,
   Label,
-  Input,
-  Row,
-  Col,
-  FormFeedback,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -25,7 +19,6 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { updateDepartments } from "../../core/services/api/ManagementCourses/ManagementCourses.service";
 import { activeBuildings } from "../../core/services/api/buildings/buildings.service";
 import EditBuildingsModal from "./EditBuildingsModal";
 
@@ -38,7 +31,7 @@ export const columns = (t) => [
     selector: (row) => row.buildingName,
     cell: (row) => (
       <span className="text-truncate text-muted mb-0">
-        {row.buildingName + " ( طبقه: " + row.floor + " )"}
+        {row.buildingName + " ( " + t("Floor") + ": " + row.floor + " )"}
       </span>
     ),
   },
@@ -56,17 +49,17 @@ export const columns = (t) => [
   },
   {
     sortable: true,
-    name: "دوره های فعال و غیر فعال",
+    name: t("Status"),
     minWidth: "164px",
-    sortField: "balance",
+    sortField: "active",
     selector: (row) => row?.active,
     cell: (row) => (
       <Badge
         className="text-capitalize"
-        color={row?.active ? "light-success" : "light-primary"}
+        color={row?.active ? "light-success" : "light-danger"}
         pill
       >
-        {row?.active ? "فعال" : "غیر فعال"}
+        {row?.active ? t("Active") : t("DeActive")}
       </Badge>
     ),
   },
@@ -77,40 +70,10 @@ export const columns = (t) => [
       const { t } = useTranslation();
       const queryClient = useQueryClient();
 
-      const buildings = queryClient.getQueryState(["Buildings"]);
-
       const [editModal, setEditModal] = useState(false);
       const [detailModal, setDetailModal] = useState(false);
-      const [currentBuilding, setCurrentBuilding] = useState({
-        value: row.buildingId,
-        label: row.buildingName + " ( طبقه: " + row.floor + " )",
-      });
 
-      const buildingsOptions = buildings?.data?.data?.map((value) => {
-        const building = {
-          value: value.id,
-          label: value.buildingName + " ( طبقه: " + value.floor + " )",
-        };
-        return building;
-      });
-
-      const validationSchema = Yup.object({
-        depName: Yup.string().required("DepartmentNameRequired"),
-        buildingId: Yup.string().required("BuildingRequired"),
-      });
-      const defaultValues = {
-        id: row.id ?? "",
-        depName: row.depName ?? "",
-        buildingId: row.buildingId ?? "",
-      };
-      const {
-        control,
-        handleSubmit,
-        setValue,
-        formState: { errors },
-      } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
-
-      const { mutate: activeDepartmentMutate } = useMutation({
+      const { mutate: activeBuildingMutate } = useMutation({
         mutationFn: activeBuildings,
         onMutate: () => {
           const toastId = toast.loading(t("Loading"));
@@ -119,17 +82,15 @@ export const columns = (t) => [
         onSuccess: (response, _, context) => {
           toast.success(response.data.message, { id: context.toastId });
           queryClient.invalidateQueries({
-            queryKey: [`Buildings`],
+            queryKey: ["Buildings"],
           });
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (error, _, context) => {
+          toast.error(error?.response?.data?.message || t("ErrorOccurred"), {
+            id: context.toastId,
+          });
         },
       });
-
-      const onSubmit = (data) => {
-        updateDepartmentsMutate(data);
-      };
 
       const toggleDetailModal = () => setDetailModal(!detailModal);
       const toggleEditModal = () => setEditModal(!editModal);
@@ -141,64 +102,72 @@ export const columns = (t) => [
             className="me-50 cursor-pointer"
             onClick={toggleDetailModal}
           />
+
           <UncontrolledDropdown>
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>
+
             <DropdownMenu end>
               <DropdownItem
                 className="w-100"
                 onClick={(e) => {
                   e.preventDefault();
-                  activeDepartmentMutate({
-                    active: row.active === true ? false : true,
+                  activeBuildingMutate({
+                    active: !row.active,
                     id: row.id,
                   });
                 }}
               >
                 <TrendingUp size={14} className="me-50" />
                 <span className="align-middle">
-                  {row.active == true ? t("DeActive") : t("Active")}
+                  {row.active ? t("DeActive") : t("Active")}
                 </span>
-              </DropdownItem>
-              <DropdownItem
-                className="w-100"
-                onClick={(e) => {
-                  e.preventDefault();
-                  toggleEditModal();
-                  // activeDepartmentMutate({
-                  //   active: row.active === true ? false : true,
-                  //   id: row.id,
-                  // });
-                }}
-              >
-                <Edit size={14} className="me-50" />
-                <span className="align-middle">ویرایش</span>
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
+
           <Modal
-            unmountOnClose={true}
+            unmountOnClose
             isOpen={detailModal}
             toggle={toggleDetailModal}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
             <ModalHeader toggle={toggleDetailModal}>
-              {t("Department")}
+              {t("Building")}
             </ModalHeader>
+
             <ModalBody>
               <div className="mb-1 d-flex flex-column">
-                <Label>{t("DepartmentName")}</Label>
-                <span className="text-muted mb-0">{row.depName}</span>
+                <Label>{t("BuildingName")}</Label>
+                <span className="text-muted mb-0">{row.buildingName}</span>
               </div>
+
               <div className="mb-1 d-flex flex-column">
-                <Label>{t("Building")}</Label>
-                <span className="text-muted mb-0">
-                  {row.buildingName + " ( طبقه: " + row.floor + " )"}
-                </span>
+                <Label>{t("Floor")}</Label>
+                <span className="text-muted mb-0">{row.floor}</span>
+              </div>
+
+              <div className="mb-1 d-flex flex-column">
+                <Label>{t("BuildingAddress")}</Label>
+                <span className="text-muted mb-0">{row.buildingAddress}</span>
+              </div>
+              <div
+                style={{ width: "fit-content" }}
+                className="mb-1 d-flex flex-column"
+              >
+                <Label>{t("Status")}</Label>
+                <Badge
+                  className="text-capitalize"
+                  color={row?.active ? "light-success" : "light-danger"}
+                  pill
+                >
+                  {row?.active ? t("Active") : t("DeActive")}
+                </Badge>
               </div>
             </ModalBody>
+
             <ModalFooter className="d-flex justify-content-between">
               <Button
                 color="primary"
@@ -209,11 +178,13 @@ export const columns = (t) => [
               >
                 {t("Edit")}
               </Button>
+
               <Button color="secondary" outline onClick={toggleDetailModal}>
                 {t("Cancel")}
               </Button>
             </ModalFooter>
           </Modal>
+
           <EditBuildingsModal
             isOpen={editModal}
             toggle={toggleEditModal}

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState, memo } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Spinner from "../@core/components/spinner/Fallback-spinner";
 import Table from "../components/buildings/Table";
 import {
@@ -32,7 +32,6 @@ import {
 } from "react-leaflet";
 import {
   addBuildings,
-  getAddressByCoordination,
   useGetAddressByCoordination,
 } from "../core/services/api/buildings/buildings.service";
 import { useGetBuildings } from "../core/services/api/ManagementCourses/ManagementCourses.service";
@@ -56,7 +55,7 @@ const MapMarker = ({ position, setPosition, setValue }) => {
 };
 
 const Buildings = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
 
   const options = {
@@ -69,10 +68,10 @@ const Buildings = () => {
   const [position, setPosition] = useState([35.6944, 51.4215]);
 
   const validationSchema = Yup.object({
-    buildingName: Yup.string().required("DepartmentNameRequired"),
-    floor: Yup.string().required("BuildingRequired"),
-    latitude: Yup.string().required("BuildingRequired"),
-    longitude: Yup.string().required("BuildingRequired"),
+    buildingName: Yup.string().required("BuildingNameRequired"),
+    floor: Yup.string().required("FloorRequired"),
+    latitude: Yup.string().required("SelectLocationRequired"),
+    longitude: Yup.string().required("SelectLocationRequired"),
   });
 
   const defaultValues = {
@@ -122,7 +121,7 @@ const Buildings = () => {
           ? formatAddressFromProperties(
               addressesQueries[index].data.data.features[0].properties,
             )
-          : "آدرسی یافت نشد!",
+          : t("AddressNotfound"),
     }));
   }, [buildings, addressesQueries]);
 
@@ -133,7 +132,7 @@ const Buildings = () => {
     setAddModal((prev) => !prev);
   };
 
-  const { mutate: addBuildingMutate, isPending: isSaving } = useMutation({
+  const { mutate: addBuildingMutate } = useMutation({
     mutationFn: addBuildings,
     onMutate: () => {
       const toastId = toast.loading(t("Loading"));
@@ -167,28 +166,22 @@ const Buildings = () => {
     <Spinner />
   ) : (
     <Fragment>
-      <Breadcrumbs
-        title={t("DepartmentsManagement")}
-        data={[
-          { title: t("Departments") },
-          { title: t("DepartmentsManagement") },
-        ]}
-      />
+      <Breadcrumbs title={t("Buildings")} data={[{ title: t("Buildings") }]} />
       <Row>
         <Col xl="3" sm="12">
           <SubscribersGained
-            title={t("DepartmentsCount")}
+            title={t("BuildingsCount")}
             subscribers={buildingsList.length}
             series={[
               {
-                name: t("Departments"),
+                name: t("Buildings"),
                 data: [0, 25, 15, 50, 35, 70, buildingsList.length],
               },
             ]}
           />
           <div className="d-flex align-items-center table-header-actions">
             <Button block color="primary" onClick={toggleAddModal}>
-              {t("AddDepartment")}
+              {t("AddBuilding")}
             </Button>
             <Modal
               isOpen={addModal}
@@ -207,7 +200,7 @@ const Buildings = () => {
               <ModalHeader toggle={toggleAddModal} />
               <ModalBody className="px-sm-5 mx-50 pb-5">
                 <div className="text-center mb-2">
-                  <h1>{t("AddDepartment")}</h1>
+                  <h1>{t("AddBuilding")}</h1>
                 </div>
                 <Row
                   tag="form"
@@ -215,7 +208,7 @@ const Buildings = () => {
                   onSubmit={handleSubmit(onSubmit)}
                 >
                   <Col xs={12}>
-                    <Label className="form-label">{t("DepartmentName")}</Label>
+                    <Label className="form-label">{t("BuildingName")}</Label>
                     <Controller
                       name="buildingName"
                       control={control}
@@ -223,7 +216,7 @@ const Buildings = () => {
                         <Input
                           {...field}
                           invalid={!!errors.buildingName}
-                          placeholder={t("DepartmentNamePlaceholder")}
+                          placeholder={t("BuildingNamePlaceholder")}
                         />
                       )}
                     />
@@ -234,7 +227,7 @@ const Buildings = () => {
                     )}
                   </Col>
                   <Col xs={12}>
-                    <Label className="form-label">{t("Building")}</Label>
+                    <Label className="form-label">{t("Floor")}</Label>
                     <Controller
                       name="floor"
                       control={control}
@@ -247,7 +240,7 @@ const Buildings = () => {
                               }`}
                               options={options}
                               value={field.value}
-                              placeholder={t("CourseFloor")}
+                              placeholder={t("FloorPlaceholder")}
                               onChange={(e) =>
                                 field.onChange(e.target.rawValue)
                               }
@@ -262,8 +255,16 @@ const Buildings = () => {
                       )}
                     />
                   </Col>
-                  <Col xs={12}>
-                    <Label className="form-label">انتخاب موقعیت</Label>
+                  <Col dir="ltr" className="d-flex flex-column" xs={12}>
+                    <Label
+                      className={`form-label ${
+                        i18n.language == "fa"
+                          ? "align-self-end"
+                          : "align-self-start"
+                      }`}
+                    >
+                      {t("SelectLocation")}
+                    </Label>
                     <MapContainer
                       center={[35.6944, 51.4215]}
                       zoom={13}
@@ -285,8 +286,8 @@ const Buildings = () => {
                       />
                     </MapContainer>
                     {(errors.latitude || errors.longitude) && (
-                      <div className="invalid-feedback d-block">
-                        لطفا موقعیت مکانی را انتخاب کنید
+                      <div className={`invalid-feedback d-block`}>
+                        {t("SelectLocationRequired")}
                       </div>
                     )}
                   </Col>

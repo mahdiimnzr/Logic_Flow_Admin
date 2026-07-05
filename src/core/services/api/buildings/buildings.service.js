@@ -15,4 +15,5 @@ export const getAddressByCoordination = (lat, lon) =>
   apiClient(`https://photon.komoot.io/reverse?lon=${lon}&lat=${lat}`);
 
 export const addBuildings = (body) => postParams("Building", body);
+export const updateBuildings = (body) => putParams("Building", body);
 export const activeBuildings = (body) => putParams("Building/Active", body);

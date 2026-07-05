@@ -1,5 +1,9 @@
 import { lazy } from "react";
 
+const CoursesList = lazy(() => import("../../pages/CoursesList"));
+const CoursesDetail = lazy(() => import("../../pages/CoursesDetail"));
+const CourseAdd = lazy(() => import("../../pages/CourseAdd"));
+const CourseEdit = lazy(() => import("../../pages/CourseEdit"));
 const TechnologyManagement = lazy(() =>
   import("../../pages/TechnologyManagement"),
 );
@@ -10,6 +14,22 @@ const DepartmentsManagement = lazy(() =>
 );
 const Terms = lazy(() => import("../../pages/Terms"));
 const ManagementCoursesRoute = [
+  {
+    path: "/Courses/List",
+    element: <CoursesList />,
+  },
+  {
+    path: "/Courses/add",
+    element: <CourseAdd />,
+  },
+  {
+    path: "/Courses/Detail/:courseId",
+    element: <CoursesDetail />,
+  },
+  {
+    path: "/Courses/Edit/:courseId",
+    element: <CourseEdit />,
+  },
   {
     path: "ManagementCourses/TechnologyManagement",
     element: <TechnologyManagement />,

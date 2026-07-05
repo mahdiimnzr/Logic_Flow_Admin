@@ -33,23 +33,25 @@ const CustomHeader = ({
               className="ms-50 w-100"
               type="text"
               value={searchTerm}
-              placeholder={t("SearchDepartments")}
+              placeholder={t("SearchBuildings")}
               onChange={(e) => handleFilter(e.target.value)}
             />
           </div>
         </Col>
+
         <Col
-          xl="2"
+          sm="6"
           className="d-flex align-items-center justify-content-xl-end justify-content-start p-0"
         >
           <div className="d-flex align-items-center">
             <Label for="rows-per-page">{t("RowsPerPage")}</Label>
             <Input
-              className="dataTable-select mx-1"
+              dir="ltr"
+              className="form-control mx-1"
               type="select"
-              id="rows-per-page"
+              id="sort-select"
               value={rowsPerPage}
-              onChange={handlePerPage}
+              onChange={(e) => handlePerPage(e)}
               style={{ width: "5rem" }}
             >
               <option value={10}>10</option>

@@ -107,7 +107,7 @@ const DepartmentsManagement = () => {
       <Breadcrumbs
         title={t("DepartmentsManagement")}
         data={[
-          { title: t("Departments") },
+          { title: t("ManagementCourses") },
           { title: t("DepartmentsManagement") },
         ]}
       />

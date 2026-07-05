@@ -1,4 +1,3 @@
-import { title } from "process";
 import {
   Home,
   Airplay,
@@ -6,6 +5,8 @@ import {
   Users,
   MessageSquare,
   Database,
+  FileText,
+  Book,
 } from "react-feather";
 
 export default [
@@ -16,9 +17,9 @@ export default [
     navLink: "/Dashboard",
   },
   {
-    id: "coursesPage",
-    title: "Courses",
-    icon: <Home size={20} />,
+    id: "ManagementCourses",
+    title: "ManagementCourses",
+    icon: <Book size={20} />,
     children: [
       {
         id: "courses",
@@ -32,67 +33,60 @@ export default [
         icon: <Circle size={12} />,
         navLink: "/Courses/Add",
       },
-    ],
-  },
-  {
-    id: "blogsPage",
-    title: "مدیریت اخبار",
-    icon: <Home size={20} />,
-    children: [
-      {
-        id: "blogs",
-        title: " لیست اخبار",
-        icon: <Circle size={12} />,
-        navLink: "/blogs/list",
-      },
-      {
-        id: "blogAdd",
-        title: "اضافه کردن مقاله",
-        icon: <Circle size={12} />,
-        navLink: "/blogs/add",
-      },
-      {
-        id: "blogCategory",
-        title: "دسته بندی مقالات",
-        icon: <Circle size={12} />,
-        navLink: "/blogs/categories",
-      },
-    ],
-  },
-  {
-    id: "ManagementCourses",
-    title: "مدیریت دوره ها",
-    icon: <Home size={20} />,
-    children: [
       {
         id: "TechnologyManagementPage",
-        title: "مدیریت تکنولوژی",
+        title: "TechnologyManagement",
         icon: <Circle size={12} />,
         navLink: "ManagementCourses/TechnologyManagement",
       },
       {
         id: "LevelManagement",
-        title: "مدیریت سطح دوره ها",
+        title: "LevelManagement",
         icon: <Circle size={12} />,
         navLink: "ManagementCourses/LevelManagement",
       },
       {
         id: "StatusManagement",
-        title: "مدیریت وضعیت دوره ها",
+        title: "StatusManagement",
         icon: <Circle size={12} />,
         navLink: "ManagementCourses/StatusManagement",
       },
       {
         id: "DepartmentsManagements",
-        title: "مدیریت بخش ها",
+        title: "DepartmentsManagement",
         icon: <Circle size={12} />,
         navLink: "ManagementCourses/DepartmentsManagement",
       },
       {
         id: "TermsList",
-        title: "لیست ترم ها",
+        title: "TermsList",
         icon: <Circle size={12} />,
         navLink: "ManagementCourses/TermsList",
+      },
+    ],
+  },
+  {
+    id: "blogsPage",
+    title: "NewsManagement",
+    icon: <FileText size={20} />,
+    children: [
+      {
+        id: "blogs",
+        title: "NewsList",
+        icon: <Circle size={12} />,
+        navLink: "/blogs/list",
+      },
+      {
+        id: "blogAdd",
+        title: "AddArticle",
+        icon: <Circle size={12} />,
+        navLink: "/blogs/add",
+      },
+      {
+        id: "blogCategory",
+        title: "ArticleCategories",
+        icon: <Circle size={12} />,
+        navLink: "/blogs/categories",
       },
     ],
   },

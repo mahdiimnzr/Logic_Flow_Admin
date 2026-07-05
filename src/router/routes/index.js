@@ -14,7 +14,6 @@ import PublicRoute from "@components/routes/PublicRoute";
 import { isObjEmpty } from "@utils";
 import UsersRoute from "./Users";
 import AuthRoute from "./Auth";
-import CoursesRoute from "./Courses";
 import DashboardRoute from "./Dashboard";
 import CommentsRoute from "./Comments";
 import BlogsRoute from "./Blogs";
@@ -40,7 +39,6 @@ const Routes = [
     element: <Navigate replace to={DefaultRoute} />,
   },
   ...AuthRoute,
-  ...CoursesRoute,
   ...UsersRoute,
   ...DashboardRoute,
   ...CommentsRoute,

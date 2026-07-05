@@ -44,9 +44,9 @@ const CustomHeader = ({
         >
           <div className="d-flex align-items-center">
             <label htmlFor="rows-per-page">{t("RowsPerPage")}</label>
-
             <Input
               className="mx-50"
+              dir="ltr"
               type="select"
               id="rows-per-page"
               value={rowsPerPage}
@@ -117,7 +117,8 @@ const DepartmentsList = ({ departments, isFetching }) => {
   }, [count, currentPage]);
 
   const CustomPagination = () => (
-    <div className="d-flex align-items-center justify-content-end">
+    <div className="d-flex align-items-center justify-content-end gap-1">
+      {isFetching && <Spinner />}
       <ReactPaginate
         previousLabel=""
         nextLabel=""
@@ -133,7 +134,6 @@ const DepartmentsList = ({ departments, isFetching }) => {
         pageLinkClassName="page-link"
         containerClassName="pagination react-paginate justify-content-end my-2 pe-1"
       />
-      {isFetching && <Spinner />}
     </div>
   );
 

@@ -1,7 +1,4 @@
-// ** Icons Imports
-import { BookOpen, Users } from "react-feather";
-
-// ** Custom Components
+import { Database } from "react-feather";
 import StatsWithAreaChart from "../dashboard/StatsWithAreaChart";
 
 const SubscribersGained = ({
@@ -15,7 +12,7 @@ const SubscribersGained = ({
 
   return (
     <StatsWithAreaChart
-      icon={<BookOpen size={21} />}
+      icon={<Database size={21} />}
       color={color}
       stats={formattedStats}
       statTitle={title}
