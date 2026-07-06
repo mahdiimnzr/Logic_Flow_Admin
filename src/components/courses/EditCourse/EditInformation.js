@@ -55,8 +55,11 @@ const validationSchema = Yup.object({
   Cost: Yup.string().required("CourseCostRequired"),
   UniqeUrlString: Yup.string().required("CourseUniqeUrlStringRequired"),
   imageAddress: Yup.string().required("CourseImageAddressRequired"),
-  StartTime: Yup.string().nullable().required("CourseStartTimeRequired"),
-  EndTime: Yup.string().nullable().required("CourseEndTimeRequired"),
+  StartTime: Yup.date().nullable().required("CourseStartTimeRequired"),
+  EndTime: Yup.date()
+    .min(Yup.ref("StartTime"), "زمان پایان باید بعد از زمان شروع باشد")
+    .nullable()
+    .required("CourseEndTimeRequired"),
   GoogleSchema: Yup.string().required("CourseGoogleSchemaRequired"),
   GoogleTitle: Yup.string().required("CourseGoogleTitleRequired"),
   CoursePrerequisiteId: Yup.string().nullable().optional(),

@@ -28,8 +28,8 @@ const defaultValues = {
   SessionNumber: "",
   Describe: "",
   MiniDescribe: "",
-  StartTime: "",
-  EndTime: "",
+  StartTime: null,
+  EndTime: null,
   CurrentCoursePaymentNumber: "",
 };
 
@@ -44,8 +44,12 @@ const AccountDetails = ({ stepper }) => {
     SessionNumber: yup.string().required(t("CourseSessionNumberRequired")),
     Describe: yup.string().required(t("CourseDescribeRequired")),
     MiniDescribe: yup.string().required(t("CourseMiniDescribeRequired")),
-    StartTime: yup.string().required(t("CourseStartTimeRequired")),
-    EndTime: yup.string().required(t("CourseEndTimeRequired")),
+    StartTime: yup.date().nullable().required(t("CourseStartTimeRequired")),
+    EndTime: yup
+      .date()
+      .min(yup.ref("StartTime"), "زمان پایان باید بعد از زمان شروع باشد")
+      .nullable()
+      .required(t("CourseEndTimeRequired")),
     CurrentCoursePaymentNumber: yup
       .string()
       .required(t("CourseCurrentPaymentNumberRequired")),

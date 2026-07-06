@@ -25,15 +25,21 @@ const EditCloseDateModal = ({ toggleUpdate, isOpen, row }) => {
   const queryClient = useQueryClient();
 
   const validationSchema = Yup.object({
-    startCloseDate: Yup.string().required(".........."),
-    endCloseDate: Yup.string().required("........."),
+    startCloseDate: Yup.date()
+      .min(row?.startDate, "زمان شروع باید بیشتر از زمان شروع ترم باشد")
+      .nullable()
+      .required("انتخواب زمان الزامی است"),
+    endCloseDate: Yup.date()
+      .min(Yup.ref("startCloseDate"), "زمان پایان باید بعد از زمان شروع باشد")
+      .max(row?.endDate, "زمان پایان باید کمتر از زمان پایان ترم باشد")
+      .nullable()
+      .required("انتخواب زمان الزامی است"),
     closeReason: Yup.string().required("..........."),
   });
-  console.log(row);
   const defaultValues = {
     termId: row?.id ?? "",
-    startCloseDate: row?.startDate ?? "",
-    endCloseDate: row?.endDate ?? "",
+    startCloseDate: row?.startDate ?? null,
+    endCloseDate: row?.endDate ?? null,
     closeReason: row?.closeReason ?? "",
   };
 
