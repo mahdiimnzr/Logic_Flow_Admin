@@ -12,6 +12,9 @@ const StatusManagement = lazy(() => import("../../pages/StatusManagement"));
 const DepartmentsManagement = lazy(() =>
   import("../../pages/DepartmentsManagement"),
 );
+const ClassRoomsManagement = lazy(() =>
+  import("../../pages/ClassRoomsManagement"),
+);
 const Terms = lazy(() => import("../../pages/Terms"));
 const ManagementCoursesRoute = [
   {
@@ -45,6 +48,10 @@ const ManagementCoursesRoute = [
   {
     path: "ManagementCourses/DepartmentsManagement",
     element: <DepartmentsManagement />,
+  },
+  {
+    path: "ManagementCourses/ClassRoomsManagement",
+    element: <ClassRoomsManagement />,
   },
   {
     path: "ManagementCourses/TermsList",
