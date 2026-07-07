@@ -126,9 +126,9 @@ const BlogInfoCard = ({ article }) => {
                     </ul>
                 </div>
 
-                <div className="d-flex justify-content-center gap-1 mt-2 border-top pt-2">
+                <div className="d-flex flex-column gap-2 mt-2">
                     <Link to={`/blogs/edit/${article?.id}`}>
-                        <Button color="primary" className="d-flex align-items-center">
+                        <Button color="primary" className="w-100">
                             <Edit size={14} className="me-50" />
                             ویرایش
                         </Button>
@@ -136,7 +136,7 @@ const BlogInfoCard = ({ article }) => {
 
                     <Button
                         color={isActive ? "outline-danger" : "outline-success"}
-                        className="d-flex align-items-center"
+                        className="w-100"
                         onClick={handleToggleStatus}
                         disabled={isToggling}
                     >
