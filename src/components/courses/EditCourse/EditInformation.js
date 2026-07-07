@@ -37,6 +37,7 @@ import { updateUserDetail } from "../../../core/services/api/Users/users.service
 import { updateCourseDetail } from "../../../core/services/api/CourseList/courseList.service";
 import formDataConverter from "../../../core/utils/formDataConvertor";
 import ImageDropZone from "../../common/ImageDropZone";
+import Editor from "../../common/Editor";
 
 const validationSchema = Yup.object({
   Title: Yup.string().required("CourseTitleRequired"),
@@ -83,19 +84,19 @@ const AccountSetting = ({ data, usersList }) => {
   );
 
   const fundedLevel = CourseLevels?.data?.data?.find(
-    (value) => value.id == data.courseLvlId,
+    (value) => value.id == data?.courseLvlId,
   );
   const fundedStatus = CourseStatus?.data?.data?.find(
-    (value) => value.id == data.statusId,
+    (value) => value.id == data?.statusId,
   );
   const fundedTeacher = teachers?.find((value) => value.id == data.teacherId);
 
   const [currentLevel, setCurrentLevel] = useState({
-    value: data.courseLvlId,
+    value: data?.courseLvlId,
     label: fundedLevel?.levelName,
   });
   const [currentStatus, setCurrentStatus] = useState({
-    value: data.statusId,
+    value: data?.statusId,
     label: fundedStatus?.statusName,
   });
   const [currentTypes, setCurrentTypes] = useState({
@@ -111,22 +112,22 @@ const AccountSetting = ({ data, usersList }) => {
     label: t("CourseClassId"),
   });
   const [currentTeacher, setCurrentTeacher] = useState({
-    value: data.teacherId,
+    value: data?.teacherId,
     label: fundedTeacher?.fName + " " + fundedTeacher?.lName,
   });
 
   const levelsList = CourseLevels?.data?.data?.map((value) => {
-    const levels = { value: value.id, label: value.levelName };
+    const levels = { value: value?.id, label: value?.levelName };
     return levels;
   });
   const statusList = CourseStatus?.data?.data?.map((value) => {
-    const status = { value: value.id, label: value.statusName };
+    const status = { value: value?.id, label: value?.statusName };
     return status;
   });
   const classRoomsList = CourseClassRoom?.data?.data?.map((value) => {
     const classRooms = {
-      value: value.id,
-      label: value.classRoomName + ` (ظرفیت : ${value.capacity})`,
+      value: value?.id,
+      label: value?.classRoomName + ` (ظرفیت : ${value?.capacity})`,
     };
     return classRooms;
   });
@@ -294,12 +295,14 @@ const AccountSetting = ({ data, usersList }) => {
                   control={control}
                   render={({ field }) => (
                     <>
-                      <Input
-                        id="Describe"
-                        type="textarea"
-                        placeholder={t("CourseDescribe")}
-                        invalid={!!errors.Describe}
-                        {...field}
+                      <Editor
+                        data={JSON.parse(data?.describe) ?? ""}
+                        placeholder={t("CourseDescribePlaceholder")}
+                        onChange={async (data) => {
+                          field.onChange(JSON.stringify((await data).blocks));
+                        }}
+                        error={errors.Describe && true}
+                        editorBlock={"editorJs-container"}
                       />
                       {errors.Describe && (
                         <FormFeedback>
