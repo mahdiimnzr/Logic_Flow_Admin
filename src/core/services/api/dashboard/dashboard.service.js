@@ -1,23 +1,45 @@
 import useGetQuery from "../../common/useGetQuery";
 import apiClient from "../../interceptor/interceptor.service";
 
-const getLandingReport = async () => {
+export const getLandingReport = async () => {
   const response = await apiClient.get("Home/LandingReport");
   return response.data;
 };
 
-const getDashboardAdminReport = async () => {
+export const getDashboardAdminReport = async () => {
   const response = await apiClient.get("/Report/DashboardReport");
   return response.data;
 };
 
-const getTechnologyReport = async () => {
+export const getTechnologyReport = async () => {
   const response = await apiClient.get("/Report/DashboardTechnologyReport");
   return response.data;
 };
 export const useGetCurrentUserDetail = () =>
   useGetQuery("CurrentUserDetail", "SharePanel/GetProfileInfo");
 
-export { getLandingReport };
-export { getDashboardAdminReport };
-export { getTechnologyReport };
+export const getAllTeachers = async () => {
+  try {
+    const response = await apiClient.get("/Home/GetTeachers");
+    return response;
+  } catch (error) {
+    console.error("خطا در دریافت لیست اساتید:", error);
+    return null;
+  }
+};
+
+export const getAdminCourseList = async ({
+  PageNumber = 1,
+  RowsOfPage = 10,
+  SortingCol = "DESC"
+} = {}) => {
+  try {
+    const response = await apiClient.get(
+      `/Course/CourseList?PageNumber=${PageNumber}&RowsOfPage=${RowsOfPage}&SortingCol=${SortingCol}`
+    );
+    return response;
+  } catch (error) {
+    console.error("خطا در دریافت لیست دوره‌ها:", error);
+    return null;
+  }
+};
