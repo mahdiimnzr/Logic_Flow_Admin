@@ -146,6 +146,28 @@ const AccountSetting = ({ data, usersList }) => {
     };
     return teachers;
   });
+
+  const getEditorBlocks = () => {
+    if (!data?.describe) return [];
+    try {
+      const blocks = JSON.parse(data?.describe);
+
+      if (!Array.isArray(blocks)) throw new Error();
+
+      return blocks.map((block) => ({
+        ...block,
+        type: block.type === "p" ? "paragraph" : block.type,
+      }));
+    } catch {
+      return [
+        {
+          type: "paragraph",
+          data: { text: data?.describe },
+        },
+      ];
+    }
+  };
+
   const options = { numeral: true, numeralThousandsGroupStyle: "thousand" };
 
   const defaultValues = {
@@ -296,7 +318,11 @@ const AccountSetting = ({ data, usersList }) => {
                   render={({ field }) => (
                     <>
                       <Editor
-                        data={JSON.parse(data?.describe) ?? ""}
+                        data={{
+                          time: new Date(),
+                          blocks: getEditorBlocks(data?.describe),
+                          version: "2.8.1",
+                        }}
                         placeholder={t("CourseDescribePlaceholder")}
                         onChange={async (data) => {
                           field.onChange(JSON.stringify((await data).blocks));
@@ -324,9 +350,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.Capacity ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.Capacity ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CourseCapacity")}
                           options={options}
                           id="Capacity"
@@ -354,9 +379,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.SessionNumber ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.SessionNumber ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CourseSessionNumber")}
                           options={options}
                           id="SessionNumber"
@@ -432,9 +456,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.Cost ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.Cost ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CourseCost")}
                           options={options}
                           id="Cost"
@@ -510,11 +533,10 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.CurrentCoursePaymentNumber
-                              ? "is-invalid"
-                              : ""
-                          }`}
+                          className={`form-control ${errors.CurrentCoursePaymentNumber
+                            ? "is-invalid"
+                            : ""
+                            }`}
                           placeholder={t("CourseCurrentPaymentNumber")}
                           options={options}
                           id="CurrentCoursePaymentNumber"
@@ -542,9 +564,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.CoursePrerequisiteId ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.CoursePrerequisiteId ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CoursePrerequisiteId")}
                           options={options}
                           id="CoursePrerequisiteId"
@@ -585,9 +606,8 @@ const AccountSetting = ({ data, usersList }) => {
                           }
                         }}
                         placeholder="mm/dd/yyyy"
-                        inputClass={`form-control ${
-                          errors.StartTime ? "is-invalid" : ""
-                        }`}
+                        inputClass={`form-control ${errors.StartTime ? "is-invalid" : ""
+                          }`}
                         containerStyle={{ width: "100%" }}
                       />
                       {errors.StartTime && (
@@ -623,9 +643,8 @@ const AccountSetting = ({ data, usersList }) => {
                           }
                         }}
                         placeholder="mm/dd/yyyy"
-                        inputClass={`form-control ${
-                          errors.EndTime ? "is-invalid" : ""
-                        }`}
+                        inputClass={`form-control ${errors.EndTime ? "is-invalid" : ""
+                          }`}
                         containerStyle={{ width: "100%" }}
                       />
                       {errors.EndTime && (
@@ -646,9 +665,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.CourseLvlId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.CourseLvlId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={levelsList}
                       value={currentLevel}
@@ -677,9 +695,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.CourseStatusId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.CourseStatusId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={statusList}
                       value={currentStatus}
@@ -708,9 +725,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.TeacherId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.TeacherId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={teachersList}
                       value={currentTeacher}
@@ -739,9 +755,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.CourseTypeId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.CourseTypeId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={typesList}
                       value={currentTypes}
@@ -771,9 +786,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.TremId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.TremId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={termsList}
                       value={currentTerms}
@@ -803,9 +817,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.ClassId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.ClassId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={classRoomsList}
                       value={currentClassRoom}
