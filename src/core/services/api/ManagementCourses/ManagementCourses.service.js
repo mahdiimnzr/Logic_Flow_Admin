@@ -27,3 +27,7 @@ export const postAddTermCloseDate = (body) =>
   postParams("/Term/AddTermCloseDate", body);
 export const UpdateTermCloseDate = (body) =>
   putParams("Term/UpdateTermCloseDate", body);
+
+export const useGetClassRooms = () => useGetQuery("ClassRooms", "ClassRoom");
+export const updateClassRooms = (body) => putParams("ClassRoom", body);
+export const addClassRooms = (body) => postParams("ClassRoom", body);

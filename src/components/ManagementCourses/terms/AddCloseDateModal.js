@@ -22,13 +22,6 @@ import Select from "react-select";
 import { selectThemeColors } from "@utils";
 import { useTranslation } from "react-i18next";
 
-const validationSchema = Yup.object({
-  startCloseDate: Yup.string().required(" پرکردن این فیلد الزامی است"),
-  endCloseDate: Yup.string().required(" پرکردن این فیلد الزامی است"),
-  closeReason: Yup.string().required(" پرکردن این فیلد الزامی است"),
-  termId: Yup.string().required("لطفا یک ترم را انتخاب کنید"),
-});
-
 const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -41,10 +34,40 @@ const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
     const roles = { value: value.id, label: value.termName };
     return roles;
   });
+  const findTermStateDate = termList?.find(
+    (term) => term.id === currentRole?.value,
+  )?.startDate;
+  const findTermEndDate = termList?.find(
+    (term) => term.id === currentRole?.value,
+  )?.endDate;
+
+  const validationSchema = Yup.object({
+    startCloseDate: Yup.date()
+      .min(
+        findTermStateDate ? new Date(findTermStateDate) : new Date(),
+        "زمان شروع باید بعد از تاریخ شروع ترم باشد",
+      )
+      .max(
+        findTermEndDate ? new Date(findTermEndDate) : new Date(),
+        "زمان شروع نباید بعد از تاریخ پایان ترم باشد",
+      )
+      .nullable()
+      .required("انتخواب زمان الزامی است"),
+    endCloseDate: Yup.date()
+      .min(Yup.ref("startCloseDate"), "زمان پایان باید بعد از زمان شروع باشد")
+      .max(
+        findTermEndDate ? new Date(findTermEndDate) : new Date(),
+        "زمان پایان نباید بعد از تاریخ پایان ترم باشد",
+      )
+      .nullable()
+      .required("انتخواب زمان الزامی است"),
+    closeReason: Yup.string().trim().required(" پرکردن این فیلد الزامی است"),
+    termId: Yup.string().required("لطفا یک ترم را انتخاب کنید"),
+  });
 
   const defaultValues = {
-    startCloseDate: "",
-    endCloseDate: "",
+    startCloseDate: null,
+    endCloseDate: null,
     closeReason: "",
     termId: "",
   };
@@ -94,19 +117,25 @@ const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
           className="gy-1 pt-75"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <Label for="role-select">{t("CourseStatusId")}</Label>
+          <Label for="termId">{t("CourseStatusId")}</Label>
           <Select
             isClearable={false}
             value={currentRole}
             options={roleOptions}
-            className="react-select"
+            className={`react-select ${errors.termId ? "is-invalid" : ""}`}
             classNamePrefix="select"
+            id="termId"
             theme={selectThemeColors}
             onChange={(data) => {
               setCurrentRole(data);
               setValue("termId", data.value);
             }}
           />
+          {errors.termId && (
+            <div className="invalid-feedback d-block">
+              {errors.termId.message}
+            </div>
+          )}
           <Col md="6" className="mb-1">
             <Label className="form-label" for="startCloseDate">
               زمان شروع

@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { ArrowLeft, ArrowRight } from "react-feather";
@@ -20,6 +20,7 @@ import DatePicker from "react-multi-date-picker";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAddCourseSliceParams } from "../../../../redux/actions";
 import { useTranslation } from "react-i18next";
+import Editor from "../../../common/Editor";
 
 const defaultValues = {
   Title: "",
@@ -28,8 +29,8 @@ const defaultValues = {
   SessionNumber: "",
   Describe: "",
   MiniDescribe: "",
-  StartTime: "",
-  EndTime: "",
+  StartTime: null,
+  EndTime: null,
   CurrentCoursePaymentNumber: "",
 };
 
@@ -44,8 +45,12 @@ const AccountDetails = ({ stepper }) => {
     SessionNumber: yup.string().required(t("CourseSessionNumberRequired")),
     Describe: yup.string().required(t("CourseDescribeRequired")),
     MiniDescribe: yup.string().required(t("CourseMiniDescribeRequired")),
-    StartTime: yup.string().required(t("CourseStartTimeRequired")),
-    EndTime: yup.string().required(t("CourseEndTimeRequired")),
+    StartTime: yup.date().nullable().required(t("CourseStartTimeRequired")),
+    EndTime: yup
+      .date()
+      .min(yup.ref("StartTime"), "زمان پایان باید بعد از زمان شروع باشد")
+      .nullable()
+      .required(t("CourseEndTimeRequired")),
     CurrentCoursePaymentNumber: yup
       .string()
       .required(t("CourseCurrentPaymentNumberRequired")),
@@ -59,6 +64,7 @@ const AccountDetails = ({ stepper }) => {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues,
@@ -283,13 +289,13 @@ const AccountDetails = ({ stepper }) => {
               id="Describe"
               name="Describe"
               render={({ field }) => (
-                <Input
-                  id="Describe"
-                  name="Describe"
-                  type="textarea"
+                <Editor
                   placeholder={t("CourseDescribePlaceholder")}
-                  invalid={errors.Describe && true}
-                  {...field}
+                  onChange={async (data) => {
+                    field.onChange(JSON.stringify((await data).blocks));
+                  }}
+                  error={errors.Describe && true}
+                  editorBlock={"editorJs-container"}
                 />
               )}
             />

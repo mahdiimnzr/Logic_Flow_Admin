@@ -153,8 +153,11 @@ export const columns = [
 
       const validationSchema = Yup.object({
         termName: Yup.string().required(".........."),
-        startDate: Yup.string().required("........."),
-        endDate: Yup.string().required("..........."),
+        startDate: Yup.date().nullable().required(" انتخواب زمان الزامی است"),
+        endDate: Yup.date()
+          .min(Yup.ref("startDate"), "زمان پایان باید بعد از زمان شروع باشد")
+          .nullable()
+          .required("انتخواب زمان الزامی است"),
       });
 
       const defaultValues = {

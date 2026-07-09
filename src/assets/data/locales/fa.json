@@ -315,5 +315,19 @@
   "NewsManagement": "مدیریت اخبار",
   "NewsList": "لیست اخبار",
   "AddArticle": "اضافه کردن مقاله",
-  "ArticleCategories": "دسته بندی مقالات"
+  "ArticleCategories": "دسته بندی مقالات",
+  "ClassRoomsManagement": "مدیریت کلاس ها",
+  "ClassRooms": "کلاس‌ها",
+  "ClassRoom": "کلاس",
+  "ClassRoomsList": "لیست کلاس‌ها",
+  "ClassRoomsCount": "مجموع کلاس‌ها",
+  "ClassRoomName": "نام کلاس",
+  "ClassRoomNamePlaceholder": "نام کلاس را وارد کنید",
+  "ClassRoomNameRequired": "نام کلاس الزامی است",
+  "AddClassRoom": "افزودن کلاس",
+  "EditClassRoom": "ویرایش کلاس",
+  "SearchClassRooms": "جستجوی کلاس‌ها...",
+  "Capacity": "ظرفیت",
+  "CapacityPlaceholder": "ظرفیت را وارد کنید",
+  "CapacityRequired": "ظرفیت الزامی است"
 }

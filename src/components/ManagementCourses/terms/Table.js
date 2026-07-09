@@ -56,8 +56,11 @@ import AddCloseDateModal from "./AddCloseDateModal";
 
 const validationSchema = Yup.object({
   termName: Yup.string().required("نام الزامی است"),
-  startDate: Yup.string().required(" انتخواب زمان الزامی است"),
-  endDate: Yup.string().required(" انتخواب زمان الزامی است"),
+  startDate: Yup.date().nullable().required(" انتخواب زمان الزامی است"),
+  endDate: Yup.date()
+    .min(Yup.ref("startDate"), "زمان پایان باید بعد از زمان شروع باشد")
+    .nullable()
+    .required("انتخواب زمان الزامی است"),
   departmentId: Yup.string().required(" انتخواب بخش الزامی است"),
 });
 // ** Table Header
@@ -85,8 +88,8 @@ const CustomHeader = ({
 
   const defaultValues = {
     termName: "",
-    startDate: "",
-    endDate: "",
+    startDate: null,
+    endDate: null,
     departmentId: "",
   };
 
@@ -125,7 +128,6 @@ const CustomHeader = ({
 
   const onSubmit = (data) => {
     postTermMutation(data);
-    console.log(data);
   };
   return (
     <div className="invoice-list-table-header w-100 me-1 ms-50 mt-2 mb-75">
