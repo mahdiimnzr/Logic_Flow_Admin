@@ -9,29 +9,32 @@ import Breadcrumbs from "@components/breadcrumbs";
 import { useGetCourseLevel } from "../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const LevelManagement = () => {
-  const { isLoading, data: CourseLevel } = useGetCourseLevel();
+  const { isLoading, data: CourseLevel, isFetching } = useGetCourseLevel();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // ** Function to toggle sidebar
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-  // ** I18n
   const { t } = useTranslation();
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return isLoading ? (
     <Spinner />
   ) : (
     <Fragment>
       <Breadcrumbs
-        title="مدیریت دوره ها"
-        data={[{ title: "  دوره ها" }, { title: "مدیریت دوره ها" }]}
+        title={t("LevelManagement")}
+        data={[
+          { title: t("Courses") },
+          { title: t("LevelManagement") },
+        ]}
       />
+
       <Row>
         <Col lg="3" sm="6">
           <SubscribersGained
-            title="مجموع سطح دوره ها"
+            title={t("TotalLevels")}
             subscribers={CourseLevel?.data?.length || 0}
             series={[
               {
-                name: "تکنولوژی ها",
+                name: t("Levels"),
                 data: [0, 25, 15, 50, 35, 70, CourseLevel?.data?.length || 0],
               },
             ]}
@@ -44,17 +47,18 @@ const LevelManagement = () => {
               color="primary"
               onClick={toggleSidebar}
             >
-              {" "}
-              افزودن سطح دوره ها
+              {t("AddLevel")}
             </Button>
           </div>
         </Col>
+
         <Col xl="9" sm="12">
           <div className="app-user-list">
-            <Table CourseLevel={CourseLevel?.data} />
+            <Table CourseLevel={CourseLevel?.data} isFetching={isFetching} />
           </div>
         </Col>
       </Row>
+
       <LevelSideBar open={sidebarOpen} toggleSidebar={toggleSidebar} />
     </Fragment>
   );

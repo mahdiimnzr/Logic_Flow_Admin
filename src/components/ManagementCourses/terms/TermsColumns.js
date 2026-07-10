@@ -304,7 +304,7 @@ export const columns = (t) => [
                   />
                 </Col>
 
-                <Col xs={12} className="text-center mt-2 pt-50">
+                <Col xs={12} className="text-center mt-2 pt-50 d-flex align-items-center justify-content-between">
                   <Button type="submit" className="me-1" color="primary">
                     {t("SaveChanges")}
                   </Button>

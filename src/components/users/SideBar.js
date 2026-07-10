@@ -13,6 +13,7 @@ import {
   InputGroup,
 } from "reactstrap";
 import InputPasswordToggle from "@components/input-password-toggle";
+import "cleave.js/dist/addons/cleave-phone.ir";
 import Cleave from "cleave.js/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -84,9 +85,9 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   };
 
   const handleSidebarClosed = () => {
-    Object.keys(defaultValues).forEach((key) => {
+    for (const key in defaultValues) {
       setValue(key, defaultValues[key]);
-    });
+    }
   };
 
   return (

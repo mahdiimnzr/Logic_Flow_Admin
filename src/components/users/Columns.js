@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Avatar from "@components/avatar";
 import Select from "react-select";
 import { selectThemeColors } from "@utils";
-import { Shield, Eye } from "react-feather";
+import { Shield, Eye, MoreVertical, Bell } from "react-feather";
 import {
   Badge,
   Modal,
@@ -12,16 +12,30 @@ import {
   Label,
   Input,
   Button,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Col,
+  Row,
+  FormFeedback,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import formatDate from "../../core/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { addUserAccess, useGetUserList } from "../../core/services/api/Users/users.service";
+import { addNotifForUser, addUserAccess, useGetUserList } from "../../core/services/api/Users/users.service";
 import { useSelector } from "react-redux";
 import profile from "/public/Profile.png";
 import ImageFallback from "../common/ImageFallback";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup"
+
+const validationSchema = Yup.object({
+  message: Yup.string().trim().required("MessageRequired"),
+});
 
 const renderClient = (row) => {
   if (row?.currentPictureAddress) {
@@ -152,6 +166,7 @@ export const columns = (t) => [
       const { data: usersList } = useGetUserList(params);
 
       const [centeredModal, setCenteredModal] = useState(false);
+      const [notificationModal, setNotificationModal] = useState(false);
       const [currentRole, setCurrentRole] = useState({
         value: "",
         label: t("RolesSelection"),
@@ -164,6 +179,22 @@ export const columns = (t) => [
       }));
 
       const roleOptions = [...(rolesList ?? [])];
+
+      const defaultValues = {
+        message: "",
+        userId: row.id
+      };
+
+      const {
+        control,
+        setValue,
+        handleSubmit,
+        formState: { errors },
+      } = useForm({
+        defaultValues,
+        resolver: yupResolver(validationSchema),
+      });
+
 
       const { mutate: accessUserMutate } = useMutation({
         mutationFn: addUserAccess,
@@ -185,18 +216,100 @@ export const columns = (t) => [
         },
       });
 
+      const { mutate: addNotifForUserMutate } = useMutation({
+        mutationFn: addNotifForUser,
+        onMutate: () => {
+          const toastId = toast.loading(t("Loading"));
+          return { toastId };
+        },
+        onSuccess: (response, _, context) => {
+          toast.success(response.data.message || t("StatusUpdated"), { id: context.toastId });
+          queryClient.invalidateQueries({ queryKey: ["UsersList"] });
+          setNotificationModal(!notificationModal)
+          setValue("message", "")
+        },
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
+        },
+      });
+
+      const onSubmit = (data) => {
+        addNotifForUserMutate(data);
+      };
+
       return (
         <div className="column-action d-flex gap-1 align-items-center">
           <Link to={`/Users/Detail/${row.id}`}>
             <Eye size={17} className="me-50 cursor-pointer" />
           </Link>
-
           <Shield
             size={17}
             className="me-50 cursor-pointer"
             onClick={() => setCenteredModal(true)}
           />
+          <UncontrolledDropdown>
+            <DropdownToggle tag="span">
+              <MoreVertical size={17} className="cursor-pointer" />
+            </DropdownToggle>
 
+            <DropdownMenu end>
+              <DropdownItem
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setNotificationModal(!notificationModal)
+                }}
+              >
+                <Bell size={14} className="me-50" />
+                <span className="align-middle">
+                  {t("SendNotif")}
+                </span>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+          <Modal
+            unmountOnClose
+            isOpen={notificationModal}
+            toggle={() => setNotificationModal(!notificationModal)}
+            className="modal-dialog-centered"
+            style={{ fontFamily: "IRANYekanXFaNum" }}
+          >
+            <ModalHeader toggle={() => setNotificationModal(!notificationModal)}>
+              {t("Notif")}
+            </ModalHeader>
+            <ModalBody className="px-sm-5 mx-50 pb-5">
+              <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
+                <Col xs={12}>
+                  <Label className="form-label" for="message">
+                    {t("NotifMessage")}
+                  </Label>
+                  <Controller
+                    name="message"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="message"
+                        type="textarea"
+                        placeholder={t("NotifMessage")}
+                        invalid={!!errors.message}
+                        style={{ minHeight: '100px' }}
+                      />
+                    )}
+                  />
+                  {errors.message && <FormFeedback>{t(errors.message.message)}</FormFeedback>}
+                </Col>
+                <Col xs={12} className="text-center d-flex justify-content-between mt-2 pt-50">
+                  <Button type="submit" className="me-1" color="primary">
+                    {t("SaveChanges")}
+                  </Button>
+                  <Button color="secondary" outline onClick={() => setNotificationModal(!notificationModal)}>
+                    {t("Cancel")}
+                  </Button>
+                </Col>
+              </Row>
+            </ModalBody>
+          </Modal>
           <Modal
             unmountOnClose
             isOpen={centeredModal}

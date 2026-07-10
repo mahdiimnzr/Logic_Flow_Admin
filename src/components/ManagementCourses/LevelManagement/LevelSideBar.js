@@ -1,29 +1,17 @@
 import { useState } from "react";
 import Sidebar from "@components/sidebar";
-import { selectThemeColors } from "@utils";
-import Select from "react-select";
-import classnames from "classnames";
 import { useForm, Controller } from "react-hook-form";
 import {
   Button,
   Label,
-  FormText,
   Form,
   Input,
-  InputGroup,
-  InputGroupText,
 } from "reactstrap";
-import InputPasswordToggle from "@components/input-password-toggle";
-import "cleave.js/dist/addons/cleave-phone.ir";
-import Cleave from "cleave.js/react";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import toast from "react-hot-toast";
-import ImageDropZone from "../../common/ImageDropZone";
 import { postCourseLevel } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const defaultValues = {
@@ -31,22 +19,22 @@ const defaultValues = {
 };
 
 const validationSchema = Yup.object({
-  levelName: Yup.string().required("نام الزامی است"),
+  levelName: Yup.string().required("LevelNameRequired"),
 });
 
-const SidebarNewUsers = ({ open, toggleSidebar }) => {
+const LevelSideBar = ({ open, toggleSidebar }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
-
-  const options = { phone: true, phoneRegionCode: "IR" };
 
   const {
     control,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: postCourseLevels } = useMutation({
     mutationFn: postCourseLevel,
@@ -55,12 +43,12 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       return { toastId };
     },
     onSuccess: (response, _, context) => {
-      toast.success("سطح دوره جدید ساخته شد", { id: context.toastId });
+      toast.success(response.data.message || t("LevelCreated"), { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ["CourseLevel"] });
       toggleSidebar();
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -69,17 +57,17 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   };
 
   const handleSidebarClosed = () => {
-    for (const key in defaultValues) {
+    Object.keys(defaultValues).forEach((key) => {
       setValue(key, defaultValues[key]);
-    }
+    });
   };
 
   return (
     <Sidebar
       size="lg"
       open={open}
-      title={"تکنولوژی جدید"}
-      headerClassName="mb-1 flex justify-between"
+      title={t("NewLevel")}
+      headerClassName="mb-1"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
       onClosed={handleSidebarClosed}
@@ -88,7 +76,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1">
           <Label className="form-label" for="levelName">
-            نام سطح<span className="text-danger">*</span>
+            {t("LevelName")} <span className="text-danger">*</span>
           </Label>
           <Controller
             name="levelName"
@@ -97,7 +85,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
               <>
                 <Input
                   id="levelName"
-                  placeholder={" ...نام سطح"}
+                  placeholder={t("LevelName")}
                   invalid={!!errors.levelName}
                   {...field}
                 />
@@ -110,6 +98,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <Button type="submit" className="me-1" color="primary">
           {t("Submit")}
         </Button>
@@ -121,4 +110,4 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   );
 };
 
-export default SidebarNewUsers;
+export default LevelSideBar;

@@ -43,10 +43,6 @@ const Terms = () => {
     <Spinner />
   ) : (
     <Fragment>
-      {/* <Breadcrumbs
-        title={t("UsersList")}
-        data={[{ title: t("Users") }, { title: t("UsersList") }]}
-      /> */}
       <div className="app-user-list">
         <Row>
           <Col lg="4" sm="7">

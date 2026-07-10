@@ -48,6 +48,7 @@ const CustomHeader = ({
             <Input
               id="search-invoice"
               className="ms-50 w-100"
+              placeholder={t("SearchUser")}
               type="text"
               value={searchTerm}
               onChange={(e) => handleFilter(e.target.value)}

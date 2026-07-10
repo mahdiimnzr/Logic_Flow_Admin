@@ -125,13 +125,14 @@ const CustomHeader = ({
             <Input
               id="search-invoice"
               className="ms-50 w-100"
+              placeholder={t("SearchTerm")}
               type="text"
               value={searchTerm}
               onChange={(e) => handleFilter(e.target.value)}
             />
           </div>
 
-          <div className="d-flex align-items-center gap-1">
+          <div className="d-flex align-items-center gap-1 text-nowrap">
             <Button color="primary" onClick={() => setShow(true)}>
               {t("AddTerm")}
             </Button>
@@ -281,7 +282,7 @@ const CustomHeader = ({
               />
             </Col>
 
-            <Col xs={12} className="text-center mt-2 pt-50">
+            <Col xs={12} className="text-center mt-2 pt-50 d-flex align-items-center justify-content-between">
               <Button type="submit" className="me-1" color="primary">
                 {t("Submit")}
               </Button>
