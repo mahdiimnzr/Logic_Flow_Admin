@@ -267,7 +267,7 @@ const AccountSetting = ({ data }) => {
           </div>
           <Form className="mt-2 pt-50" onSubmit={handleSubmit(onSubmit)}>
             <Row>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="fName">
                   {t("FName")}
                 </Label>
@@ -287,7 +287,7 @@ const AccountSetting = ({ data }) => {
                   <FormFeedback>{t(errors.fName.message)}</FormFeedback>
                 )}
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="lName">
                   {t("LName")}
                 </Label>
@@ -307,7 +307,7 @@ const AccountSetting = ({ data }) => {
                   <FormFeedback>{t(errors.lName.message)}</FormFeedback>
                 )}
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="gmail">
                   {t("Email")}
                 </Label>
@@ -346,9 +346,8 @@ const AccountSetting = ({ data }) => {
                       <InputGroup className="input-group-merge">
                         <Cleave
                           dir="ltr"
-                          className={`form-control ${
-                            errors.phoneNumber ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.phoneNumber ? "is-invalid" : ""
+                            }`}
                           placeholder="0912 912 9192"
                           options={options}
                           id="phoneNumber"
@@ -438,7 +437,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="homeAdderess">
                   {t("HomeAddress")}
                 </Label>
@@ -462,7 +461,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="nationalCode">
                   {t("NationalCode")}
                 </Label>
@@ -474,9 +473,8 @@ const AccountSetting = ({ data }) => {
                       <InputGroup className="input-group-merge">
                         <Cleave
                           dir="ltr"
-                          className={`form-control ${
-                            errors.nationalCode ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.nationalCode ? "is-invalid" : ""
+                            }`}
                           placeholder="200-202020-2"
                           options={nationalCodeOptions}
                           id="nationalCode"
@@ -493,7 +491,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="linkdinProfile">
                   {t("LinkedinProfile")}
                 </Label>
@@ -613,7 +611,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label for="twoStepAuth">{t("TwoStep")}</Label>
                 <Controller
                   name="twoStepAuth"
@@ -637,7 +635,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label for="receiveMessageEvent">
                   {t("ReceiveMessageEvent")}
                 </Label>
@@ -663,7 +661,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label for="gender">{t("Gender")}</Label>
                 <Controller
                   name="gender"
@@ -687,7 +685,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="birthDay">
                   {t("BirthDay")}
                 </Label>
@@ -711,9 +709,8 @@ const AccountSetting = ({ data }) => {
                           }
                         }}
                         placeholder="mm/dd/yyyy"
-                        inputClass={`form-control ${
-                          errors.birthDay ? "is-invalid" : ""
-                        }`}
+                        inputClass={`form-control ${errors.birthDay ? "is-invalid" : ""
+                          }`}
                         containerStyle={{ width: "100%" }}
                       />
                       {errors.birthDay && (
@@ -725,7 +722,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="insertDate">
                   {t("InsertDate")}
                 </Label>
@@ -742,7 +739,7 @@ const AccountSetting = ({ data }) => {
                   )}
                 />
               </Col>
-              <Col sm="4" className="mb-1">
+              <Col sm="3" className="mb-1">
                 <Label className="form-label" for="password">
                   {t("Password")}
                 </Label>

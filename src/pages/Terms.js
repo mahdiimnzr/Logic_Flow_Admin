@@ -31,7 +31,7 @@ import "@styles/react/apps/app-users.scss";
 
 const Terms = () => {
   const { t } = useTranslation();
-  const { isLoading, data: termList } = useGetTerm();
+  const { isLoading, data: termList, isFetching } = useGetTerm();
   const { isLoading: departmentsLoading } = useGetDepartments();
 
   const totalExpire = termList?.data?.filter((value) => value.expire == true);
@@ -80,7 +80,7 @@ const Terms = () => {
             />
           </Col>
         </Row>
-        <Table termList={termList?.data} />
+        <Table termList={termList?.data} isFetching={isFetching} />
       </div>
     </Fragment>
   );
