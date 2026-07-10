@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { BiLink } from "react-icons/bi";
-import { FaArrowLeft } from "react-icons/fa";
 
 const CreateEditorJsBlocks = ({ editorData }) => {
     const [editor, setEditor] = useState();
@@ -9,7 +7,6 @@ const CreateEditorJsBlocks = ({ editorData }) => {
         if (editorData.length == 0) return;
 
         setEditor(JSON.parse(editorData));
-        console.log(JSON.parse(editorData))
     }, [editorData]);
 
     const loadBlocks = (data) => {
@@ -56,7 +53,6 @@ const CreateEditorJsBlocks = ({ editorData }) => {
                             }}
                         >
                             <p className="w-5/6 max-sm:text-sm">{block?.data?.text}</p>
-                            <BiLink size={30} />
                         </div>
                     );
                 case "list":
@@ -77,7 +73,6 @@ const CreateEditorJsBlocks = ({ editorData }) => {
                                         }}
                                         className="d-flex justify-content-center align-items-center"
                                     >
-                                        <FaArrowLeft size={16} />
                                     </div>
                                     <span style={{ color: "#161439" }} className="fs-4">
                                         {item.content}
