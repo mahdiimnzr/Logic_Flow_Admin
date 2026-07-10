@@ -11,6 +11,7 @@ import {
   CardText,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
+import HandleIdentityEditorJs from "../../../common/EditorDetailValidation";
 const CourseDetail = ({ data }) => {
   const { t } = useTranslation();
   return (
@@ -59,7 +60,7 @@ const CourseDetail = ({ data }) => {
             </CardBody>
             <CardBody>
               <CardTitle>{t("CourseDescribe")}</CardTitle>
-              <CardText tag={"h5"}>{data?.describe}</CardText>
+              <HandleIdentityEditorJs desc={data?.describe} />
             </CardBody>
           </Card>
         </Col>

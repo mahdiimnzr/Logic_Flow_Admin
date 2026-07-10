@@ -168,9 +168,8 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${
-                      errors.Cost ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.Cost ? "is-invalid" : ""
+                      }`}
                     placeholder={t("CourseCostPlaceholder")}
                     options={numericOptions}
                     id="Cost"
@@ -199,9 +198,8 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${
-                      errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
+                      }`}
                     placeholder={t("CourseCurrentPaymentNumberPlaceholder")}
                     options={numericOptions}
                     id="CurrentCoursePaymentNumber"
@@ -230,9 +228,8 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${
-                      errors.Capacity ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.Capacity ? "is-invalid" : ""
+                      }`}
                     placeholder={t("CourseCapacityPlaceholder")}
                     options={numericOptions}
                     id="Capacity"
@@ -261,9 +258,8 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${
-                      errors.SessionNumber ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.SessionNumber ? "is-invalid" : ""
+                      }`}
                     placeholder={t("CourseSessionNumberPlaceholder")}
                     options={numericOptions}
                     id="SessionNumber"
@@ -328,9 +324,8 @@ const AccountDetails = ({ stepper }) => {
                         field.onChange(null);
                       }
                     }}
-                    inputClass={`form-control ${
-                      errors.StartTime ? "is-invalid" : ""
-                    }`}
+                    inputClass={`form-control ${errors.StartTime ? "is-invalid" : ""
+                      }`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.StartTime && (
@@ -367,9 +362,8 @@ const AccountDetails = ({ stepper }) => {
                         field.onChange(null);
                       }
                     }}
-                    inputClass={`form-control ${
-                      errors.EndTime ? "is-invalid" : ""
-                    }`}
+                    inputClass={`form-control ${errors.EndTime ? "is-invalid" : ""
+                      }`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.EndTime && (

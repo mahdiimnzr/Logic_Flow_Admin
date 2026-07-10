@@ -1,35 +1,21 @@
-// ** React Imports
-
 import { useForm, Controller } from "react-hook-form";
-
-// ** Custom Components
 import Avatar from "@components/avatar";
-
-// ** Utils
-import { selectThemeColors } from "@utils";
-
-// ** Icons Imports
 import { Edit } from "react-feather";
-
-// ** Reactstrap Imports
 import {
   Button,
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  Label,
-  Input,
   Row,
   Col,
+  Label,
+  Input,
   FormFeedback,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-
-import { useSelector } from "react-redux";
 import profile from "/public/Profile.png";
 import ImageFallback from "../../common/ImageFallback";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -37,10 +23,9 @@ import * as Yup from "yup";
 import { updateStatus } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 
 const validationSchema = Yup.object({
-  statusName: Yup.string().required("پر کردن فیلد  الزامی است"),
+  statusName: Yup.string().required("StatusNameRequired"),
 });
 
-// ** Renders Client Columns
 const renderClient = (row) => {
   if (row?.iconAddress) {
     return (
@@ -51,38 +36,27 @@ const renderClient = (row) => {
         fallback={profile}
       />
     );
-  } else {
-    return (
-      <Avatar
-        initials
-        className="me-1"
-        color={row.avatarColor || "light-primary"}
-        content={
-          row?.techName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"
-        }
-      />
-    );
   }
+  return (
+    <Avatar
+      initials
+      className="me-1"
+      color="light-primary"
+      content={row?.statusName?.toUpperCase() || "Unknown"}
+    />
+  );
 };
-export const columns = [
+
+export const columns = (t) => [
   {
-    name: "",
     sortable: true,
     minWidth: "200px",
-    sortField: "iconAddress",
-    selector: (row) => row.iconAddress,
-    cell: (row) => (
-      <div className="d-flex justify-content-left align-items-center">
-        {renderClient(row)}
-        {/* <div className="d-flex flex-column">
-          <span className="text-truncate text-muted mb-0">{row.techName}</span>
-        </div> */}
-      </div>
-    ),
+    sortField: "statusName",
+    selector: (row) => row.statusName,
+    cell: (row) => renderClient(row)
   },
-
   {
-    name: "وضعیت ها",
+    name: t("StatusName"),
     minWidth: "80px",
     sortable: true,
     sortField: "statusName",
@@ -91,32 +65,29 @@ export const columns = [
       <span className="text-truncate text-muted mb-0">{row.statusName}</span>
     ),
   },
-
   {
-    name: "اقدام",
+    name: t("Actions"),
     minWidth: "50px",
     cell: (row) => {
       const { t } = useTranslation();
-      const [centeredModal, setCenteredModal] = useState(false);
-
-      // ** States
-      const [show, setShow] = useState(false);
       const queryClient = useQueryClient();
+
+      const [editModal, setEditModal] = useState(false);
 
       const defaultValues = {
         statusName: row.statusName ?? "",
-        describe: row.describe ?? "",
-        statusNumber: row.statusNumber ?? "",
         id: row.id ?? "",
       };
 
-      // ** Hooks
       const {
         control,
         setValue,
         handleSubmit,
         formState: { errors },
-      } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+      } = useForm({
+        defaultValues,
+        resolver: yupResolver(validationSchema),
+      });
 
       const { mutate: updateStatusMutate } = useMutation({
         mutationFn: updateStatus,
@@ -125,14 +96,12 @@ export const columns = [
           return { toastId };
         },
         onSuccess: (response, _, context) => {
-          toast.success("وضعیت ویرایش شد", { id: context.toastId });
-          queryClient.invalidateQueries({
-            queryKey: [`Status`],
-          });
-          setShow(!show);
+          toast.success(response.data.message || t("StatusUpdated"), { id: context.toastId });
+          queryClient.invalidateQueries({ queryKey: ["Status"] });
+          setEditModal(false);
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
 
@@ -142,28 +111,26 @@ export const columns = [
 
       return (
         <div className="column-action d-flex gap-1">
-          <Edit size={17} className="me-50 " onClick={() => setShow(true)} />
+          <Edit
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setEditModal(true)}
+          />
+
           <Modal
-            isOpen={show}
-            toggle={() => setShow(!show)}
-            className="modal-dialog-centered "
+            isOpen={editModal}
+            toggle={() => setEditModal(!editModal)}
+            className="modal-dialog-centered"
+            style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader
-              className="bg-transparent"
-              toggle={() => setShow(!show)}
-            ></ModalHeader>
+            <ModalHeader toggle={() => setEditModal(!editModal)}>
+              {t("EditStatus")}
+            </ModalHeader>
             <ModalBody className="px-sm-5 mx-50 pb-5">
-              <div className="text-center mb-2">
-                <h1 className="mb-1">ادیت کردن تکنولوژی ها</h1>
-              </div>
-              <Row
-                tag="form"
-                className="gy-1 pt-75"
-                onSubmit={handleSubmit(onSubmit)}
-              >
+              <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
                 <Col xs={12}>
                   <Label className="form-label" for="statusName">
-                    نام وضعبت
+                    {t("StatusName")}
                   </Label>
                   <Controller
                     name="statusName"
@@ -172,25 +139,19 @@ export const columns = [
                       <Input
                         {...field}
                         id="statusName"
-                        placeholder="تام وضعیت"
-                        invalid={errors.statusName && true}
+                        placeholder={t("StatusName")}
+                        invalid={!!errors.statusName}
                       />
                     )}
                   />
-                  {errors.statusName && (
-                    <FormFeedback>{t(errors.statusName.message)}</FormFeedback>
-                  )}
+                  {errors.statusName && <FormFeedback>{t(errors.statusName.message)}</FormFeedback>}
                 </Col>
-                <Col xs={12} className="text-center mt-2 pt-50">
+                <Col xs={12} className="text-center d-flex justify-content-between mt-2 pt-50">
                   <Button type="submit" className="me-1" color="primary">
-                    تغیرات
+                    {t("SaveChanges")}
                   </Button>
-                  <Button
-                    color="secondary"
-                    outline
-                    onClick={() => setShow(false)}
-                  >
-                    منصرف
+                  <Button color="secondary" outline onClick={() => setEditModal(false)}>
+                    {t("Cancel")}
                   </Button>
                 </Col>
               </Row>

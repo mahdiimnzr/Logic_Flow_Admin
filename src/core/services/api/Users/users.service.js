@@ -33,3 +33,4 @@ export const useGetCourseGroupCourses = (items, enabled) =>
       enabled,
     })),
   );
+export const addNotifForUser = (body) => postParams("v2/notification/alert/add", body)

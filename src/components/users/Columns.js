@@ -1,55 +1,42 @@
-// ** React Imports
-import { Link, useNavigate } from "react-router-dom";
-
-// ** Custom Components
+import { Link } from "react-router-dom";
 import Avatar from "@components/avatar";
 import Select from "react-select";
-
-// ** Utils
 import { selectThemeColors } from "@utils";
-
-// ** Icons Imports
-import {
-  Slack,
-  User,
-  Settings,
-  Database,
-  Edit2,
-  MoreVertical,
-  FileText,
-  Trash2,
-  Archive,
-} from "react-feather";
-
-// ** Reactstrap Imports
+import { Shield, Eye, MoreVertical, Bell } from "react-feather";
 import {
   Badge,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Button,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Label,
   Input,
+  Button,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Col,
+  Row,
+  FormFeedback,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import formatDate from "../../core/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import {
-  addUserAccess,
-  useGetUserList,
-} from "../../core/services/api/Users/users.service";
+import { addNotifForUser, addUserAccess, useGetUserList } from "../../core/services/api/Users/users.service";
 import { useSelector } from "react-redux";
 import profile from "/public/Profile.png";
 import ImageFallback from "../common/ImageFallback";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup"
 
-// ** Renders Client Columns
+const validationSchema = Yup.object({
+  message: Yup.string().trim().required("MessageRequired"),
+});
+
 const renderClient = (row) => {
   if (row?.currentPictureAddress) {
     return (
@@ -60,24 +47,20 @@ const renderClient = (row) => {
         fallback={profile}
       />
     );
-  } else {
-    return (
-      <Avatar
-        initials
-        className="me-1"
-        color={row.avatarColor || "light-primary"}
-        content={
-          row?.fName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"
-        }
-      />
-    );
   }
+  return (
+    <Avatar
+      initials
+      className="me-1"
+      color={row.avatarColor || "light-primary"}
+      content={row?.fName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"}
+    />
+  );
 };
 
-// ** Renders Role Columns
 const renderRole = (row) => {
   return (
-    <span className={`text-truncate text-capitalize align-middle text-primary`}>
+    <span className="text-truncate text-capitalize align-middle text-primary">
       {row.roles.join(", ")}
     </span>
   );
@@ -88,9 +71,9 @@ const statusObj = {
   deActive: "light-secondary",
 };
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "User",
+    name: t("User"),
     sortable: true,
     minWidth: "200px",
     sortField: "fullName",
@@ -102,7 +85,6 @@ export const columns = [
           <Link
             to={`/Users/Detail/${row.id}`}
             className="user_name text-truncate text-body"
-            // onClick={() => store.dispatch(getUser(row.id))}
           >
             <span className="fw-bolder">
               {row.fName} {row.lName}
@@ -113,7 +95,7 @@ export const columns = [
     ),
   },
   {
-    name: "Role",
+    name: t("Role"),
     sortable: true,
     minWidth: "200px",
     sortField: "role",
@@ -121,7 +103,7 @@ export const columns = [
     cell: (row) => renderRole(row),
   },
   {
-    name: "Gmail",
+    name: t("Gmail"),
     minWidth: "300px",
     sortable: true,
     sortField: "gmail",
@@ -131,7 +113,7 @@ export const columns = [
     ),
   },
   {
-    name: "Insert Date",
+    name: t("InsertDate"),
     minWidth: "80px",
     sortable: true,
     sortField: "insertDate",
@@ -143,65 +125,77 @@ export const columns = [
     ),
   },
   {
-    name: "Status",
+    name: t("Status"),
     minWidth: "138px",
     sortable: true,
     sortField: "status",
     selector: (row) => row.active,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <Badge
-          className="text-capitalize"
-          color={row.active ? statusObj.active : statusObj.deActive}
-          pill
-        >
-          {row.active ? t("Active") : t("DeActive")}
-        </Badge>
-      );
-    },
+    cell: (row) => (
+      <Badge
+        className="text-capitalize"
+        color={row.active ? statusObj.active : statusObj.deActive}
+        pill
+      >
+        {row.active ? t("Active") : t("DeActive")}
+      </Badge>
+    ),
   },
   {
-    name: "isDelete",
+    name: t("isDelete"),
     minWidth: "80px",
     sortable: true,
     sortField: "isDelete",
     selector: (row) => row.isDelete,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <Badge
-          className="text-capitalize"
-          color={row.isDelete ? statusObj.active : statusObj.deActive}
-          pill
-        >
-          {row.isDelete ? t("Deleted") : t("NotDeleted")}
-        </Badge>
-      );
-    },
+    cell: (row) => (
+      <Badge
+        className="text-capitalize"
+        color={row.isDelete ? statusObj.active : statusObj.deActive}
+        pill
+      >
+        {row.isDelete ? t("Deleted") : t("NotDeleted")}
+      </Badge>
+    ),
   },
   {
-    name: "Actions",
+    name: t("Actions"),
     minWidth: "300px",
     cell: (row) => {
       const params = useSelector((state) => state.usersSlice.params);
       const { t } = useTranslation();
-      const navigate = useNavigate();
       const queryClient = useQueryClient();
       const { data: usersList } = useGetUserList(params);
+
       const [centeredModal, setCenteredModal] = useState(false);
+      const [notificationModal, setNotificationModal] = useState(false);
       const [currentRole, setCurrentRole] = useState({
         value: "",
         label: t("RolesSelection"),
       });
       const [currentAccess, setCurrentAccess] = useState(false);
-      // ** User filter options
-      const rolesList = usersList?.data?.roles?.map((value) => {
-        const roles = { value: value.id, label: value.name };
-        return roles;
-      });
+
+      const rolesList = usersList?.data?.roles?.map((value) => ({
+        value: value.id,
+        label: value.name,
+      }));
+
       const roleOptions = [...(rolesList ?? [])];
-      // ** Handle Submit
+
+      const defaultValues = {
+        message: "",
+        userId: row.id
+      };
+
+      const {
+        control,
+        setValue,
+        handleSubmit,
+        formState: { errors },
+      } = useForm({
+        defaultValues,
+        resolver: yupResolver(validationSchema),
+      });
+
+
       const { mutate: accessUserMutate } = useMutation({
         mutationFn: addUserAccess,
         onMutate: () => {
@@ -210,37 +204,114 @@ export const columns = [
         },
         onSuccess: (response, _, context) => {
           if (response.data.success) {
-            setCenteredModal(!centeredModal);
+            setCenteredModal(false);
             toast.success(response.data.message, { id: context.toastId });
-            queryClient.invalidateQueries({
-              queryKey: [`UsersList`],
-            });
+            queryClient.invalidateQueries({ queryKey: ["UsersList"] });
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
+
+      const { mutate: addNotifForUserMutate } = useMutation({
+        mutationFn: addNotifForUser,
+        onMutate: () => {
+          const toastId = toast.loading(t("Loading"));
+          return { toastId };
+        },
+        onSuccess: (response, _, context) => {
+          toast.success(response.data.message || t("StatusUpdated"), { id: context.toastId });
+          queryClient.invalidateQueries({ queryKey: ["UsersList"] });
+          setNotificationModal(!notificationModal)
+          setValue("message", "")
+        },
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
+        },
+      });
+
+      const onSubmit = (data) => {
+        addNotifForUserMutate(data);
+      };
+
       return (
-        <div className="column-action d-flex gap-1">
-          <Button.Ripple
-            onClick={() => navigate(`/Users/Detail/${row.id}`)}
-            color="info"
-            size="sm"
-          >
-            {t("Detail")}
-          </Button.Ripple>
-          <Button.Ripple
-            onClick={() => setCenteredModal(!centeredModal)}
-            color="warning"
-            size="sm"
-          >
-            {t("Access")}
-          </Button.Ripple>
+        <div className="column-action d-flex gap-1 align-items-center">
+          <Link to={`/Users/Detail/${row.id}`}>
+            <Eye size={17} className="me-50 cursor-pointer" />
+          </Link>
+          <Shield
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setCenteredModal(true)}
+          />
+          <UncontrolledDropdown>
+            <DropdownToggle tag="span">
+              <MoreVertical size={17} className="cursor-pointer" />
+            </DropdownToggle>
+
+            <DropdownMenu end>
+              <DropdownItem
+                className="w-100"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setNotificationModal(!notificationModal)
+                }}
+              >
+                <Bell size={14} className="me-50" />
+                <span className="align-middle">
+                  {t("SendNotif")}
+                </span>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
           <Modal
-            unmountOnClose={true}
+            unmountOnClose
+            isOpen={notificationModal}
+            toggle={() => setNotificationModal(!notificationModal)}
+            className="modal-dialog-centered"
+            style={{ fontFamily: "IRANYekanXFaNum" }}
+          >
+            <ModalHeader toggle={() => setNotificationModal(!notificationModal)}>
+              {t("Notif")}
+            </ModalHeader>
+            <ModalBody className="px-sm-5 mx-50 pb-5">
+              <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
+                <Col xs={12}>
+                  <Label className="form-label" for="message">
+                    {t("NotifMessage")}
+                  </Label>
+                  <Controller
+                    name="message"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="message"
+                        type="textarea"
+                        placeholder={t("NotifMessage")}
+                        invalid={!!errors.message}
+                        style={{ minHeight: '100px' }}
+                      />
+                    )}
+                  />
+                  {errors.message && <FormFeedback>{t(errors.message.message)}</FormFeedback>}
+                </Col>
+                <Col xs={12} className="text-center d-flex justify-content-between mt-2 pt-50">
+                  <Button type="submit" className="me-1" color="primary">
+                    {t("SaveChanges")}
+                  </Button>
+                  <Button color="secondary" outline onClick={() => setNotificationModal(!notificationModal)}>
+                    {t("Cancel")}
+                  </Button>
+                </Col>
+              </Row>
+            </ModalBody>
+          </Modal>
+          <Modal
+            unmountOnClose
             isOpen={centeredModal}
             toggle={() => setCenteredModal(!centeredModal)}
             className="modal-dialog-centered"
@@ -258,9 +329,7 @@ export const columns = [
                 className="react-select"
                 classNamePrefix="select"
                 theme={selectThemeColors}
-                onChange={(data) => {
-                  setCurrentRole(data);
-                }}
+                onChange={(data) => setCurrentRole(data)}
               />
               <div className="form-check form-switch mt-2">
                 <Input
@@ -278,12 +347,11 @@ export const columns = [
               <Button
                 color="primary"
                 onClick={() =>
-                  currentRole.value == ""
-                    ? null
-                    : accessUserMutate({
-                        currentAccess,
-                        body: { roleId: currentRole.value, userId: row.id },
-                      })
+                  currentRole.value &&
+                  accessUserMutate({
+                    currentAccess,
+                    body: { roleId: currentRole.value, userId: row.id },
+                  })
                 }
               >
                 {t("SaveChanges")}
