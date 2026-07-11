@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect, memo } from "react";
 import { Query, useQuery } from "@tanstack/react-query";
-
+import { useNavigate } from "react-router-dom";
 import { getAdminBlogsList } from "../../core/services/api/blogs/blogs.service";
 import BlogsColumns from "./BlogsColumns";
 
@@ -17,11 +17,13 @@ import {
   Row,
   Col,
   Spinner,
+  Button,
 } from "reactstrap";
 import { isAction } from "@reduxjs/toolkit";
 import { useNavbarColor } from "./../../utility/hooks/useNavbarColor";
 
 const DataTableServerSide = ({ statusFilter }) => {
+  const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -101,16 +103,27 @@ const DataTableServerSide = ({ statusFilter }) => {
     );
   };
 
+  const customStyles = {
+    headRow: {
+      style: {
+        backgroundColor: '#f3f2f7',
+      },
+    },
+  };
+
   return (
     <Fragment>
-      <Card>
+      <Card className="bg-white">
         <CardHeader className="border-bottom">
           <CardTitle tag="h4">لیست مقالات </CardTitle>
         </CardHeader>
-        <Row className="mx-0 mt-1 mb-50">
-          <Col sm="6">
+
+
+        <Row className="mx-0 mt-1 mb-50 align-items-center">
+          <Col sm="12" md="7" className="d-flex align-items-center flex-wrap gap-2 mb-1 mb-sm-0">
+
             <div className="d-flex align-items-center">
-              <Label for="sort-select">نمایش</Label>
+              <Label for="sort-select" className="me-1 mb-0">نمایش</Label>
               <Input
                 className="dataTable-select mx-1"
                 type="select"
@@ -123,14 +136,16 @@ const DataTableServerSide = ({ statusFilter }) => {
                 <option value={25}>25</option>
                 <option value={50}>50</option>
               </Input>
-              <Label for="sort-select">رکورد</Label>
+              <Label for="sort-select" className="mb-0">رکورد</Label>
             </div>
+
+            <Button color="primary" onClick={() => navigate("/blogs/add")}>
+              ساخت مقاله جدید
+            </Button>
+
           </Col>
-          <Col
-            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
-            sm="6"
-          >
-            <Label className="me-1 w-20" for="search-input">
+          <Col sm="12" md="5" className="d-flex align-items-center justify-content-sm-end">
+            <Label className="me-1 mb-0 text-nowrap" for="search-input">
               جستجو
             </Label>
             <Input
@@ -144,6 +159,7 @@ const DataTableServerSide = ({ statusFilter }) => {
             />
           </Col>
         </Row>
+
         <div className="react-dataTable position-relative">
           {(isLoading || isFetching) && (
             <div
@@ -163,6 +179,7 @@ const DataTableServerSide = ({ statusFilter }) => {
             sortIcon={<ChevronDown size={10} />}
             paginationComponent={CustomPagination}
             data={blogsData}
+            customStyles={customStyles}
           />
         </div>
       </Card>

@@ -1,38 +1,51 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Badge, Collapse, Spinner, Button } from 'reactstrap';
-import { ThumbsUp, ThumbsDown, MessageCircle, ChevronDown, ChevronUp } from 'react-feather';
+import { Card, CardHeader, CardTitle, CardBody, Collapse, Spinner, Button, Input } from 'reactstrap';
+import { ThumbsUp, ThumbsDown, MessageCircle, ChevronDown, ChevronUp, CornerDownLeft } from 'react-feather';
+import toast from 'react-hot-toast';
 
-
-import { getRepliesComments } from '../../../core/services/api/blogs/blogs.service';
+import { createNewsReplyComment } from '../../../core/services/api/blogs/blogs.service';
 import defaultIMG from "../../../assets/images/coursePng.png";
 
 const baseURL = import.meta.env.VITE_BASE_URL || "";
 
-const CommentItem = ({ comment, isReply = false }) => {
+const CommentItem = ({ comment, allComments, refetchComments, isReply = false }) => {
 
     const [isOpen, setIsOpen] = useState(false);
+    const [isReplying, setIsReplying] = useState(false);
+    const [replyText, setReplyText] = useState("");
+    const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
-    const [replies, setReplies] = useState([]);
+    const replies = allComments?.filter(c => c.parentId === comment.id) || [];
 
-    const [isLoading, setIsLoading] = useState(false);
+    const handleSubmitReply = async () => {
+        if (!replyText.trim()) return;
+        
+        setIsSubmittingReply(true);
 
-    const handleToggleReplies = async () => {
+        const payload = {
+            newsId: comment.newsId,
+            userIpAddress: "192.168.1.1", 
+            title: "پاسخ مدیریت", 
+            describe: replyText,
+            userId: 1, 
+            parentId: comment.id
+        };
 
-        if (!isOpen && replies.length === 0) {
-
-            setIsLoading(true);
-
-            try {
-                const data = await getRepliesComments(comment.id);
-                setReplies(data || []);
-
-            } catch (error) {
-                console.error("خطا در دریافت پاسخ‌ها:", error);
-            } finally {
-                setIsLoading(false);
+        try {
+            await createNewsReplyComment(payload);
+            toast.success("پاسخ شما با موفقیت ثبت شد!");
+            setReplyText("");
+            setIsReplying(false);
+            setIsOpen(true);
+            if (refetchComments) {
+                refetchComments();
             }
+            
+        } catch (error) {
+            toast.error("خطا در ثبت پاسخ!");
+        } finally {
+            setIsSubmittingReply(false);
         }
-        setIsOpen(!isOpen);
     };
 
     const pictureAddress = comment?.user?.currentPictureAddress;
@@ -42,7 +55,7 @@ const CommentItem = ({ comment, isReply = false }) => {
     }
 
     return (
-        <div className={`d-flex align-items-start mb-2 ${isReply ? 'ms-3 mt-2 border-start ps-2 border-2 border-primary' : 'border-bottom pb-2'}`}>
+        <div className={`d-flex align-items-start mb-2 ${isReply ? 'ms-4 mt-2 ' : 'border-bottom pb-2'}`}>
             <img
                 src={userImg}
                 alt={comment?.userFullName || 'کاربر'}
@@ -77,23 +90,54 @@ const CommentItem = ({ comment, isReply = false }) => {
                         <span className="small fw-bolder">{comment?.dissLikeCount || 0}</span>
                     </div>
 
-                    {!isReply && (
-                        <Button color="link" size="sm" className="p-0 text-primary d-flex align-items-center text-decoration-none" onClick={handleToggleReplies}>
+                    <Button color="link" size="sm" className="p-0 text-success d-flex align-items-center text-decoration-none me-2" onClick={() => setIsReplying(!isReplying)}>
+                        <CornerDownLeft size={14} className="me-25" />
+                        <span className="small">پاسخ دادن</span>
+                    </Button>
+
+                    {!isReply && replies.length > 0 && (
+                        <Button color="link" size="sm" className="p-0 text-primary d-flex align-items-center text-decoration-none" onClick={() => setIsOpen(!isOpen)}>
                             <MessageCircle size={14} className="me-25" />
-                            <span className="me-25">پاسخ‌ها</span>
+                            <span className="small me-25">پاسخ‌ها ({replies.length})</span>
                             {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         </Button>
                     )}
                 </div>
 
+                {isReplying && (
+                    <div className="mt-1 d-flex align-items-start bg-light p-1 rounded border">
+                        <Input 
+                            type="textarea" 
+                            rows="2"
+                            placeholder="پاسخ خود را بنویسید..." 
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            className="me-1 flex-grow-1"
+                            style={{ resize: 'none' }}
+                        />
+                        <Button 
+                            color="primary" 
+                            size="sm" 
+                            disabled={isSubmittingReply || !replyText.trim()}
+                            onClick={handleSubmitReply}
+                        >
+                            {isSubmittingReply ? <Spinner size="sm" /> : 'ارسال'}
+                        </Button>
+                    </div>
+                )}
+
                 {!isReply && (
                     <Collapse isOpen={isOpen}>
                         <div className="mt-1">
-                            {isLoading ? (
-                                <div className="text-center my-1"><Spinner size="sm" color="primary" /></div>
-                            ) : replies.length > 0 ? (
+                            {replies.length > 0 ? (
                                 replies.map(reply => (
-                                    <CommentItem key={reply.id} comment={reply} isReply={true} />
+                                    <CommentItem 
+                                        key={reply.id} 
+                                        comment={reply} 
+                                        allComments={allComments}
+                                        refetchComments={refetchComments}
+                                        isReply={true} 
+                                    />
                                 ))
                             ) : (
                                 <div className="text-muted small mt-1 bg-light p-1 rounded">هیچ پاسخی برای این نظر ثبت نشده است.</div>
@@ -106,9 +150,9 @@ const CommentItem = ({ comment, isReply = false }) => {
     );
 };
 
-const BlogCommentsList = ({ comments }) => {
-
-    const mainComments = comments?.filter(c => !c.parentId || c.parentId === "00000000-0000-0000-0000-000000000000" || c.parentId === "") || [];
+const BlogCommentsList = ({ allComments, refetchComments }) => {
+    
+    const mainComments = allComments?.filter(c => !c.parentId || c.parentId === "00000000-0000-0000-0000-000000000000" || c.parentId === "") || [];
 
     return (
         <Card>
@@ -118,7 +162,12 @@ const BlogCommentsList = ({ comments }) => {
             <CardBody>
                 {mainComments.length > 0 ? (
                     mainComments.map(comment => (
-                        <CommentItem key={comment.id} comment={comment} />
+                        <CommentItem 
+                            key={comment.id} 
+                            comment={comment} 
+                            allComments={allComments} 
+                            refetchComments={refetchComments}
+                        />
                     ))
                 ) : (
                     <div className="text-center text-muted py-5">
