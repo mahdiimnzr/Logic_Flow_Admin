@@ -1,5 +1,6 @@
 import { Fragment, useState, useEffect } from 'react'
 import { Label, Row, Col, Input, FormFeedback, Button, Spinner } from 'reactstrap'
+import Select from 'react-select'
 import { ArrowLeft, ArrowRight } from 'react-feather'
 import { Controller } from 'react-hook-form'
 import { getNewsCategories } from '../../../core/services/api/blogs/blogs.service'
@@ -73,16 +74,30 @@ const BasicInfo = ({ stepper, control, errors, trigger }) => {
                         name='categoryId'
                         control={control}
                         rules={{ required: 'انتخاب دسته‌بندی الزامی است' }}
-                        render={({ field }) => (
-                            <Input type='select' invalid={errors.categoryId && true} disabled={isLoading} {...field}>
-                                <option value=''> {isLoading ? "در حال دریافت دسته بندی ها" : "انتخاب کنید"} </option>
-                                {categories?.map(ca => (
-                                    <option key={ca.id} value={ca.id}> {ca.categoryName} </option>
-                                ))}
-                            </Input>
-                        )}
+                        render={({ field: { onChange, value } }) => {
+                            const categoryOptions = categories?.map(ca => ({
+                                value: ca.id,
+                                label: ca.categoryName
+                            })) || []
+                            const selectedOption = categoryOptions.find(c => c.value === value) || null
+
+                            return (
+                                <Select
+                                    isClearable={false}
+                                    classNamePrefix='select'
+                                    className={`react-select ${errors.categoryId ? 'is-invalid' : ''}`}
+                                    options={categoryOptions}
+                                    value={selectedOption}
+                                    placeholder={isLoading ? "در حال دریافت..." : "دسته‌بندی را انتخاب کنید"}
+                                    isDisabled={isLoading}
+                                    onChange={(data) => {
+                                        onChange(data ? data.value : '')
+                                    }}
+                                />
+                            )
+                        }}
                     />
-                    {errors.categoryId && <FormFeedback>{errors.categoryId.message}</FormFeedback>}
+                    {errors.categoryId && <FormFeedback className='d-block'>{errors.categoryId.message}</FormFeedback>}
                 </Col>
 
                 <Col md='6' className='mb-1'>

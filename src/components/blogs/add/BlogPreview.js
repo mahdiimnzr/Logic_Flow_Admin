@@ -108,7 +108,7 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
                 <Button color='success' className='btn-submit' onClick={onSubmit}>
                     <Check size={14} className='align-middle me-sm-25 me-0' />
                     <span className='align-middle d-sm-inline-block d-none'>
-                        {isEditMode ? "اعمال تغییرات" : "ثبت نهایی مقاله"}
+                        {isEditMode ? "اعمال تغییرات" : "ایجاد مقاله"}
                     </span>
                 </Button>
             </div>
