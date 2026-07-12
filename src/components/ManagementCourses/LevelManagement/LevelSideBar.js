@@ -58,6 +58,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       toast.success("سطح دوره جدید ساخته شد", { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ["CourseLevel"] });
       toggleSidebar();
+      
     },
     onError: (response, _, context) => {
       toast.error(response.data.message, { id: context.toastId });
