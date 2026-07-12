@@ -22,29 +22,49 @@ import Select from "react-select";
 import { selectThemeColors } from "@utils";
 import { useTranslation } from "react-i18next";
 
-const validationSchema = Yup.object({
-  startCloseDate: Yup.string().required(" پرکردن این فیلد الزامی است"),
-  endCloseDate: Yup.string().required(" پرکردن این فیلد الزامی است"),
-  closeReason: Yup.string().required(" پرکردن این فیلد الزامی است"),
-  termId: Yup.string().required("لطفا یک ترم را انتخاب کنید"),
-});
-
 const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const [currentRole, setCurrentRole] = useState({
+  const [currentTerm, setCurrentTerm] = useState({
     value: "",
-    label: "انتخاب ترم",
+    label: t("SelectTerm"),
   });
-  const roleOptions = termList?.map((value) => {
-    const roles = { value: value.id, label: value.termName };
-    return roles;
+
+  const termOptions = termList?.map((term) => ({
+    value: term.id,
+    label: term.termName,
+  })) || [];
+
+  const selectedTerm = termList?.find((term) => term.id === currentTerm.value);
+
+  const validationSchema = Yup.object({
+    startCloseDate: Yup.date()
+      .min(
+        selectedTerm?.startDate ? new Date(selectedTerm.startDate) : new Date(),
+        "StartCloseDateAfterTermStart"
+      )
+      .max(
+        selectedTerm?.endDate ? new Date(selectedTerm.endDate) : new Date(),
+        "StartCloseDateBeforeTermEnd"
+      )
+      .nullable()
+      .required("DateRequired"),
+    endCloseDate: Yup.date()
+      .min(Yup.ref("startCloseDate"), "EndDateAfterStart")
+      .max(
+        selectedTerm?.endDate ? new Date(selectedTerm.endDate) : new Date(),
+        "EndCloseDateBeforeTermEnd"
+      )
+      .nullable()
+      .required("DateRequired"),
+    closeReason: Yup.string().trim().required("CloseReasonRequired"),
+    termId: Yup.string().required("TermRequired"),
   });
 
   const defaultValues = {
-    startCloseDate: "",
-    endCloseDate: "",
+    startCloseDate: null,
+    endCloseDate: null,
     closeReason: "",
     termId: "",
   };
@@ -54,7 +74,10 @@ const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: postAddTermCloseDateMutation } = useMutation({
     mutationFn: postAddTermCloseDate,
@@ -66,50 +89,57 @@ const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
       toast.success(response.data.message, { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ["Term"] });
       toggle();
-      setValue("startCloseDate", "");
-      setValue("endCloseDate", "");
+      setValue("startCloseDate", null);
+      setValue("endCloseDate", null);
       setValue("closeReason", "");
+      setValue("termId", "");
+      setCurrentTerm({ value: "", label: t("SelectTerm") });
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
+
   const onSubmit = (data) => {
     postAddTermCloseDateMutation(data);
   };
+
   return (
     <Modal
       isOpen={isOpen}
       toggle={toggle}
-      style={{ fontFamily: "IRANYekanXFaNum" }}
       className="modal-dialog-centered modal-lg"
+      style={{ fontFamily: "IRANYekanXFaNum" }}
     >
-      <ModalHeader className="bg-transparent" toggle={toggle}></ModalHeader>
+      <ModalHeader toggle={toggle}>
+        {t("AddCloseDate")}
+      </ModalHeader>
       <ModalBody className="px-sm-5 mx-50 pb-5">
-        <div className="text-center mb-2">
-          <h1 className="mb-1">ساخت تاریخ بسته بودن</h1>
-        </div>
-        <Row
-          tag="form"
-          className="gy-1 pt-75"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <Label for="role-select">{t("CourseStatusId")}</Label>
-          <Select
-            isClearable={false}
-            value={currentRole}
-            options={roleOptions}
-            className="react-select"
-            classNamePrefix="select"
-            theme={selectThemeColors}
-            onChange={(data) => {
-              setCurrentRole(data);
-              setValue("termId", data.value);
-            }}
-          />
+        <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
+          <Col xs={12}>
+            <Label for="termId">{t("Term")}</Label>
+            <Select
+              isClearable={false}
+              value={currentTerm}
+              options={termOptions}
+              className={`react-select ${errors.termId ? "is-invalid" : ""}`}
+              classNamePrefix="select"
+              theme={selectThemeColors}
+              onChange={(data) => {
+                setCurrentTerm(data);
+                setValue("termId", data.value);
+              }}
+            />
+            {errors.termId && (
+              <div className="invalid-feedback d-block">
+                {t(errors.termId.message)}
+              </div>
+            )}
+          </Col>
+
           <Col md="6" className="mb-1">
             <Label className="form-label" for="startCloseDate">
-              زمان شروع
+              {t("StartCloseDate")}
             </Label>
             <Controller
               name="startCloseDate"
@@ -117,37 +147,30 @@ const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
               render={({ field }) => (
                 <>
                   <DatePicker
-                    id="startCloseDate"
                     calendar={persian}
                     locale={persian_fa}
-                    calendarPosition="bottom-right"
                     value={field.value ? new Date(field.value) : null}
                     editable={false}
                     placeholder={t("DatePlaceholder")}
-                    onChange={(date) => {
-                      if (date) {
-                        field.onChange(date.toDate().toISOString());
-                      } else {
-                        field.onChange(null);
-                      }
-                    }}
-                    inputClass={`form-control ${
-                      errors.startCloseDate ? "is-invalid" : ""
-                    }`}
+                    onChange={(date) =>
+                      field.onChange(date ? date.toDate().toISOString() : null)
+                    }
+                    inputClass={`form-control ${errors.startCloseDate ? "is-invalid" : ""}`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.startCloseDate && (
                     <span className="invalid-feedback d-block">
-                      {errors.startCloseDate.message}
+                      {t(errors.startCloseDate.message)}
                     </span>
                   )}
                 </>
               )}
             />
           </Col>
+
           <Col md="6" className="mb-1">
             <Label className="form-label" for="endCloseDate">
-              زمان پایان
+              {t("EndCloseDate")}
             </Label>
             <Controller
               name="endCloseDate"
@@ -155,37 +178,30 @@ const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
               render={({ field }) => (
                 <>
                   <DatePicker
-                    id="endCloseDate"
                     calendar={persian}
                     locale={persian_fa}
-                    calendarPosition="bottom-right"
                     value={field.value ? new Date(field.value) : null}
                     editable={false}
                     placeholder={t("DatePlaceholder")}
-                    onChange={(date) => {
-                      if (date) {
-                        field.onChange(date.toDate().toISOString());
-                      } else {
-                        field.onChange(null);
-                      }
-                    }}
-                    inputClass={`form-control ${
-                      errors.endCloseDate ? "is-invalid" : ""
-                    }`}
+                    onChange={(date) =>
+                      field.onChange(date ? date.toDate().toISOString() : null)
+                    }
+                    inputClass={`form-control ${errors.endCloseDate ? "is-invalid" : ""}`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.endCloseDate && (
                     <span className="invalid-feedback d-block">
-                      {errors.endCloseDate.message}
+                      {t(errors.endCloseDate.message)}
                     </span>
                   )}
                 </>
               )}
             />
           </Col>
+
           <Col xs={12}>
             <Label className="form-label" for="closeReason">
-              دلیل بسته بودن
+              {t("CloseReason")}
             </Label>
             <Controller
               name="closeReason"
@@ -194,23 +210,24 @@ const AddCloseDateModal = ({ toggle, termList, isOpen }) => {
                 <Input
                   {...field}
                   id="closeReason"
-                  placeholder="دلیل بسته بودن"
-                  invalid={errors.closeReason && true}
+                  placeholder={t("CloseReason")}
+                  invalid={!!errors.closeReason}
                 />
               )}
             />
             {errors.closeReason && (
               <span className="invalid-feedback d-block">
-                {errors.closeReason.message}
+                {t(errors.closeReason.message)}
               </span>
             )}
           </Col>
-          <Col xs={12} className="text-center mt-2 pt-50">
+
+          <Col xs={12} className="text-center mt-2 pt-50 d-flex align-items-center justify-content-between">
             <Button type="submit" className="me-1" color="primary">
-              تغیرات
+              {t("Submit")}
             </Button>
             <Button color="secondary" outline onClick={toggle}>
-              منصرف
+              {t("Cancel")}
             </Button>
           </Col>
         </Row>

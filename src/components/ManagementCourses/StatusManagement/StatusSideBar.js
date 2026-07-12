@@ -1,12 +1,8 @@
 import Sidebar from "@components/sidebar";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Label, Form, Input } from "reactstrap";
-import InputPasswordToggle from "@components/input-password-toggle";
-import "cleave.js/dist/addons/cleave-phone.ir";
-import Cleave from "cleave.js/react";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -17,22 +13,22 @@ const defaultValues = {
 };
 
 const validationSchema = Yup.object({
-  statusName: Yup.string().required("نام الزامی است"),
+  statusName: Yup.string().required("StatusNameRequired"),
 });
 
-const SidebarNewUsers = ({ open, toggleSidebar }) => {
+const StatusSideBar = ({ open, toggleSidebar }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
-
-  const options = { phone: true, phoneRegionCode: "IR" };
 
   const {
     control,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: postStatusMutation } = useMutation({
     mutationFn: postStatus,
@@ -41,12 +37,12 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       return { toastId };
     },
     onSuccess: (response, _, context) => {
-      toast.success("تکنولوژی با موفقیت ساخته شد", { id: context.toastId });
+      toast.success(response.data.message || t("StatusCreated"), { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ["Status"] });
       toggleSidebar();
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -64,8 +60,8 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
     <Sidebar
       size="lg"
       open={open}
-      title={"تکنولوژی جدید"}
-      headerClassName="mb-1 flex justify-between"
+      title={t("NewStatus")}
+      headerClassName="mb-1"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
       onClosed={handleSidebarClosed}
@@ -74,7 +70,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1">
           <Label className="form-label" for="statusName">
-            نام وضعبت<span className="text-danger">*</span>
+            {t("StatusName")} <span className="text-danger">*</span>
           </Label>
           <Controller
             name="statusName"
@@ -83,7 +79,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
               <>
                 <Input
                   id="statusName"
-                  placeholder={" نام وضعبت"}
+                  placeholder={t("StatusName")}
                   invalid={!!errors.statusName}
                   {...field}
                 />
@@ -96,6 +92,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <Button type="submit" className="me-1" color="primary">
           {t("Submit")}
         </Button>
@@ -107,4 +104,4 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   );
 };
 
-export default SidebarNewUsers;
+export default StatusSideBar;

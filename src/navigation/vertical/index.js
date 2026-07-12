@@ -58,6 +58,12 @@ export default [
         navLink: "ManagementCourses/DepartmentsManagement",
       },
       {
+        id: "ClassRoomsManagement",
+        title: "ClassRoomsManagement",
+        icon: <Circle size={12} />,
+        navLink: "ManagementCourses/ClassRoomsManagement",
+      },
+      {
         id: "TermsList",
         title: "TermsList",
         icon: <Circle size={12} />,

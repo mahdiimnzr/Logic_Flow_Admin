@@ -8,10 +8,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { selectThemeColors } from "@utils";
 import { Label, Row, Col, Button, Form } from "reactstrap";
 import "@styles/react/libs/react-select/_react-select.scss";
-import { useGetCourseAdd } from "../../../../core/services/api/CourseList/courseList.service";
 import { useDispatch } from "react-redux";
 import { updateAddCourseSliceParams } from "../../../../redux/actions";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 
 const animatedComponents = makeAnimated();
 
@@ -22,6 +22,7 @@ const defaultValues = {
 const TechCategory = ({ stepper }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
+  const queryClient = useQueryClient()
 
   const SignupSchema = yup.object({
     TechnologyIds: yup
@@ -50,11 +51,11 @@ const TechCategory = ({ stepper }) => {
     stepper.next();
   };
 
-  const { data: courseAdd } = useGetCourseAdd();
+  const courseAdd = queryClient.getQueryState(["CourseAdd"])
 
   const [selectedTechnologies, setSelectedTechnologies] = useState([]);
 
-  const technologyList = courseAdd?.data?.technologyDtos?.map((item) => ({
+  const technologyList = courseAdd?.data?.data?.technologyDtos?.map((item) => ({
     value: item.id,
     label: item.techName,
   }));
@@ -80,9 +81,8 @@ const TechCategory = ({ stepper }) => {
                   isMulti
                   options={technologyList}
                   value={selectedTechnologies}
-                  className={`react-select ${
-                    errors.TechnologyIds ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.TechnologyIds ? "is-invalid" : ""
+                    }`}
                   classNamePrefix="select"
                   placeholder={t("CourseTechnologySelectPlaceholder")}
                   onChange={(data) => {

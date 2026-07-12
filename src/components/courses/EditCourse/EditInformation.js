@@ -37,6 +37,7 @@ import { updateUserDetail } from "../../../core/services/api/Users/users.service
 import { updateCourseDetail } from "../../../core/services/api/CourseList/courseList.service";
 import formDataConverter from "../../../core/utils/formDataConvertor";
 import ImageDropZone from "../../common/ImageDropZone";
+import Editor from "../../common/Editor";
 
 const validationSchema = Yup.object({
   Title: Yup.string().required("CourseTitleRequired"),
@@ -55,8 +56,11 @@ const validationSchema = Yup.object({
   Cost: Yup.string().required("CourseCostRequired"),
   UniqeUrlString: Yup.string().required("CourseUniqeUrlStringRequired"),
   imageAddress: Yup.string().required("CourseImageAddressRequired"),
-  StartTime: Yup.string().nullable().required("CourseStartTimeRequired"),
-  EndTime: Yup.string().nullable().required("CourseEndTimeRequired"),
+  StartTime: Yup.date().nullable().required("CourseStartTimeRequired"),
+  EndTime: Yup.date()
+    .min(Yup.ref("StartTime"), "زمان پایان باید بعد از زمان شروع باشد")
+    .nullable()
+    .required("CourseEndTimeRequired"),
   GoogleSchema: Yup.string().required("CourseGoogleSchemaRequired"),
   GoogleTitle: Yup.string().required("CourseGoogleTitleRequired"),
   CoursePrerequisiteId: Yup.string().nullable().optional(),
@@ -80,19 +84,19 @@ const AccountSetting = ({ data, usersList }) => {
   );
 
   const fundedLevel = CourseLevels?.data?.data?.find(
-    (value) => value.id == data.courseLvlId,
+    (value) => value.id == data?.courseLvlId,
   );
   const fundedStatus = CourseStatus?.data?.data?.find(
-    (value) => value.id == data.statusId,
+    (value) => value.id == data?.statusId,
   );
   const fundedTeacher = teachers?.find((value) => value.id == data.teacherId);
 
   const [currentLevel, setCurrentLevel] = useState({
-    value: data.courseLvlId,
+    value: data?.courseLvlId,
     label: fundedLevel?.levelName,
   });
   const [currentStatus, setCurrentStatus] = useState({
-    value: data.statusId,
+    value: data?.statusId,
     label: fundedStatus?.statusName,
   });
   const [currentTypes, setCurrentTypes] = useState({
@@ -108,22 +112,22 @@ const AccountSetting = ({ data, usersList }) => {
     label: t("CourseClassId"),
   });
   const [currentTeacher, setCurrentTeacher] = useState({
-    value: data.teacherId,
+    value: data?.teacherId,
     label: fundedTeacher?.fName + " " + fundedTeacher?.lName,
   });
 
   const levelsList = CourseLevels?.data?.data?.map((value) => {
-    const levels = { value: value.id, label: value.levelName };
+    const levels = { value: value?.id, label: value?.levelName };
     return levels;
   });
   const statusList = CourseStatus?.data?.data?.map((value) => {
-    const status = { value: value.id, label: value.statusName };
+    const status = { value: value?.id, label: value?.statusName };
     return status;
   });
   const classRoomsList = CourseClassRoom?.data?.data?.map((value) => {
     const classRooms = {
-      value: value.id,
-      label: value.classRoomName + ` (ظرفیت : ${value.capacity})`,
+      value: value?.id,
+      label: value?.classRoomName + ` (ظرفیت : ${value?.capacity})`,
     };
     return classRooms;
   });
@@ -142,6 +146,29 @@ const AccountSetting = ({ data, usersList }) => {
     };
     return teachers;
   });
+
+  const getEditorBlocks = (desc) => {
+    if (!desc) return {};
+    try {
+      const describe = JSON.parse(desc);
+      if (!Array.isArray(describe.blocks)) throw new Error();
+
+      describe?.blocks.map((data) => ({
+        ...data,
+        type: data.type === "p" ? "paragraph" : data.type,
+      }));
+
+      return describe
+    } catch {
+      return [
+        {
+          type: "paragraph",
+          data: { text: desc },
+        },
+      ];
+    }
+  };
+
   const options = { numeral: true, numeralThousandsGroupStyle: "thousand" };
 
   const defaultValues = {
@@ -291,12 +318,16 @@ const AccountSetting = ({ data, usersList }) => {
                   control={control}
                   render={({ field }) => (
                     <>
-                      <Input
-                        id="Describe"
-                        type="textarea"
-                        placeholder={t("CourseDescribe")}
-                        invalid={!!errors.Describe}
-                        {...field}
+                      <Editor
+                        data={
+                          getEditorBlocks(data?.describe)
+                        }
+                        placeholder={t("CourseDescribePlaceholder")}
+                        onChange={async (data) => {
+                          field.onChange(JSON.stringify(await data));
+                        }}
+                        error={errors.Describe && true}
+                        editorBlock={"editorJs-container"}
                       />
                       {errors.Describe && (
                         <FormFeedback>
@@ -318,9 +349,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.Capacity ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.Capacity ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CourseCapacity")}
                           options={options}
                           id="Capacity"
@@ -348,9 +378,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.SessionNumber ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.SessionNumber ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CourseSessionNumber")}
                           options={options}
                           id="SessionNumber"
@@ -426,9 +455,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.Cost ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.Cost ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CourseCost")}
                           options={options}
                           id="Cost"
@@ -504,11 +532,10 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.CurrentCoursePaymentNumber
-                              ? "is-invalid"
-                              : ""
-                          }`}
+                          className={`form-control ${errors.CurrentCoursePaymentNumber
+                            ? "is-invalid"
+                            : ""
+                            }`}
                           placeholder={t("CourseCurrentPaymentNumber")}
                           options={options}
                           id="CurrentCoursePaymentNumber"
@@ -536,9 +563,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <>
                       <InputGroup className="input-group-merge">
                         <Cleave
-                          className={`form-control ${
-                            errors.CoursePrerequisiteId ? "is-invalid" : ""
-                          }`}
+                          className={`form-control ${errors.CoursePrerequisiteId ? "is-invalid" : ""
+                            }`}
                           placeholder={t("CoursePrerequisiteId")}
                           options={options}
                           id="CoursePrerequisiteId"
@@ -579,9 +605,8 @@ const AccountSetting = ({ data, usersList }) => {
                           }
                         }}
                         placeholder="mm/dd/yyyy"
-                        inputClass={`form-control ${
-                          errors.StartTime ? "is-invalid" : ""
-                        }`}
+                        inputClass={`form-control ${errors.StartTime ? "is-invalid" : ""
+                          }`}
                         containerStyle={{ width: "100%" }}
                       />
                       {errors.StartTime && (
@@ -617,9 +642,8 @@ const AccountSetting = ({ data, usersList }) => {
                           }
                         }}
                         placeholder="mm/dd/yyyy"
-                        inputClass={`form-control ${
-                          errors.EndTime ? "is-invalid" : ""
-                        }`}
+                        inputClass={`form-control ${errors.EndTime ? "is-invalid" : ""
+                          }`}
                         containerStyle={{ width: "100%" }}
                       />
                       {errors.EndTime && (
@@ -640,9 +664,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.CourseLvlId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.CourseLvlId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={levelsList}
                       value={currentLevel}
@@ -671,9 +694,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.CourseStatusId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.CourseStatusId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={statusList}
                       value={currentStatus}
@@ -702,9 +724,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.TeacherId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.TeacherId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={teachersList}
                       value={currentTeacher}
@@ -733,9 +754,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.CourseTypeId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.CourseTypeId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={typesList}
                       value={currentTypes}
@@ -765,9 +785,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.TremId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.TremId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={termsList}
                       value={currentTerms}
@@ -797,9 +816,8 @@ const AccountSetting = ({ data, usersList }) => {
                     <Select
                       theme={selectThemeColors}
                       isClearable={false}
-                      className={`react-select ${
-                        errors.ClassId ? "is-invalid" : ""
-                      }`}
+                      className={`react-select ${errors.ClassId ? "is-invalid" : ""
+                        }`}
                       classNamePrefix="select"
                       options={classRoomsList}
                       value={currentClassRoom}

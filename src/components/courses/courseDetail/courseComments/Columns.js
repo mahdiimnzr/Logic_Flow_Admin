@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Eye, Check } from "react-feather";
 import {
   Badge,
   Button,
@@ -19,13 +20,13 @@ const statusObj = {
   deActive: "light-secondary",
 };
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "Writer",
+    name: t("Writer"),
     minWidth: "50px",
     maxWidth: "250px",
     sortable: true,
-    sortField: "writer",
+    sortField: "author",
     selector: (row) => row.author,
     cell: (row) => (
       <div className="d-flex flex-column">
@@ -39,55 +40,52 @@ export const columns = [
     ),
   },
   {
-    name: "Title",
+    name: t("CommentTitle"),
     minWidth: "80px",
     maxWidth: "200px",
     sortable: true,
-    sortField: "title",
+    sortField: "commentTitle",
     selector: (row) => row.commentTitle,
     cell: (row) => (
       <span className="fw-bolder text-truncate">{row.commentTitle}</span>
     ),
   },
   {
-    name: "Describe",
+    name: t("CommentDescribe"),
     minWidth: "200px",
     maxWidth: "300px",
     sortable: true,
-    sortField: "title",
+    sortField: "describe",
     selector: (row) => row.describe,
     cell: (row) => (
       <span className="text-truncate text-muted mb-0">{row.describe}</span>
     ),
   },
   {
-    name: "Status",
+    name: t("Status"),
     minWidth: "50px",
     maxWidth: "130px",
     sortable: true,
-    sortField: "status",
-    selector: (row) => row.active,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <Badge
-          className="text-capitalize"
-          color={row.accept ? statusObj.active : statusObj.deActive}
-          pill
-        >
-          {row.accept ? t("Accept") : t("NotAccept")}
-        </Badge>
-      );
-    },
+    sortField: "accept",
+    selector: (row) => row.accept,
+    cell: (row) => (
+      <Badge
+        className="text-capitalize"
+        color={row.accept ? statusObj.active : statusObj.deActive}
+        pill
+      >
+        {row.accept ? t("Accept") : t("NotAccept")}
+      </Badge>
+    ),
   },
   {
-    name: "Actions",
+    name: t("Actions"),
     minWidth: "150px",
     maxWidth: "200px",
     cell: (row) => {
       const { t } = useTranslation();
       const queryClient = useQueryClient();
-      const [centeredModal, setCenteredModal] = useState(false);
+      const [detailModal, setDetailModal] = useState(false);
 
       const { mutate: acceptCommentMutate } = useMutation({
         mutationFn: acceptCourseComment,
@@ -98,44 +96,40 @@ export const columns = [
         onSuccess: (response, _, context) => {
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
-            queryClient.invalidateQueries({
-              queryKey: [`CourseCommentsList`],
-            });
+            queryClient.invalidateQueries({ queryKey: ["CourseCommentsList"] });
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
 
       return (
         <div className="column-action d-flex gap-1">
-          <Button.Ripple
-            onClick={() => setCenteredModal(!centeredModal)}
-            color="info"
-            size="sm"
-          >
-            {t("Detail")}
-          </Button.Ripple>
+          <Eye
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setDetailModal(true)}
+          />
+
           {!row.accept && (
-            <Button.Ripple
+            <Check
+              size={17}
+              className="me-50 cursor-pointer"
               onClick={() => acceptCommentMutate(row.commentId)}
-              color="warning"
-              size="sm"
-            >
-              {t("AcceptComment")}
-            </Button.Ripple>
+            />
           )}
+
           <Modal
-            unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={() => setCenteredModal(!centeredModal)}
+            unmountOnClose
+            isOpen={detailModal}
+            toggle={() => setDetailModal(!detailModal)}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
+            <ModalHeader toggle={() => setDetailModal(!detailModal)}>
               {t("Comments")}
             </ModalHeader>
             <ModalBody>
@@ -149,10 +143,7 @@ export const columns = [
               </div>
             </ModalBody>
             <ModalFooter>
-              <Button
-                color="primary"
-                onClick={() => setCenteredModal(!centeredModal)}
-              >
+              <Button color="secondary" outline onClick={() => setDetailModal(false)}>
                 {t("Cancel")}
               </Button>
             </ModalFooter>

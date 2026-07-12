@@ -1,23 +1,11 @@
-// ** React Imports
 import { Fragment, useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-
-// ** Table Columns
 import { columns } from "./TermsColumns";
-
-// ** Debounce Search
 import debounce from "debounce";
-
-// ** Third Party Components
 import Select from "react-select";
 import ReactPaginate from "react-paginate";
 import DataTable from "react-data-table-component";
-import { ChevronDown } from "react-feather";
-
-// ** Utils
 import { selectThemeColors } from "@utils";
-
-// ** Reactstrap Imports
 import {
   Row,
   Col,
@@ -28,13 +16,11 @@ import {
   CardBody,
   CardTitle,
   CardHeader,
+  Modal,
   ModalHeader,
   ModalBody,
-  FormFeedback,
-  Modal,
+  Spinner,
 } from "reactstrap";
-
-// ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
 import { useTranslation } from "react-i18next";
@@ -50,58 +36,56 @@ import {
 } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { use } from "react";
-import { TRUE } from "sass";
 import AddCloseDateModal from "./AddCloseDateModal";
 
 const validationSchema = Yup.object({
-  termName: Yup.string().required("نام الزامی است"),
-  startDate: Yup.string().required(" انتخواب زمان الزامی است"),
-  endDate: Yup.string().required(" انتخواب زمان الزامی است"),
-  departmentId: Yup.string().required(" انتخواب بخش الزامی است"),
+  termName: Yup.string().required("TermNameRequired"),
+  startDate: Yup.date().nullable().required("StartDateRequired"),
+  endDate: Yup.date()
+    .min(Yup.ref("startDate"), "EndDateAfterStart")
+    .nullable()
+    .required("EndDateRequired"),
+  departmentId: Yup.string().required("DepartmentRequired"),
 });
-// ** Table Header
+
 const CustomHeader = ({
   termList,
-  toggleSidebar,
   handlePerPage,
   rowsPerPage,
   handleFilter,
   searchTerm,
 }) => {
-  // ** I18n
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
   const [show, setShow] = useState(false);
   const [addCloseDateModal, setAddCloseDateModal] = useState(false);
-  const queryClient = useQueryClient();
-  const departments = queryClient.getQueryState(["Departments"]);
 
   const toggleAddCloseDate = () => setAddCloseDateModal(!addCloseDateModal);
 
-  const [currentClassRoom, setCurrentClassRoom] = useState({
-    value: null,
-    label: "انتخواب کنید",
-  });
+  const departments = queryClient.getQueryState(["Departments"]);
+
+  const departmentList = departments?.data?.data?.map((value) => ({
+    value: value.id,
+    label: value.depName,
+  }));
 
   const defaultValues = {
     termName: "",
-    startDate: "",
-    endDate: "",
+    startDate: null,
+    endDate: null,
     departmentId: "",
   };
 
-  const departmentList = departments?.data?.data?.map((value) => {
-    const terms = { value: value.id, label: value.depName };
-    return terms;
-  });
-
-  // ** Hooks
   const {
     control,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: postTermMutation } = useMutation({
     mutationFn: postTerm,
@@ -114,27 +98,56 @@ const CustomHeader = ({
       queryClient.invalidateQueries({ queryKey: ["Term"] });
       setShow(false);
       setValue("termName", "");
-      setValue("startDate", "");
-      setValue("endDate", "");
+      setValue("startDate", null);
+      setValue("endDate", null);
       setValue("departmentId", "");
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
   const onSubmit = (data) => {
     postTermMutation(data);
-    console.log(data);
   };
+
   return (
     <div className="invoice-list-table-header w-100 me-1 ms-50 mt-2 mb-75">
-      <Row>
-        <Col xl="6" className="d-flex align-items-center p-0">
-          <div className="d-flex align-items-center w-100">
+      <Row className="d-flex justify-content-between">
+        <Col
+          xl="4"
+          className="d-flex align-items-sm-center justify-content-xl-start justify-content-start flex-xl-nowrap flex-wrap flex-sm-row flex-column pe-xl-1 p-0 mt-xl-0 mt-1"
+        >
+          <div className="d-flex align-items-center mb-sm-0 mb-1 me-1">
+            <label className="mb-0" htmlFor="search-invoice">
+              {t("Search")}
+            </label>
+            <Input
+              id="search-invoice"
+              className="ms-50 w-100"
+              placeholder={t("SearchTerm")}
+              type="text"
+              value={searchTerm}
+              onChange={(e) => handleFilter(e.target.value)}
+            />
+          </div>
+
+          <div className="d-flex align-items-center gap-1 text-nowrap">
+            <Button color="primary" onClick={() => setShow(true)}>
+              {t("AddTerm")}
+            </Button>
+            <Button color="primary" onClick={toggleAddCloseDate}>
+              {t("AddCloseDate")}
+            </Button>
+          </div>
+        </Col>
+
+        <Col xl="2" className="d-flex align-items-center p-0 justify-content-xl-end justify-content-start">
+          <div className="d-flex align-items-center">
             <label htmlFor="rows-per-page">{t("Show")}</label>
             <Input
               className="mx-50"
+              dir="ltr"
               type="select"
               id="rows-per-page"
               value={rowsPerPage}
@@ -148,66 +161,23 @@ const CustomHeader = ({
             <label htmlFor="rows-per-page">{t("Entries")}</label>
           </div>
         </Col>
-        <Col
-          xl="6"
-          className="d-flex align-items-sm-center justify-content-xl-end justify-content-start flex-xl-nowrap flex-wrap flex-sm-row flex-column pe-xl-1 p-0 mt-xl-0 mt-1"
-        >
-          <div className="d-flex align-items-center mb-sm-0 mb-1 me-1">
-            <label className="mb-0" htmlFor="search-invoice">
-              {t("Search")}
-            </label>
-            <Input
-              id="search-invoice"
-              className="ms-50 w-100"
-              type="text"
-              value={searchTerm}
-              onChange={(e) => handleFilter(e.target.value)}
-            />
-          </div>
-          <div className="d-flex align-items-center gap-1">
-            <div className="d-flex align-items-center table-header-actions">
-              <Button
-                onClick={() => setShow(true)}
-                className="add-new-user"
-                color="primary"
-              >
-                افزودن ترم
-              </Button>
-            </div>
-            <div className="d-flex align-items-center table-header-actions">
-              <Button
-                className="add-new-user"
-                color="primary"
-                onClick={toggleAddCloseDate}
-              >
-                افزودن زمان
-              </Button>
-            </div>
-          </div>
-        </Col>
       </Row>
+
+      {/* Add Term Modal */}
       <Modal
         isOpen={show}
         toggle={() => setShow(!show)}
-        style={{ fontFamily: "IRANYekanXFaNum" }}
         className="modal-dialog-centered modal-lg"
+        style={{ fontFamily: "IRANYekanXFaNum" }}
       >
-        <ModalHeader
-          className="bg-transparent"
-          toggle={() => setShow(!show)}
-        ></ModalHeader>
+        <ModalHeader toggle={() => setShow(!show)}>
+          {t("AddTerm")}
+        </ModalHeader>
         <ModalBody className="px-sm-5 mx-50 pb-5">
-          <div className="text-center mb-2">
-            <h1 className="mb-1">افزودن ترم</h1>
-          </div>
-          <Row
-            tag="form"
-            className="gy-1 pt-75"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
             <Col xs={12}>
               <Label className="form-label" for="termName">
-                نام ترم
+                {t("TermName")}
               </Label>
               <Controller
                 name="termName"
@@ -216,19 +186,20 @@ const CustomHeader = ({
                   <Input
                     {...field}
                     id="termName"
-                    placeholder=" نام ترم"
-                    invalid={errors.termName && true}
+                    placeholder={t("TermName")}
+                    invalid={!!errors.termName}
                   />
                 )}
               />
               {errors.termName && (
                 <span className="invalid-feedback d-block">
-                  {errors.termName.message}
+                  {t(errors.termName.message)}
                 </span>
               )}
             </Col>
+
             <Col sm="12" className="mb-1">
-              <Label for="departmentId">بخش</Label>
+              <Label for="departmentId">{t("Department")}</Label>
               <Controller
                 name="departmentId"
                 control={control}
@@ -236,18 +207,12 @@ const CustomHeader = ({
                   <Select
                     theme={selectThemeColors}
                     isClearable={false}
-                    className={`react-select ${
-                      errors.departmentId ? "is-invalid" : ""
-                    }`}
+                    className={`react-select ${errors.departmentId ? "is-invalid" : ""}`}
                     classNamePrefix="select"
-                    options={departmentList}
-                    value={currentClassRoom}
-                    placeholder={""}
-                    id="departmentId"
-                    name="departmentId"
+                    options={departmentList || []}
+                    value={departmentList?.find(d => d.value === field.value) || null}
                     onChange={(data) => {
-                      setCurrentClassRoom(data);
-                      setValue("departmentId", data.value);
+                      setValue("departmentId", data?.value);
                     }}
                   />
                 )}
@@ -261,7 +226,7 @@ const CustomHeader = ({
 
             <Col md="6" className="mb-1">
               <Label className="form-label" for="startDate">
-                زمان شروع
+                {t("StartDate")}
               </Label>
               <Controller
                 name="startDate"
@@ -269,37 +234,28 @@ const CustomHeader = ({
                 render={({ field }) => (
                   <>
                     <DatePicker
-                      id="startDate"
                       calendar={persian}
                       locale={persian_fa}
-                      calendarPosition="bottom-right"
                       value={field.value ? new Date(field.value) : null}
                       editable={false}
                       placeholder={t("DatePlaceholder")}
-                      onChange={(date) => {
-                        if (date) {
-                          field.onChange(date.toDate().toISOString());
-                        } else {
-                          field.onChange(null);
-                        }
-                      }}
-                      inputClass={`form-control ${
-                        errors.startDate ? "is-invalid" : ""
-                      }`}
+                      onChange={(date) => field.onChange(date ? date.toDate().toISOString() : null)}
+                      inputClass={`form-control ${errors.startDate ? "is-invalid" : ""}`}
                       containerStyle={{ width: "100%" }}
                     />
                     {errors.startDate && (
                       <span className="invalid-feedback d-block">
-                        {errors.startDate.message}
+                        {t(errors.startDate.message)}
                       </span>
                     )}
                   </>
                 )}
               />
             </Col>
+
             <Col md="6" className="mb-1">
               <Label className="form-label" for="endDate">
-                زمان پایان
+                {t("EndDate")}
               </Label>
               <Controller
                 name="endDate"
@@ -307,45 +263,37 @@ const CustomHeader = ({
                 render={({ field }) => (
                   <>
                     <DatePicker
-                      id="endDate"
                       calendar={persian}
                       locale={persian_fa}
-                      calendarPosition="bottom-right"
                       value={field.value ? new Date(field.value) : null}
                       editable={false}
                       placeholder={t("DatePlaceholder")}
-                      onChange={(date) => {
-                        if (date) {
-                          field.onChange(date.toDate().toISOString());
-                        } else {
-                          field.onChange(null);
-                        }
-                      }}
-                      inputClass={`form-control ${
-                        errors.endDate ? "is-invalid" : ""
-                      }`}
+                      onChange={(date) => field.onChange(date ? date.toDate().toISOString() : null)}
+                      inputClass={`form-control ${errors.endDate ? "is-invalid" : ""}`}
                       containerStyle={{ width: "100%" }}
                     />
                     {errors.endDate && (
                       <span className="invalid-feedback d-block">
-                        {errors.endDate.message}
+                        {t(errors.endDate.message)}
                       </span>
                     )}
                   </>
                 )}
               />
             </Col>
-            <Col xs={12} className="text-center mt-2 pt-50">
+
+            <Col xs={12} className="text-center mt-2 pt-50 d-flex align-items-center justify-content-between">
               <Button type="submit" className="me-1" color="primary">
-                تغیرات
+                {t("Submit")}
               </Button>
               <Button color="secondary" outline onClick={() => setShow(false)}>
-                منصرف
+                {t("Cancel")}
               </Button>
             </Col>
           </Row>
         </ModalBody>
       </Modal>
+
       <AddCloseDateModal
         toggle={toggleAddCloseDate}
         termList={termList}
@@ -355,94 +303,78 @@ const CustomHeader = ({
   );
 };
 
-const UsersList = ({ termList }) => {
-  // ** Redux
+const TermsList = ({ termList, isFetching }) => {
   const dispatch = useDispatch();
-
-  // ** I18n
   const { t } = useTranslation();
 
-  // ** States
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [debounceSearch, setDebounceSearch] = useState("");
-
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const displayData = useMemo(() => {
     if (!termList) return [];
-    if (debounceSearch.trim() === "") return termList;
-    else {
-      return termList.filter((value) =>
-        value.termName.toLowerCase().includes(debounceSearch.toLowerCase()),
-      );
-    }
-  }, [debounceSearch, termList]);
+    if (!debounceSearch.trim()) return termList;
+    return termList.filter((value) =>
+      value.termName?.toLowerCase().includes(debounceSearch.toLowerCase())
+    );
+  }, [termList, debounceSearch]);
 
-  const count = Number(Math.ceil(displayData?.length / rowsPerPage));
+  const count = Math.ceil(displayData.length / rowsPerPage) || 1;
 
   const currentPageData = useMemo(() => {
     const start = (currentPage - 1) * rowsPerPage;
-    return displayData?.slice(start, start + rowsPerPage);
+    return displayData.slice(start, start + rowsPerPage);
   }, [displayData, currentPage, rowsPerPage]);
 
-  // ** Function in get data on page change
   const handlePagination = (page) => {
     setCurrentPage(page.selected + 1);
   };
 
-  // ** Function in get data on rows per page
   const handlePerPage = (e) => {
     const value = parseInt(e.currentTarget.value);
     setRowsPerPage(value);
   };
 
-  // ** Function in get data on search query change
   const handleFilter = (val) => {
     setSearchTerm(val);
     handleSearch(val);
   };
-  console.log(debounceSearch);
+
   const handleSearch = useMemo(
     () =>
       debounce((value) => {
-        const search = value.trim();
-        setDebounceSearch(search);
+        setDebounceSearch(value.trim());
       }, 1000),
-    [displayData],
+    []
   );
 
-  // ** Update Current Page If That Page Doesn`t Exist
   useEffect(() => {
     if (currentPage > count) {
-      setCurrentPage(count || 1);
+      setCurrentPage(count);
     }
-  }, [count]);
+  }, [count, currentPage]);
 
-  // ** Custom Pagination
-  const CustomPagination = () => {
-    return (
+  const CustomPagination = () => (
+    <div className="d-flex align-items-center justify-content-end gap-1">
+      {isFetching && <Spinner />}
       <ReactPaginate
-        previousLabel={""}
-        nextLabel={""}
-        pageCount={count || 1}
+        previousLabel=""
+        nextLabel=""
+        pageCount={count}
         activeClassName="active"
-        forcePage={currentPage !== 0 ? currentPage - 1 : 0}
-        onPageChange={(page) => handlePagination(page)}
-        pageClassName={"page-item"}
-        nextLinkClassName={"page-link"}
-        nextClassName={"page-item next"}
-        previousClassName={"page-item prev"}
-        previousLinkClassName={"page-link"}
-        pageLinkClassName={"page-link"}
-        containerClassName={
-          "pagination react-paginate justify-content-end my-2 pe-1"
-        }
+        forcePage={currentPage - 1}
+        onPageChange={handlePagination}
+        pageClassName="page-item"
+        nextClassName="page-item next"
+        previousClassName="page-item prev"
+        pageLinkClassName="page-link"
+        nextLinkClassName="page-link"
+        previousLinkClassName="page-link"
+        containerClassName="pagination react-paginate justify-content-end my-2 pe-1"
       />
-    );
-  };
+    </div>
+  );
 
   return (
     <Fragment>
@@ -454,19 +386,17 @@ const UsersList = ({ termList }) => {
             pagination
             responsive
             paginationServer
-            columns={columns}
+            columns={columns(t)}
             className="react-dataTable"
             paginationComponent={CustomPagination}
             data={currentPageData}
             subHeaderComponent={
               <CustomHeader
                 termList={termList}
-                store={currentPageData}
                 searchTerm={searchTerm}
                 rowsPerPage={rowsPerPage}
                 handleFilter={handleFilter}
                 handlePerPage={handlePerPage}
-                toggleSidebar={toggleSidebar}
               />
             }
           />
@@ -476,4 +406,4 @@ const UsersList = ({ termList }) => {
   );
 };
 
-export default UsersList;
+export default TermsList;

@@ -141,7 +141,8 @@ export const updateNewsCategory = async (formData) => {
 
 export const getNewsComments = async (newsId) => {
     try {
-        const response = await apiClient.get(`/News/GetNewsComments?NewsId=${newsId}`);
+
+        const response = await apiClient.get(`/News/GetAdminNewsComments?NewsId=${newsId}`);
 
         if (response && response.status === 200) {
             return response.data;
@@ -150,15 +151,15 @@ export const getNewsComments = async (newsId) => {
         return null;
     } catch (error) {
 
-        console.error("Error fetching comments!", error);
+        console.error("Error fetching admin comments!", error);
         throw error;
     }
 };
 
 export const getRepliesComments = async (commentId) => {
     try {
+        const response = await apiClient.get(`/News/GetAdminRepliesComments?Id=${commentId}`);
 
-        const response = await apiClient.get(`/News/GetRepliesComments?Id=${commentId}`);
         if (response && response.status === 200) {
             return response.data;
         }
@@ -166,7 +167,23 @@ export const getRepliesComments = async (commentId) => {
         return null;
     } catch (error) {
 
-        console.error("Error fetching replies!", error);
+        console.error("Error fetching admin replies!", error);
+        throw error;
+    }
+};
+
+
+export const createNewsReplyComment = async (data) => {
+    try {
+        const response = await apiClient.post("/News/CreateNewsReplyComment", data);
+
+        if (response && response.status === 200) {
+            return response.data;
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error replying to comment!", error);
         throw error;
     }
 };

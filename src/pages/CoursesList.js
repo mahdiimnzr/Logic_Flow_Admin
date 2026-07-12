@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 const CoursesList = () => {
   const { t } = useTranslation();
   const params = useSelector((state) => state.courseListSlice.params);
-  const { isLoading, data: courseList, refetch } = useGetCourseList(params);
+  const { isLoading, data: courseList, refetch, isFetching } = useGetCourseList(params);
   const { isLoading: statusLoading } = useGetStatus();
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const CoursesList = () => {
         title={t("List")}
         data={[{ title: t("Courses") }, { title: t("List") }]}
       />
-      <Table courseList={courseList?.data} />
+      <Table courseList={courseList?.data} isFetching={isFetching} />
     </Fragment>
   );
 };

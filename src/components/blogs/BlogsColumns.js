@@ -1,6 +1,6 @@
-import { Badge, Input, Spinner } from "reactstrap";
-import { React, useState } from 'react'
-import { classNames } from 'classnames';
+import React, { useState } from 'react';
+import { Badge, Spinner, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
+import { Eye, Edit, MoreVertical, Power } from 'react-feather';
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { toggleBlogStatus } from "../../core/services/api/blogs/blogs.service";
@@ -8,15 +8,14 @@ import { toggleBlogStatus } from "../../core/services/api/blogs/blogs.service";
 const baseURL = import.meta.env.VITE_BASE_URL || "";
 import defaultIMG from "../../assets/images/coursePng.png"
 
-const StatusToggleCell = ({ row }) => {
+const ActionsCell = ({ row }) => {
 
     const initStatus = row.isActive === true || row.active === true;
     const [isActive, setIsActive] = useState(initStatus);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleToggle = async (e) => {
-        const newsStatus = e.target.checked;
-        setIsActive(newsStatus);
+    const handleToggleStatus = async () => {
+        const newsStatus = !isActive;
         setIsLoading(true);
 
         const formData = new FormData();
@@ -26,13 +25,14 @@ const StatusToggleCell = ({ row }) => {
         try {
             const result = await toggleBlogStatus(formData);
             if (result) {
-                toast.success("وضعیت مقاله با موفقیت بروز رسانی شد!");
+                setIsActive(newsStatus);
+                row.active = newsStatus;
+                row.isActive = newsStatus;
+                toast.success(`مقاله با موفقیت ${newsStatus ? 'فعال' : 'غیرفعال'} شد!`);
             } else {
-                setIsActive(!newsStatus);
                 toast.error("خطا در بروزرسانی وضعیت");
             }
         } catch (error) {
-            setIsActive(!newsStatus);
             toast.error("مشکلی در برقراری ارتباط با سرور پیش آمد!");
         } finally {
             setIsLoading(false);
@@ -41,23 +41,32 @@ const StatusToggleCell = ({ row }) => {
 
     return (
         <div className="d-flex align-items-center">
-            <div className="form-check form-switch">
-                <Input
-                    type="switch"
-                    id={`status-switch-${row.id}`}
-                    checked={isActive}
-                    onChange={handleToggle}
-                    disabled={isLoading}
-                />
-            </div>
-            {isLoading && <Spinner size="sm" color="primary" className="ms-50" />}
-        </div>
-    )
+            <Link to={`/blogs/view/${row.id}`} className="text-body me-1" title="مشاهده جزئیات">
+                <Eye size={18} />
+            </Link>
 
+            <Link to={`/blogs/edit/${row.id}`} className="text-body me-1" title="ویرایش مقاله">
+                <Edit size={18} />
+            </Link>
+
+            <UncontrolledDropdown>
+                <DropdownToggle className="icon-btn hide-arrow cursor-pointer text-body p-0" tag="span" color="transparent">
+                    {isLoading ? <Spinner size="sm" /> : <MoreVertical size={18} />}
+                </DropdownToggle>
+
+                <DropdownMenu end>
+                    <DropdownItem onClick={handleToggleStatus} className="w-100 d-flex align-items-center">
+                        <Power size={14} className="me-50" />
+                        <span className="align-middle">{isActive ? 'غیرفعال کردن' : 'فعال کردن'}</span>
+                    </DropdownItem>
+                </DropdownMenu>
+            </UncontrolledDropdown>
+        </div>
+    );
 };
 
 const BlogsColumns = [
-{
+    {
         name: "مقاله",
         sortable: true,
         minWidth: "300px",
@@ -70,8 +79,8 @@ const BlogsColumns = [
                     : `${baseURL}/${row.currentImageAddressTumb}`;
             }
             return (
-                <Link 
-                    to={`/blogs/view/${row.id}`} 
+                <Link
+                    to={`/blogs/view/${row.id}`}
                     className='d-flex align-items-center text-decoration-none text-body'
                 >
                     <img
@@ -112,22 +121,23 @@ const BlogsColumns = [
     {
         name: "وضعیت",
         sortable: true,
-        cell: row => <StatusToggleCell row={row} />
+        minWidth: "100px",
+        selector: row => row.active,
+        cell: row => {
+            const isActive = row.isActive === true || row.active === true;
+            return (
+                <Badge color={isActive ? 'light-success' : 'light-primary'} pill className="px-1 py-50">
+                    {isActive ? 'فعال' : 'غیرفعال'}
+                </Badge>
+            );
+        }
     },
     {
         name: "عملیات",
-        minWidth: "100px",
-        cell: row => {
-            return (
-                <div className="d-flex align-items-center">
-                    <Link to={`/blogs/edit/${row.id}`}
-                        className="text-primary me-1 text-decoration-none" >
-                        ویرایش
-                    </Link>
-                </div>
-            )
-        }
+        minWidth: "150px",
+
+        cell: row => <ActionsCell row={row} />
     },
 ]
 
-export default BlogsColumns
+export default BlogsColumns;

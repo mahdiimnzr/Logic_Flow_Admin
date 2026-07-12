@@ -1,3 +1,4 @@
+import Sidebar from "@components/sidebar";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Label, Form, Input } from "reactstrap";
 import * as Yup from "yup";
@@ -7,12 +8,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { addCourseSocialGroup } from "../../../../core/services/api/CourseList/courseList.service";
-import Sidebar from "@components/sidebar";
+
+const defaultValues = {
+  groupName: "",
+  groupLink: "",
+  courseId: "",
+};
 
 const validationSchema = Yup.object({
-  groupName: Yup.string().required("SocialGroupNameRequired"),
+  groupName: Yup.string().trim().required("SocialGroupNameRequired"),
   groupLink: Yup.string()
     .url("SocialGroupLinkInvalid")
+    .trim()
     .required("SocialGroupLinkRequired"),
 });
 
@@ -21,18 +28,15 @@ const SidebarNewSocialGroup = ({ open, toggleSidebar }) => {
   const { courseId } = useParams();
   const queryClient = useQueryClient();
 
-  const defaultValues = {
-    groupName: "",
-    groupLink: "",
-    courseId: courseId,
-  };
-
   const {
     control,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues: { ...defaultValues, courseId },
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: createSocialGroupMutate } = useMutation({
     mutationFn: addCourseSocialGroup,
@@ -49,8 +53,8 @@ const SidebarNewSocialGroup = ({ open, toggleSidebar }) => {
         toast.error(response.data.message, { id: context.toastId });
       }
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -59,9 +63,9 @@ const SidebarNewSocialGroup = ({ open, toggleSidebar }) => {
   };
 
   const handleSidebarClosed = () => {
-    for (const key in defaultValues) {
+    Object.keys(defaultValues).forEach((key) => {
       setValue(key, defaultValues[key]);
-    }
+    });
   };
 
   return (
@@ -69,7 +73,7 @@ const SidebarNewSocialGroup = ({ open, toggleSidebar }) => {
       size="lg"
       open={open}
       title={t("NewSocialGroup")}
-      headerClassName="mb-1 flex justify-between"
+      headerClassName="mb-1"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
       onClosed={handleSidebarClosed}
@@ -100,6 +104,7 @@ const SidebarNewSocialGroup = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <div className="mb-1">
           <Label className="form-label" for="groupLink">
             {t("SocialGroupLink")} <span className="text-danger">*</span>
@@ -124,6 +129,7 @@ const SidebarNewSocialGroup = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <Button type="submit" className="me-1" color="primary">
           {t("Submit")}
         </Button>

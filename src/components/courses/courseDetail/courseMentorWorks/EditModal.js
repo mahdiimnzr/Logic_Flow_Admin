@@ -23,8 +23,8 @@ import { selectThemeColors } from "@utils";
 import { updateAssistanceWork } from "../../../../core/services/api/CourseList/courseList.service";
 
 const validationSchema = Yup.object({
-  worktitle: Yup.string().required("WorkTitleRequired"),
-  workDescribe: Yup.string().required("WorkDescribeRequired"),
+  worktitle: Yup.string().trim().required("WorkTitleRequired"),
+  workDescribe: Yup.string().trim().required("WorkDescribeRequired"),
   workDate: Yup.string().nullable().required("WorkDateRequired"),
   assistanceId: Yup.string().required("MentorRequired"),
 });
@@ -33,19 +33,10 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const mentorsList = mentors?.map((value) => {
-    const mentor = { value: value.id, label: value.assistanceName };
-    return mentor;
-  });
-
-  const fundedMentor = mentors?.find(
-    (value) => value.id === work?.assistanceId,
-  );
-
-  const [currentMentor, setCurrentMentor] = useState({
-    value: work?.assistanceId,
-    label: fundedMentor?.assistanceName,
-  });
+  const mentorOptions = mentors?.map((mentor) => ({
+    value: mentor.id,
+    label: mentor.assistanceName,
+  })) || [];
 
   const defaultValues = {
     id: work?.id ?? "",
@@ -60,7 +51,10 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: updateWorkMutate } = useMutation({
     mutationFn: updateAssistanceWork,
@@ -77,8 +71,8 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
         toast.error(response.data.message, { id: context.toastId });
       }
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -88,17 +82,21 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
 
   return (
     <Modal
-      unmountOnClose={true}
+      unmountOnClose
       isOpen={isOpen}
       toggle={toggle}
       className="modal-dialog-centered"
       style={{ fontFamily: "IRANYekanXFaNum" }}
     >
-      <ModalHeader toggle={toggle}>{t("EditWork")}</ModalHeader>
+      <ModalHeader toggle={toggle}>
+        {t("EditWork")}
+      </ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-1">
-            <Label for="assistanceId">{t("SelectMentor")}</Label>
+            <Label className="form-label" for="assistanceId">
+              {t("SelectMentor")} <span className="text-danger">*</span>
+            </Label>
             <Controller
               name="assistanceId"
               control={control}
@@ -106,35 +104,33 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${
-                    errors.assistanceId ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.assistanceId ? "is-invalid" : ""}`}
                   classNamePrefix="select"
-                  options={mentorsList}
-                  value={currentMentor}
-                  id="assistanceId"
-                  name="assistanceId"
-                  onChange={(data) => {
-                    setCurrentMentor(data);
-                    setValue("assistanceId", data.value);
-                  }}
+                  options={mentorOptions}
+                  value={mentorOptions.find((m) => m.value === field.value) || null}
+                  onChange={(selected) => field.onChange(selected?.value)}
                 />
               )}
             />
             {errors.assistanceId && (
-              <div className="invalid-feedback d-block">
-                {t(errors.assistanceId.message)}
-              </div>
+              <FormFeedback>{t(errors.assistanceId.message)}</FormFeedback>
             )}
           </div>
 
           <div className="mb-1">
-            <Label for="worktitle">{t("WorkTitle")}</Label>
+            <Label className="form-label" for="worktitle">
+              {t("WorkTitle")} <span className="text-danger">*</span>
+            </Label>
             <Controller
               name="worktitle"
               control={control}
               render={({ field }) => (
-                <Input id="worktitle" invalid={!!errors.worktitle} {...field} />
+                <Input
+                  id="worktitle"
+                  placeholder={t("WorkTitle")}
+                  invalid={!!errors.worktitle}
+                  {...field}
+                />
               )}
             />
             {errors.worktitle && (
@@ -143,7 +139,9 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
           </div>
 
           <div className="mb-1">
-            <Label for="workDescribe">{t("WorkDescribe")}</Label>
+            <Label className="form-label" for="workDescribe">
+              {t("WorkDescribe")} <span className="text-danger">*</span>
+            </Label>
             <Controller
               name="workDescribe"
               control={control}
@@ -151,6 +149,7 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
                 <Input
                   id="workDescribe"
                   type="textarea"
+                  placeholder={t("WorkDescribe")}
                   invalid={!!errors.workDescribe}
                   {...field}
                 />
@@ -162,36 +161,29 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
           </div>
 
           <div className="mb-1">
-            <Label for="workDate">{t("WorkDate")}</Label>
+            <Label className="form-label" for="workDate">
+              {t("WorkDate")} <span className="text-danger">*</span>
+            </Label>
             <Controller
               name="workDate"
               control={control}
               render={({ field }) => (
                 <>
                   <DatePicker
-                    id="workDate"
                     calendar={persian}
                     locale={persian_fa}
                     calendarPosition="bottom-center"
                     value={field.value ? new Date(field.value) : null}
                     editable={false}
                     onChange={(date) => {
-                      if (date) {
-                        field.onChange(date.toDate().toISOString());
-                      } else {
-                        field.onChange(null);
-                      }
+                      field.onChange(date ? date.toDate().toISOString() : null);
                     }}
                     placeholder="mm/dd/yyyy"
-                    inputClass={`form-control ${
-                      errors.workDate ? "is-invalid" : ""
-                    }`}
+                    inputClass={`form-control ${errors.workDate ? "is-invalid" : ""}`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.workDate && (
-                    <div className="invalid-feedback d-block">
-                      {t(errors.workDate.message)}
-                    </div>
+                    <FormFeedback>{t(errors.workDate.message)}</FormFeedback>
                   )}
                 </>
               )}
@@ -199,12 +191,12 @@ const EditModal = ({ isOpen, toggle, work, mentors }) => {
           </div>
         </form>
       </ModalBody>
-      <ModalFooter className="d-flex justify-content-between">
+      <ModalFooter>
         <Button color="secondary" outline onClick={toggle}>
           {t("Cancel")}
         </Button>
         <Button color="primary" onClick={handleSubmit(onSubmit)}>
-          {t("ApplyStatus")}
+          {t("SaveChanges")}
         </Button>
       </ModalFooter>
     </Modal>

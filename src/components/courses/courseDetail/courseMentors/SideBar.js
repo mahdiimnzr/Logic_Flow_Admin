@@ -101,28 +101,26 @@ const SidebarNewMentor = ({ open, toggleSidebar }) => {
             name="userId"
             control={control}
             render={({ field }) => (
-              <>
-                <Select
-                  name="userId"
-                  id="userId"
-                  options={userOptions}
-                  placeholder={t("UsersSelection")}
-                  classNamePrefix="select"
-                  className={errors.userId ? "is-invalid" : ""}
-                  value={currentUser}
-                  onChange={(selected) => {
-                    setCurrentUser(selected);
-                    field.onChange(selected.value);
-                  }}
-                />
-                {errors.userId && (
-                  <span className="text-danger" style={{ fontSize: "12px" }}>
-                    {t(errors.userId.message)}
-                  </span>
-                )}
-              </>
+              <Select
+                name="userId"
+                id="userId"
+                options={userOptions}
+                placeholder={t("UsersSelection")}
+                classNamePrefix="select"
+                className={`react-select ${errors.userId ? "is-invalid" : ""}`}
+                value={currentUser}
+                onChange={(selected) => {
+                  setCurrentUser(selected);
+                  field.onChange(selected.value);
+                }}
+              />
             )}
           />
+          {errors.userId && (
+            <span className="text-danger" style={{ fontSize: "12px" }}>
+              {t(errors.userId.message)}
+            </span>
+          )}
         </div>
         <Button type="submit" className="me-1" color="primary">
           {t("Submit")}
