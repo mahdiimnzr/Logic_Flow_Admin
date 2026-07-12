@@ -205,7 +205,7 @@ const BlogAdd = () => {
       <BreadCrumbs
         title=" ساخت مقاله جدید"
         data={[
-          { title: " مقالات", link:"/blogs/list" }, { title: "  افزودن مقاله " }
+          { title: " مقالات", link: "/blogs/list" }, { title: "  افزودن مقاله " }
         ]}
       />
       <div className='horizontal-wizard'>

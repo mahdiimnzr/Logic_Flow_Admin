@@ -4,7 +4,7 @@ import { Layers, Plus } from 'react-feather'
 import { useQuery } from '@tanstack/react-query'
 import { getNewsCategories } from '../core/services/api/blogs/blogs.service'
 import CategoryTable from '../components/blogs/category/CategoryTable'
-import CategoryModal from '../components/blogs/category/CategoryModal'
+import CategorySideBar from '../components/blogs/category/CategorySideBar'
 import BreadCrumbs from "@components/breadcrumbs"
 import SubscribersGained from '../components/blogs/category/SubscribersGained'
 
@@ -81,7 +81,7 @@ const BlogCategory = () => {
                     </Col>
                 </Row>
 
-                <CategoryModal
+                <CategorySideBar
                     isOpen={isModalOpen}
                     toggle={toggleModal}
                     initialData={selectedCategory}
