@@ -202,19 +202,17 @@ const BlogAdd = () => {
 
   return (
     <Fragment >
-
       <BreadCrumbs
-        title=" "
+        title=" ساخت مقاله جدید"
         data={[
           { title: " مقالات", link:"/blogs/list" }, { title: "  افزودن مقاله " }
         ]}
       />
-      <div className='modern-vertical-wizard'>
+      <div className='horizontal-wizard'>
         <Wizard
-          type="modern-vertical"
           ref={ref}
           steps={steps}
-          options={{ linear: false }}
+          options={{ linear: true }}
           instance={e => setStepper(e)}
         />
       </div>

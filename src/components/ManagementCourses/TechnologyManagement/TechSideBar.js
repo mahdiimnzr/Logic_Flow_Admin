@@ -1,27 +1,16 @@
 import { useState } from "react";
 import Sidebar from "@components/sidebar";
-import { selectThemeColors } from "@utils";
-import Select from "react-select";
-import classnames from "classnames";
 import { useForm, Controller } from "react-hook-form";
 import {
   Button,
   Label,
-  FormText,
   Form,
   Input,
-  InputGroup,
-  InputGroupText,
 } from "reactstrap";
-import InputPasswordToggle from "@components/input-password-toggle";
-import "cleave.js/dist/addons/cleave-phone.ir";
-import Cleave from "cleave.js/react";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import toast from "react-hot-toast";
 import ImageDropZone from "../../common/ImageDropZone";
 import { postTechnology } from "../../../core/services/api/ManagementCourses/ManagementCourses.service";
@@ -33,24 +22,24 @@ const defaultValues = {
 };
 
 const validationSchema = Yup.object({
-  techName: Yup.string().required("نام الزامی است"),
-  describe: Yup.string().required("توضیحات الزامی است"),
-  iconAddress: Yup.string().required(" عکس الزامی است"),
+  techName: Yup.string().required("TechNameRequired"),
+  describe: Yup.string().required("TechDescribeRequired"),
+  iconAddress: Yup.string().required("IconRequired"),
 });
 
-const SidebarNewUsers = ({ open, toggleSidebar }) => {
+const TechSideBar = ({ open, toggleSidebar }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
-
-  const options = { phone: true, phoneRegionCode: "IR" };
 
   const {
     control,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: postTechnologyMutate } = useMutation({
     mutationFn: postTechnology,
@@ -59,12 +48,12 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       return { toastId };
     },
     onSuccess: (response, _, context) => {
-      toast.success("تکنولوژی با موفقیت ساخته شد", { id: context.toastId });
+      toast.success(response.data.message || t("TechnologyCreated"), { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ["Technology"] });
       toggleSidebar();
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -82,8 +71,8 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
     <Sidebar
       size="lg"
       open={open}
-      title={"تکنولوژی جدید"}
-      headerClassName="mb-1 flex justify-between"
+      title={t("NewTechnology")}
+      headerClassName="mb-1"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
       onClosed={handleSidebarClosed}
@@ -92,7 +81,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1">
           <Label className="form-label" for="techName">
-            نام تکنولوژی<span className="text-danger">*</span>
+            {t("TechName")} <span className="text-danger">*</span>
           </Label>
           <Controller
             name="techName"
@@ -101,7 +90,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
               <>
                 <Input
                   id="techName"
-                  placeholder={" نام تکنولوژی"}
+                  placeholder={t("TechName")}
                   invalid={!!errors.techName}
                   {...field}
                 />
@@ -117,7 +106,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
 
         <div className="mb-1">
           <Label className="form-label" for="describe">
-            توضیحات <span className="text-danger">*</span>
+            {t("TechDescribe")} <span className="text-danger">*</span>
           </Label>
           <Controller
             name="describe"
@@ -126,7 +115,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
               <>
                 <Input
                   id="describe"
-                  placeholder={"توضیحات"}
+                  placeholder={t("TechDescribe")}
                   invalid={!!errors.describe}
                   {...field}
                 />
@@ -139,14 +128,13 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <div className="mb-1">
           <ImageDropZone
             error={errors.iconAddress ? t(errors.iconAddress.message) : null}
             onChange={(files) => {
               if (files.length > 0) {
-                setValue("iconAddress", URL.createObjectURL(files[0]), {
-                  shouldValidate: true,
-                });
+                setValue("iconAddress", URL.createObjectURL(files[0]), { shouldValidate: true });
               } else {
                 setValue("iconAddress", "", { shouldValidate: true });
               }
@@ -165,4 +153,4 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   );
 };
 
-export default SidebarNewUsers;
+export default TechSideBar;

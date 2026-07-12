@@ -3,12 +3,11 @@ import { ArrowLeft } from "react-feather";
 import { Row, Col, Button, Badge, Spinner } from "reactstrap";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import formDataConverter from "../../../../core/utils/formDataConvertor";
 import formatDate from "../../../../core/utils/formatDate";
 import {
-  useGetCourseAdd,
   createCourseStepTwo,
   addCourseTechnology,
 } from "../../../../core/services/api/CourseList/courseList.service";
@@ -17,8 +16,9 @@ import { useNavigate } from "react-router-dom";
 const ReviewSubmit = ({ stepper }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient()
   const params = useSelector((state) => state.addCourseSlice.params);
-  const { data: courseAdd } = useGetCourseAdd();
+  const courseAdd = queryClient.getQueryState(["CourseAdd"])
 
   const courseTypeName = courseAdd?.data?.courseTypeDtos?.find(
     (item) => item.id == params.CourseTypeId,

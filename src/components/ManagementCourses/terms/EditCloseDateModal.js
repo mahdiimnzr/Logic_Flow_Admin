@@ -26,16 +26,17 @@ const EditCloseDateModal = ({ toggleUpdate, isOpen, row }) => {
 
   const validationSchema = Yup.object({
     startCloseDate: Yup.date()
-      .min(row?.startDate, "زمان شروع باید بیشتر از زمان شروع ترم باشد")
+      .min(row?.startDate, "StartCloseDateAfterTermStart")
       .nullable()
-      .required("انتخواب زمان الزامی است"),
+      .required("DateRequired"),
     endCloseDate: Yup.date()
-      .min(Yup.ref("startCloseDate"), "زمان پایان باید بعد از زمان شروع باشد")
-      .max(row?.endDate, "زمان پایان باید کمتر از زمان پایان ترم باشد")
+      .min(Yup.ref("startCloseDate"), "EndDateAfterStart")
+      .max(row?.endDate, "EndCloseDateBeforeTermEnd")
       .nullable()
-      .required("انتخواب زمان الزامی است"),
-    closeReason: Yup.string().required("..........."),
+      .required("DateRequired"),
+    closeReason: Yup.string().required("CloseReasonRequired"),
   });
+
   const defaultValues = {
     termId: row?.id ?? "",
     startCloseDate: row?.startDate ?? null,
@@ -45,12 +46,13 @@ const EditCloseDateModal = ({ toggleUpdate, isOpen, row }) => {
 
   const {
     control,
-    setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
-  // ** Handle Submit
   const { mutate: UpdateTermCloseDateMutate } = useMutation({
     mutationFn: UpdateTermCloseDate,
     onMutate: () => {
@@ -60,45 +62,36 @@ const EditCloseDateModal = ({ toggleUpdate, isOpen, row }) => {
     onSuccess: (response, _, context) => {
       if (response.data.success) {
         toast.success(response.data.message, { id: context.toastId });
-        queryClient.invalidateQueries({
-          queryKey: [`Term`],
-        });
-        toggle();
+        queryClient.invalidateQueries({ queryKey: ["Term"] });
+        toggleUpdate();
       } else {
         toast.error(response.data.message, { id: context.toastId });
       }
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
   const onSubmit = (data) => {
     UpdateTermCloseDateMutate(data);
   };
+
   return (
     <Modal
       isOpen={isOpen}
-      toggleUpdate={toggleUpdate}
+      toggle={toggleUpdate}
+      className="modal-dialog-centered"
       style={{ fontFamily: "IRANYekanXFaNum" }}
-      className="modal-dialog-centered "
     >
-      <ModalHeader
-        className="bg-transparent"
-        toggleUpdate={toggleUpdate}
-      ></ModalHeader>
+      <ModalHeader toggle={toggleUpdate}>
+        {t("EditCloseDate")}
+      </ModalHeader>
       <ModalBody className="px-sm-5 mx-50 pb-5">
-        <div className="text-center mb-2">
-          <h1 className="mb-1">ویرایش اطلاعات ترم</h1>
-        </div>
-        <Row
-          tag="form"
-          className="gy-1 pt-75"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
           <Col md="6" className="mb-1">
             <Label className="form-label" for="startCloseDate">
-              زمان شروع
+              {t("StartCloseDate")}
             </Label>
             <Controller
               name="startCloseDate"
@@ -106,37 +99,30 @@ const EditCloseDateModal = ({ toggleUpdate, isOpen, row }) => {
               render={({ field }) => (
                 <>
                   <DatePicker
-                    id="startCloseDate"
                     calendar={persian}
                     locale={persian_fa}
-                    calendarPosition="bottom-right"
                     value={field.value ? new Date(field.value) : null}
                     editable={false}
                     placeholder={t("DatePlaceholder")}
-                    onChange={(date) => {
-                      if (date) {
-                        field.onChange(date.toDate().toISOString());
-                      } else {
-                        field.onChange(null);
-                      }
-                    }}
-                    inputClass={`form-control ${
-                      errors.startCloseDate ? "is-invalid" : ""
-                    }`}
+                    onChange={(date) =>
+                      field.onChange(date ? date.toDate().toISOString() : null)
+                    }
+                    inputClass={`form-control ${errors.startCloseDate ? "is-invalid" : ""}`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.startCloseDate && (
                     <span className="invalid-feedback d-block">
-                      {errors.startCloseDate.message}
+                      {t(errors.startCloseDate.message)}
                     </span>
                   )}
                 </>
               )}
             />
           </Col>
+
           <Col md="6" className="mb-1">
             <Label className="form-label" for="endCloseDate">
-              زمان پایان
+              {t("EndCloseDate")}
             </Label>
             <Controller
               name="endCloseDate"
@@ -144,37 +130,30 @@ const EditCloseDateModal = ({ toggleUpdate, isOpen, row }) => {
               render={({ field }) => (
                 <>
                   <DatePicker
-                    id="endCloseDate"
                     calendar={persian}
                     locale={persian_fa}
-                    calendarPosition="bottom-right"
                     value={field.value ? new Date(field.value) : null}
                     editable={false}
                     placeholder={t("DatePlaceholder")}
-                    onChange={(date) => {
-                      if (date) {
-                        field.onChange(date.toDate().toISOString());
-                      } else {
-                        field.onChange(null);
-                      }
-                    }}
-                    inputClass={`form-control ${
-                      errors.endCloseDate ? "is-invalid" : ""
-                    }`}
+                    onChange={(date) =>
+                      field.onChange(date ? date.toDate().toISOString() : null)
+                    }
+                    inputClass={`form-control ${errors.endCloseDate ? "is-invalid" : ""}`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.endCloseDate && (
                     <span className="invalid-feedback d-block">
-                      {errors.endCloseDate.message}
+                      {t(errors.endCloseDate.message)}
                     </span>
                   )}
                 </>
               )}
             />
           </Col>
+
           <Col xs={12}>
             <Label className="form-label" for="closeReason">
-              دلیل بسته بودن
+              {t("CloseReason")}
             </Label>
             <Controller
               name="closeReason"
@@ -183,24 +162,24 @@ const EditCloseDateModal = ({ toggleUpdate, isOpen, row }) => {
                 <Input
                   {...field}
                   id="closeReason"
-                  placeholder="دلیل بسته بودن"
-                  invalid={errors.closeReason && true}
+                  placeholder={t("CloseReason")}
+                  invalid={!!errors.closeReason}
                 />
               )}
             />
             {errors.closeReason && (
               <span className="invalid-feedback d-block">
-                {errors.closeReason.message}
+                {t(errors.closeReason.message)}
               </span>
             )}
           </Col>
 
-          <Col xs={12} className="text-center mt-2 pt-50">
+          <Col xs={12} className="text-center mt-2 pt-50 d-flex align-items-center justify-content-between">
             <Button type="submit" className="me-1" color="primary">
-              تغیرات
+              {t("SaveChanges")}
             </Button>
             <Button color="secondary" outline onClick={toggleUpdate}>
-              منصرف
+              {t("Cancel")}
             </Button>
           </Col>
         </Row>

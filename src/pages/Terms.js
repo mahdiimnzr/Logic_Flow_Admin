@@ -31,7 +31,7 @@ import "@styles/react/apps/app-users.scss";
 
 const Terms = () => {
   const { t } = useTranslation();
-  const { isLoading, data: termList } = useGetTerm();
+  const { isLoading, data: termList, isFetching } = useGetTerm();
   const { isLoading: departmentsLoading } = useGetDepartments();
 
   const totalExpire = termList?.data?.filter((value) => value.expire == true);
@@ -43,10 +43,6 @@ const Terms = () => {
     <Spinner />
   ) : (
     <Fragment>
-      {/* <Breadcrumbs
-        title={t("UsersList")}
-        data={[{ title: t("Users") }, { title: t("UsersList") }]}
-      /> */}
       <div className="app-user-list">
         <Row>
           <Col lg="4" sm="7">
@@ -80,7 +76,7 @@ const Terms = () => {
             />
           </Col>
         </Row>
-        <Table termList={termList?.data} />
+        <Table termList={termList?.data} isFetching={isFetching} />
       </div>
     </Fragment>
   );

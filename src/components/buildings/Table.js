@@ -27,7 +27,6 @@ const CustomHeader = ({
             <label className="mb-0" htmlFor="search-invoice">
               {t("Search")}
             </label>
-
             <Input
               id="search-invoice"
               className="ms-50 w-100"
@@ -38,7 +37,6 @@ const CustomHeader = ({
             />
           </div>
         </Col>
-
         <Col
           sm="6"
           className="d-flex align-items-center justify-content-xl-end justify-content-start p-0"

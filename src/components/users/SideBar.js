@@ -11,14 +11,12 @@ import {
   Form,
   Input,
   InputGroup,
-  InputGroupText,
 } from "reactstrap";
 import InputPasswordToggle from "@components/input-password-toggle";
 import "cleave.js/dist/addons/cleave-phone.ir";
 import Cleave from "cleave.js/react";
-import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useDispatch } from "react-redux";
+import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createUser } from "../../core/services/api/Users/users.service";
@@ -48,7 +46,6 @@ const validationSchema = Yup.object({
 
 const SidebarNewUsers = ({ open, toggleSidebar }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
   const options = { phone: true, phoneRegionCode: "IR" };
@@ -58,7 +55,10 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: createUserMutate } = useMutation({
     mutationFn: createUser,
@@ -75,8 +75,8 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
         toast.error(response.data.message, { id: context.toastId });
       }
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -95,7 +95,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
       size="lg"
       open={open}
       title={t("NewUser")}
-      headerClassName="mb-1 flex justify-between"
+      headerClassName="mb-1"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
       onClosed={handleSidebarClosed}
@@ -126,6 +126,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <div className="mb-1">
           <Label className="form-label" for="lastName">
             {t("LName")} <span className="text-danger">*</span>
@@ -150,6 +151,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <div className="mb-1">
           <Label className="form-label" for="gmail">
             {t("Email")} <span className="text-danger">*</span>
@@ -176,6 +178,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
           />
           <FormText color="muted">{t("EmailPeriods")}</FormText>
         </div>
+
         <div className="mb-1">
           <Label className="form-label" for="password">
             {t("Password")} <span className="text-danger">*</span>
@@ -189,7 +192,6 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
                   placeholder={t("Password")}
                   invalid={!!errors.password}
                   id="password"
-                  htmlFor="password"
                   {...field}
                 />
                 {errors.password && (
@@ -201,6 +203,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <div className="mb-1">
           <Label className="form-label" for="phoneNumber">
             {t("PhoneNumber")} <span className="text-danger">*</span>
@@ -213,12 +216,10 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     dir="ltr"
-                    className={`form-control ${
-                      errors.phoneNumber ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.phoneNumber ? "is-invalid" : ""
+                      }`}
                     placeholder="0912 912 9192"
                     options={options}
-                    id="phoneNumber"
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
                   />
@@ -232,6 +233,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <div className="d-flex gap-1 mb-1">
           <Controller
             name="isStudent"
@@ -249,6 +251,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             {t("isStudent")}
           </Label>
         </div>
+
         <div className="d-flex gap-1 mb-1">
           <Controller
             name="isTeacher"
@@ -266,6 +269,7 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
             {t("isTeacher")}
           </Label>
         </div>
+
         <Button type="submit" className="me-1" color="primary">
           {t("Submit")}
         </Button>

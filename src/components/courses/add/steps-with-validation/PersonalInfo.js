@@ -7,10 +7,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { selectThemeColors } from "@utils";
 import { Label, Row, Col, Button, Form, Input, FormFeedback } from "reactstrap";
 import "@styles/react/libs/react-select/_react-select.scss";
-import { useGetCourseAdd } from "../../../../core/services/api/CourseList/courseList.service";
 import { useDispatch } from "react-redux";
 import { updateAddCourseSliceParams } from "../../../../redux/actions";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 
 const defaultValues = {
   CourseTypeId: "",
@@ -25,6 +25,7 @@ const defaultValues = {
 const PersonalInfo = ({ stepper }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
+  const queryClient = useQueryClient()
 
   const SignupSchema = yup.object({
     CourseTypeId: yup.string().required(t("CourseTypeIdRequired")),
@@ -87,7 +88,7 @@ const PersonalInfo = ({ stepper }) => {
     stepper.next();
   };
 
-  const { data: courseAdd } = useGetCourseAdd();
+  const courseAdd = queryClient.getQueryState(["CourseAdd"])
 
   const [currentCourseType, setCurrentCourseType] = useState({
     value: null,
@@ -159,9 +160,8 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${
-                    errors.CourseTypeId ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.CourseTypeId ? "is-invalid" : ""
+                    }`}
                   classNamePrefix="select"
                   value={currentCourseType}
                   options={courseTypeList}
@@ -190,9 +190,8 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${
-                    errors.CourseStatusId ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.CourseStatusId ? "is-invalid" : ""
+                    }`}
                   classNamePrefix="select"
                   value={currentStatus}
                   options={statusList}
@@ -221,9 +220,8 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${
-                    errors.CourseLvlId ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.CourseLvlId ? "is-invalid" : ""
+                    }`}
                   classNamePrefix="select"
                   value={courseLevel}
                   options={courseLevelList}
@@ -252,9 +250,8 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${
-                    errors.ClassId ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.ClassId ? "is-invalid" : ""
+                    }`}
                   classNamePrefix="select"
                   value={courseLassRoom}
                   options={classRoomlList}
@@ -283,9 +280,8 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${
-                    errors.TeacherId ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.TeacherId ? "is-invalid" : ""
+                    }`}
                   classNamePrefix="select"
                   value={courseTeachers}
                   options={teachersList}
@@ -314,9 +310,8 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${
-                    errors.TremId ? "is-invalid" : ""
-                  }`}
+                  className={`react-select ${errors.TremId ? "is-invalid" : ""
+                    }`}
                   classNamePrefix="select"
                   value={courseTerm}
                   options={termList}
