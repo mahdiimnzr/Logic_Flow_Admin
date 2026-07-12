@@ -10,6 +10,10 @@ import ApexRadiarChart from "../components/dashboard/ApexDonutChart";
 import StatsHorizontal from "../components/dashboard/StatsHorizontal";
 import CourseStatusChart from "../components/dashboard/CourseStatusChart";
 import LatestCoursesTable from "../components/dashboard/LatestCourseTable";
+import TopBlogsTable from "../components/dashboard/TopBlogsTable";
+import UserMetricsChart from "../components/dashboard/UserMetricsChart";
+import UserRolesChart from "../components/dashboard/UserRolesChart";
+import "@styles/react/libs/react-select/_react-select.scss";
 
 import {
   getLandingReport,
@@ -18,9 +22,10 @@ import {
   useGetCurrentUserDetail,
   getAllTeachers,
   getAdminCourseList,
+  getAdminUserList,
 } from "./../core/services/api/dashboard/dashboard.service";
+import { getAdminBlogsList } from './../core/services/api/blogs/blogs.service';
 import toast from "react-hot-toast";
-
 
 const Dashboard = () => {
 
@@ -31,23 +36,31 @@ const Dashboard = () => {
   const [techReport, setTechReport] = useState([]);
   const [latestCourses, setLatestCourses] = useState([]);
   const [courseStatus, setCourseStatus] = useState([0, 0, 0]);
-
+  const [topBlogs, setTopBlogs] = useState([]);
+  const [userMetrics, setUserMetrics] = useState([0, 0]);
+  const [userRoles, setUserRoles] = useState([0, 0, 0, 0]);
+  const [usersCount, setUsersCount] = useState(0);
   const { isLoading: userLoading, data } = useGetCurrentUserDetail();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [dashboardRes, teachersRes, coursesRes, techRes] = await Promise.all([
+        const [dashboardRes, teachersRes, coursesRes, techRes, blogsRes, usersRes] = await Promise.all([
           getDashboardAdminReport(),
           getAllTeachers(),
-          getAdminCourseList({ PageNumber: 1, RowsOfPage: 20, SortingCol: "DESC" }),
-          getTechnologyReport()
+          getAdminCourseList({ PageNumber: 1, RowsOfPage: 500, SortingCol: "DESC" }),
+          getTechnologyReport(),
+          getAdminBlogsList({ RowsoFPage: 200 }),
+          getAdminUserList({ PageNumber: 1, RowsOfPage: 500 }),
         ]);
 
         const dashData = dashboardRes?.data ? dashboardRes.data : dashboardRes;
         const teachersData = teachersRes?.data ? teachersRes.data : teachersRes;
         const coursesData = coursesRes?.data ? coursesRes.data : coursesRes;
         const technologyData = techRes?.data ? techRes.data : techRes;
+        const blogsData = blogsRes?.news ? blogsRes.news : (blogsRes?.data?.news ? blogsRes.data.news : []);
+        const usersRootData = usersRes?.data ? usersRes.data : usersRes;
+        const usersData = usersRootData?.listUser ? usersRootData.listUser : [];
 
         setDashboardReport(dashData);
         setTechReport(technologyData);
@@ -78,6 +91,43 @@ const Dashboard = () => {
           setCourseStatus([active, inactive, expired]);
         }
 
+        if (Array.isArray(blogsData)) {
+          const sortedBlogs = [...blogsData]
+            .sort((a, b) => (b.currentView || 0) - (a.currentView || 0))
+            .slice(0, 5);
+          setTopBlogs(sortedBlogs);
+        }
+
+        if (Array.isArray(usersData) && usersData.length > 0) {
+          const totalUsers = usersData.length;
+          const activeUsers = usersData.filter(u => u.active).length;
+          const activePercent = Math.round((activeUsers / totalUsers) * 100);
+
+          const totalCompletion = usersData.reduce((sum, u) => sum + (u.profileCompletionPercentage || 0), 0);
+          const avgCompletion = Math.round(totalCompletion / totalUsers);
+
+          setUserMetrics([activePercent, avgCompletion]);
+
+          let admin = 0, teacher = 0, student = 0, god = 0;
+          usersData.forEach(user => {
+            if (user.roles) {
+              user.roles.forEach(role => {
+                if (role === 'admin') admin++;
+                else if (role === 'teacher') teacher++;
+                else if (role === 'student') student++;
+                else if (role === 'GOD') god++;
+              });
+            }
+          });
+          setUserRoles([admin, teacher, student, god]);
+        }
+
+        if (usersRootData?.totalCount !== undefined) {
+          setUsersCount(usersRootData.totalCount);
+        } else if (usersData.length > 0) {
+          setUsersCount(usersData.length);
+        }
+
       } catch (error) {
         console.error("Error loading dashboard data:", error);
       } finally {
@@ -103,18 +153,15 @@ const Dashboard = () => {
     </div>
   ) : (
     <div id="dashboard-analytics">
-
       <Row className="match-height">
-
         <Col lg="3" sm="6" className="mb-2">
           <StatsHorizontal
             color="primary"
             icon={<Users size={21} />}
-            stats={dashboardReport?.allUser?.toString() || "0"}
+            stats={usersCount ? usersCount.toLocaleString("fa-IR") : "0"}
             statTitle="کل کاربران"
           />
         </Col>
-
         <Col lg="3" sm="6" className="mb-2">
           <StatsHorizontal
             color="success"
@@ -123,7 +170,6 @@ const Dashboard = () => {
             statTitle="تعداد اساتید"
           />
         </Col>
-
         <Col lg="3" sm="6" className="mb-2">
           <StatsHorizontal
             color="info"
@@ -132,7 +178,6 @@ const Dashboard = () => {
             statTitle="کل دوره‌ها"
           />
         </Col>
-
         <Col lg="3" sm="6" className="mb-2">
           <StatsHorizontal
             color="warning"
@@ -145,15 +190,19 @@ const Dashboard = () => {
             statTitle="مجموع پرداختی‌ها"
           />
         </Col>
-
       </Row>
-
+      <Row className="match-height mt-2">
+        <Col lg="6" md="12" sm="12" className="mb-2">
+          <UserMetricsChart dataSeries={userMetrics} />
+        </Col>
+        <Col lg="6" md="12" sm="12" className="mb-2">
+          <UserRolesChart dataSeries={userRoles} />
+        </Col>
+      </Row>
       <Row className="match-height">
-
         <Col lg="6" md="12" sm="12" className="mb-2">
           <CourseStatusChart dataSeries={courseStatus} />
         </Col>
-
         <Col lg="6" md="12" sm="12" className="mb-2">
           <SupportTracker
             title="وضعیت رزروها"
@@ -161,7 +210,6 @@ const Dashboard = () => {
             totalCount={dashboardReport?.allReserve || 0}
             chartLabel="درصد تایید"
             series={[dashboardReport?.reserveAcceptPercent || 0]}
-
             statRightTitle="در انتظار"
             statRightValue={
               (dashboardReport?.allReserve || 0) - (dashboardReport?.allReserveAccept || 0)
@@ -172,21 +220,20 @@ const Dashboard = () => {
             statLeftValue={dashboardReport?.reserveNotAcceptPercent || 0}
           />
         </Col>
-
       </Row>
-
       <Row className="match-height mt-2">
-
         <Col lg="6" md="12" sm="12" className="mb-2">
           <ApexRadiarChart data={techReport} />
         </Col>
-
         <Col lg="6" md="12" sm="12" className="mb-2">
           <LatestCoursesTable courses={latestCourses} />
         </Col>
-
       </Row>
-
+      <Row className="match-height mt-2">
+        <Col lg="12" md="12" sm="12" className="mb-2">
+          <TopBlogsTable blogs={topBlogs} />
+        </Col>
+      </Row>
     </div>
   );
 };

@@ -19,6 +19,9 @@ const ApexRadiarChart = ({ data = [] }) => {
       show: true,
       position: 'bottom',
       fontFamily:"inherit",
+      labels: {
+        useSeriesColors: true
+      }
     },
     labels: labels,
     colors: donutColors,
@@ -35,11 +38,13 @@ const ApexRadiarChart = ({ data = [] }) => {
             show: true,
             name: {
               fontSize: '1.5rem',
-              fontFamily: 'inherit'
+              fontFamily: 'inherit',
+              color: 'var(--bs-heading-color)'
             },
             value: {
               fontSize: '1rem',
               fontFamily: 'inherit',
+              color: 'var(--bs-heading-color)',
               formatter(val) {
                 return `${parseInt(val)}دوره`
               }
@@ -49,6 +54,7 @@ const ApexRadiarChart = ({ data = [] }) => {
               fontSize: '1.2rem',
               fontFamily:"inherit",
               label: 'همه موارد',
+              color: 'var(--bs-heading-color)',
               formatter() {
                 const total = series.reduce((a, b) => a + b, 0)
                 return `${total} مورد`

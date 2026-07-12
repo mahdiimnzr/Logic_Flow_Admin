@@ -2,7 +2,7 @@ import Chart from 'react-apexcharts'
 import { Card, CardHeader, CardTitle, CardBody, CardSubtitle } from 'reactstrap'
 
 const CourseStatusChart = ({ dataSeries = [0, 0, 0] }) => {
-  
+
   const labels = [' در حال برگزاری', 'غیرفعال', 'منقضی شده']
   const donutColors = ['#7367f0', '#28c76f', '#ea5455']
   const options = {
@@ -10,6 +10,9 @@ const CourseStatusChart = ({ dataSeries = [0, 0, 0] }) => {
       show: true,
       position: 'bottom',
       fontFamily: "inherit",
+      labels: {
+        useSeriesColors: true 
+      }
     },
     labels: labels,
     colors: donutColors,
@@ -26,11 +29,13 @@ const CourseStatusChart = ({ dataSeries = [0, 0, 0] }) => {
             show: true,
             name: {
               fontSize: '1.2rem',
-              fontFamily: 'inherit'
+              fontFamily: 'inherit',
+              color: 'var(--bs-heading-color)'
             },
             value: {
               fontSize: '1rem',
               fontFamily: 'inherit',
+              color: 'var(--bs-heading-color)',
               formatter(val) {
                 return `${val} دوره`
               }
@@ -40,6 +45,7 @@ const CourseStatusChart = ({ dataSeries = [0, 0, 0] }) => {
               fontSize: '1.2rem',
               fontFamily: "inherit",
               label: 'کل دوره‌ها',
+              color: 'var(--bs-heading-color)',
               formatter() {
                 const total = dataSeries.reduce((a, b) => a + b, 0)
                 return `${total} دوره`
