@@ -3,16 +3,15 @@ import ReactPaginate from "react-paginate";
 import { ChevronDown } from "react-feather";
 import DataTable from "react-data-table-component";
 import { Card, CardHeader, CardTitle, Input, Label, Row, Col, Spinner } from "reactstrap";
-
 import { getCategoryColumns } from "./CategoryColumns";
+import { useSkin } from '@hooks/useSkin';
 
 const CategoryTable = ({ data = [], isLoading, onEditClick }) => {
 
     const [currentPage, setCurrentPage] = useState(1);
-
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
     const [searchValue, setSearchValue] = useState("");
+    const { skin } = useSkin();
 
     const filteredData = data.filter(item => item.categoryName?.toLowerCase().includes(searchValue.toLowerCase()));
 
@@ -63,6 +62,49 @@ const CategoryTable = ({ data = [], isLoading, onEditClick }) => {
         );
     };
 
+    const customStyles = {
+        table: {
+            style: {
+                backgroundColor: 'transparent',
+            }
+        },
+        headRow: {
+            style: {
+                backgroundColor: skin === 'dark' ? '#343d55' : '#f3f2f7',
+                color: skin === 'dark' ? '#d0d2d6' : '#5e5873',
+                borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
+            }
+        },
+        rows: {
+            style: {
+                backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+                color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
+                borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
+                '&:hover': {
+                    backgroundColor: skin === 'dark' ? '#343d55' : '#f8f8f8',
+                }
+            }
+        },
+        pagination: {
+            style: {
+                backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+                color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
+                borderTopColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
+            }
+        },
+        noData: {
+            style: {
+                backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+                color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
+            }
+        },
+        tableWrapper: {
+            style: {
+                backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+            }
+        }
+    };
+
     return (
         <Fragment>
             <Card>
@@ -105,7 +147,10 @@ const CategoryTable = ({ data = [], isLoading, onEditClick }) => {
                     {isLoading && (
                         <div
                             className="d-flex justify-content-center position-absolute w-100 h-100 align-items-center"
-                            style={{ zIndex: 1, backgroundColor: "rgba(255,255,255,0.6)" }}
+                            style={{
+                                zIndex: 1, backgroundColor: skin === 'dark' ? "rgba(40, 48, 70, 0.8)" : "rgba(255,255,255,0.6)",
+                                borderRadius: "0.5rem"
+                            }}
                         >
                             <Spinner color="primary" />
                         </div>
@@ -119,6 +164,7 @@ const CategoryTable = ({ data = [], isLoading, onEditClick }) => {
                         sortIcon={<ChevronDown size={10} />}
                         paginationComponent={CustomPagination}
                         data={paginatedData}
+                        customStyles={customStyles}
                     />
                 </div>
             </Card>

@@ -1,7 +1,6 @@
 import { Fragment, useState, useEffect } from 'react'
 import { Label, Row, Col, Input, FormFeedback, Button, Spinner } from 'reactstrap'
 import Select from 'react-select'
-import Select from 'react-select'
 import { ArrowLeft, ArrowRight } from 'react-feather'
 import { Controller } from 'react-hook-form'
 import { getNewsCategories } from '../../../core/services/api/blogs/blogs.service'
