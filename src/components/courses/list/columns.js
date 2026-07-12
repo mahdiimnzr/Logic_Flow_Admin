@@ -69,18 +69,9 @@ const renderClient = (row) => {
   }
 };
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "مدرس",
-    sortable: true,
-    sortField: "id",
-    minWidth: "107px",
-    cell: (row) => (
-      <Link to={`/Courses/Detail/${row?.courseId}`}>{`${row?.fullName}`}</Link>
-    ),
-  },
-  {
-    name: "نام دوره",
+    name: t("CourseTitle"),
     sortable: true,
     minWidth: "350px",
     sortField: "client.name",
@@ -89,7 +80,7 @@ export const columns = [
         <div className="d-flex justify-content-left align-items-center">
           {renderClient(row)}
           <div className="d-flex flex-column">
-            <h6 className="user-name text-truncate mb-0">{row?.title}</h6>
+            <Link to={`/Courses/Detail/${row?.courseId}`} className="user-name text-truncate mb-0">{row?.title}</Link>
             <small className="text-truncate text-muted mb-0">
               {row?.miniDescribe}
             </small>
@@ -99,22 +90,31 @@ export const columns = [
     },
   },
   {
-    name: "قیمت",
+    name: t("Teacher"),
+    sortable: true,
+    sortField: "id",
+    minWidth: "107px",
+    cell: (row) => (
+      <Link to={`/Users/Detail/${row?.teacherId}`}>{row?.fullName}</Link>
+    ),
+  },
+  {
+    name: t("CourseCost"),
     sortable: true,
     minWidth: "150px",
     sortField: "total",
-    cell: (row) => <span>{formatPrice(row?.cost) || 0} تومان</span>,
+    cell: (row) => <span>{formatPrice(row?.cost) || 0} {t("Toman")}</span>,
   },
   {
     sortable: true,
     minWidth: "200px",
-    name: "آخرین بروزرسانی",
+    name: t("InsertDate"),
     sortField: "dueDate",
     cell: (row) => formatDate(row?.lastUpdate),
   },
   {
     sortable: true,
-    name: "دوره های فعال و غیر فعال",
+    name: t("CourseStatus"),
     minWidth: "164px",
     sortField: "balance",
     selector: (row) => row?.active,
@@ -129,7 +129,7 @@ export const columns = [
     ),
   },
   {
-    name: "عملیات",
+    name: t("Actions"),
     minWidth: "110px",
     cell: (row) => {
       const { t } = useTranslation();
@@ -188,7 +188,7 @@ export const columns = [
           <Link to={`/Courses/Edit/${row?.courseId}`}>
             <Edit size={17} className="me-50" />
           </Link>
-          <UncontrolledDropdown>
+          <UncontrolledDropdown direction='up'>
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>

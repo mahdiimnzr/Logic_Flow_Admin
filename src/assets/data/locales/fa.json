@@ -400,5 +400,15 @@
   "SendNotif": "ارسال اعلان",
   "MessageRequired": "متن اعلان الزامی است!",
   "NotifMessage": "متن اعلان",
-  "Notif": "اعلان"
+  "Notif": "اعلان",
+  "Writer": "نویسنده",
+  "SearchComments": "جستجوی دیدگاه ها...",
+  "SearchReserves": "جستجوی رزروها...",
+  "StudentEmail": "ایمیل دانشجو",
+  "SearchPayments": "جستجوی پرداخت‌ها...",
+  "SearchGroups": "جستجوی گروه‌ها...",
+  "EditGroup": "ویرایش گروه",
+  "SearchSocialGroups": "جستجوی گروه‌های اجتماعی...",
+  "SearchMentors": "جستجوی دستیاران...",
+  "SearchWorks": "جستجوی وظایف..."
 }

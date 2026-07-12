@@ -57,7 +57,8 @@ export const columns = (t) => [
   {
     name: t("Technology"),
     sortable: true,
-    minWidth: "200px",
+    minWidth: "50px",
+    maxWidth: "200px",
     sortField: "techName",
     selector: (row) => row.techName,
     cell: (row) => (
@@ -72,6 +73,7 @@ export const columns = (t) => [
   {
     name: t("TechDescribe"),
     minWidth: "80px",
+    maxWidth: "800px",
     sortable: true,
     sortField: "describe",
     selector: (row) => row.describe,
@@ -82,6 +84,7 @@ export const columns = (t) => [
   {
     name: t("Actions"),
     minWidth: "50px",
+    maxWidth: "100px",
     cell: (row) => {
       const { t } = useTranslation();
       const queryClient = useQueryClient();

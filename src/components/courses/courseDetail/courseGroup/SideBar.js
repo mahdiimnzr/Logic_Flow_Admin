@@ -1,7 +1,13 @@
-import { useState } from "react";
 import Sidebar from "@components/sidebar";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Label, Form, Input, InputGroup } from "reactstrap";
+import {
+  Button,
+  Label,
+  Form,
+  Input,
+  InputGroup,
+} from "reactstrap";
+import Cleave from "cleave.js/react";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useTranslation } from "react-i18next";
@@ -10,31 +16,34 @@ import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { addCourseGroup } from "../../../../core/services/api/CourseList/courseList.service";
 import formDataConverter from "../../../../core/utils/formDataConvertor";
-import Cleave from "cleave.js/react";
+
+const defaultValues = {
+  CourseId: "",
+  GroupName: "",
+  GroupCapacity: "",
+};
+
+const validationSchema = Yup.object({
+  GroupName: Yup.string().trim().required("CourseGroupNameRequired"),
+  GroupCapacity: Yup.string().trim().required("CourseGroupCapacityRequired"),
+});
 
 const SidebarNewGroup = ({ open, toggleSidebar }) => {
   const { t } = useTranslation();
   const { courseId } = useParams();
   const queryClient = useQueryClient();
+
   const options = { numeral: true, numeralThousandsGroupStyle: "thousand" };
-
-  const defaultValues = {
-    CourseId: courseId,
-    GroupName: "",
-    GroupCapacity: "",
-  };
-
-  const validationSchema = Yup.object({
-    GroupName: Yup.string().required("CourseGroupNameRequired"),
-    GroupCapacity: Yup.string().required("CourseGroupCapacityRequired"),
-  });
 
   const {
     control,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues: { ...defaultValues, CourseId: courseId },
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: createGroupMutate } = useMutation({
     mutationFn: addCourseGroup,
@@ -45,16 +54,14 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
     onSuccess: (response, _, context) => {
       if (response.data.success) {
         toast.success(response.data.message, { id: context.toastId });
-        queryClient.invalidateQueries({
-          queryKey: [`CourseGroup-${courseId}`],
-        });
+        queryClient.invalidateQueries({ queryKey: [`CourseGroup-${courseId}`] });
         toggleSidebar();
       } else {
         toast.error(response.data.message, { id: context.toastId });
       }
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -64,9 +71,9 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
   };
 
   const handleSidebarClosed = () => {
-    for (const key in defaultValues) {
+    Object.keys(defaultValues).forEach((key) => {
       setValue(key, defaultValues[key]);
-    }
+    });
   };
 
   return (
@@ -74,7 +81,7 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
       size="lg"
       open={open}
       title={t("NewGroup")}
-      headerClassName="mb-1 flex justify-between"
+      headerClassName="mb-1"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
       onClosed={handleSidebarClosed}
@@ -105,9 +112,10 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
             )}
           />
         </div>
+
         <div className="mb-1">
           <Label className="form-label" for="GroupCapacity">
-            {t("CourseGroupCapacity")}
+            {t("CourseGroupCapacity")} <span className="text-danger">*</span>
           </Label>
           <Controller
             name="GroupCapacity"
@@ -116,25 +124,23 @@ const SidebarNewGroup = ({ open, toggleSidebar }) => {
               <>
                 <InputGroup className="input-group-merge">
                   <Cleave
-                    className={`form-control ${
-                      errors.GroupCapacity ? "is-invalid" : ""
-                    }`}
-                    placeholder={t("CourseGroupCapacity")}
+                    className={`form-control ${errors.GroupCapacity ? "is-invalid" : ""}`}
+                    placeholder={t("CourseGroupCapacityPlaceholder")}
                     options={options}
-                    id="GroupCapacity"
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.rawValue)}
                   />
                 </InputGroup>
                 {errors.GroupCapacity && (
-                  <div className="invalid-feedback d-block">
+                  <span className="text-danger" style={{ fontSize: "12px" }}>
                     {t(errors.GroupCapacity.message)}
-                  </div>
+                  </span>
                 )}
               </>
             )}
           />
         </div>
+
         <Button type="submit" className="me-1" color="primary">
           {t("Submit")}
         </Button>

@@ -147,22 +147,23 @@ const AccountSetting = ({ data, usersList }) => {
     return teachers;
   });
 
-  const getEditorBlocks = () => {
-    if (!data?.describe) return [];
+  const getEditorBlocks = (desc) => {
+    if (!desc) return {};
     try {
-      const blocks = JSON.parse(data?.describe);
+      const describe = JSON.parse(desc);
+      if (!Array.isArray(describe.blocks)) throw new Error();
 
-      if (!Array.isArray(blocks)) throw new Error();
-
-      return blocks.map((block) => ({
-        ...block,
-        type: block.type === "p" ? "paragraph" : block.type,
+      describe?.blocks.map((data) => ({
+        ...data,
+        type: data.type === "p" ? "paragraph" : data.type,
       }));
+
+      return describe
     } catch {
       return [
         {
           type: "paragraph",
-          data: { text: data?.describe },
+          data: { text: desc },
         },
       ];
     }
@@ -318,14 +319,12 @@ const AccountSetting = ({ data, usersList }) => {
                   render={({ field }) => (
                     <>
                       <Editor
-                        data={{
-                          time: new Date(),
-                          blocks: getEditorBlocks(data?.describe),
-                          version: "2.8.1",
-                        }}
+                        data={
+                          getEditorBlocks(data?.describe)
+                        }
                         placeholder={t("CourseDescribePlaceholder")}
                         onChange={async (data) => {
-                          field.onChange(JSON.stringify((await data).blocks));
+                          field.onChange(JSON.stringify(await data));
                         }}
                         error={errors.Describe && true}
                         editorBlock={"editorJs-container"}

@@ -6,9 +6,9 @@ import userImage from "/Profile.png";
 import formatPrice from "../../../../core/utils/formatPrice";
 import formatDate from "../../../../core/utils/formatDate";
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "StudentName",
+    name: t("StudentName"),
     sortable: true,
     minWidth: "200px",
     sortField: "fName",
@@ -32,7 +32,7 @@ export const columns = [
     ),
   },
   {
-    name: "GroupName",
+    name: t("GroupName"),
     sortable: true,
     minWidth: "150px",
     sortField: "groupName",
@@ -42,31 +42,34 @@ export const columns = [
     ),
   },
   {
-    name: "PaymentAmount",
+    name: t("PaymentAmount"),
     sortable: true,
     minWidth: "150px",
     sortField: "paid",
     selector: (row) => row.payment?.Paid,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <span className="fw-bolder">
-          {row.payment
-            ? formatPrice(Number(row.payment.Paid)) + " " + t("Toman")
-            : "-"}
-        </span>
-      );
-    },
+    cell: (row) => (
+      <span className="fw-bolder">
+        {row.payment
+          ? formatPrice(Number(row.payment.Paid)) + " " + t("Toman")
+          : "-"}
+      </span>
+    ),
   },
   {
-    name: "PaymentStatus",
+    name: t("PaymentStatus"),
     sortable: true,
     minWidth: "130px",
     sortField: "accept",
     selector: (row) => row.payment?.accept,
     cell: (row) => {
-      const { t } = useTranslation();
-      return row.payment ? (
+      if (!row.payment) {
+        return (
+          <Badge className="text-capitalize" color="light-warning" pill>
+            {t("NoPayment")}
+          </Badge>
+        );
+      }
+      return (
         <Badge
           className="text-capitalize"
           color={row.payment.accept ? "light-success" : "light-secondary"}
@@ -74,15 +77,11 @@ export const columns = [
         >
           {row.payment.accept ? t("PaymentAccepted") : t("PaymentPending")}
         </Badge>
-      ) : (
-        <Badge className="text-capitalize" color="light-warning" pill>
-          {t("NoPayment")}
-        </Badge>
       );
     },
   },
   {
-    name: "PaymentDate",
+    name: t("PaymentDate"),
     sortable: true,
     minWidth: "150px",
     sortField: "PeymentDate",

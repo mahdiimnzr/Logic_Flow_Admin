@@ -89,21 +89,23 @@ const PersonalInfo = ({ stepper }) => {
   };
 
   const courseAdd = queryClient.getQueryState(["CourseAdd"])
+  console.log(courseAdd)
 
   const [currentCourseType, setCurrentCourseType] = useState({
     value: null,
     label: t("CourseTypeSelectPlaceholder"),
   });
-  const courseTypeList = courseAdd?.data?.courseTypeDtos?.map((value) => ({
+  const courseTypeList = courseAdd?.data?.data?.courseTypeDtos?.map((value) => ({
     value: value.id,
     label: value.typeName,
   }));
+
 
   const [currentStatus, setCurrentStatus] = useState({
     value: null,
     label: t("CourseStatusSelectPlaceholder"),
   });
-  const statusList = courseAdd?.data?.statusDtos?.map((value) => ({
+  const statusList = courseAdd?.data?.data?.statusDtos?.map((value) => ({
     value: value.id,
     label: value.statusName,
   }));
@@ -112,7 +114,7 @@ const PersonalInfo = ({ stepper }) => {
     value: null,
     label: t("CourseLvlSelectPlaceholder"),
   });
-  const courseLevelList = courseAdd?.data?.courseLevelDtos?.map((value) => ({
+  const courseLevelList = courseAdd?.data?.data?.courseLevelDtos?.map((value) => ({
     value: value.id,
     label: value.levelName,
   }));
@@ -121,7 +123,7 @@ const PersonalInfo = ({ stepper }) => {
     value: null,
     label: t("CourseClassSelectPlaceholder"),
   });
-  const classRoomlList = courseAdd?.data?.classRoomDtos?.map((value) => ({
+  const classRoomlList = courseAdd?.data?.data?.classRoomDtos?.map((value) => ({
     value: value.id,
     label: value.classRoomName,
   }));
@@ -130,7 +132,7 @@ const PersonalInfo = ({ stepper }) => {
     value: null,
     label: t("CourseTeacherSelectPlaceholder"),
   });
-  const teachersList = courseAdd?.data?.teachers?.map((value) => ({
+  const teachersList = courseAdd?.data?.data?.teachers?.map((value) => ({
     value: value.teacherId,
     label: value.fullName,
   }));
@@ -139,7 +141,7 @@ const PersonalInfo = ({ stepper }) => {
     value: null,
     label: t("CourseTremSelectPlaceholder"),
   });
-  const termList = courseAdd?.data?.termDtos?.map((value) => ({
+  const termList = courseAdd?.data?.data?.termDtos?.map((value) => ({
     value: value.id,
     label: value.termName,
   }));

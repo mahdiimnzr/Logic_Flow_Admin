@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm, Controller } from "react-hook-form";
+import Cleave from "cleave.js/react";
 import {
   Button,
   Modal,
@@ -11,77 +13,57 @@ import {
   Input,
   InputGroup,
 } from "reactstrap";
+import { Edit, Trash } from "react-feather";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useState } from "react";
-import {
-  removeCourseGroup,
-  updateCourseGroup,
-} from "../../../../core/services/api/CourseList/courseList.service";
-import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { removeCourseGroup, updateCourseGroup } from "../../../../core/services/api/CourseList/courseList.service";
 import formDataConverter from "../../../../core/utils/formDataConvertor";
-import Cleave from "cleave.js/react";
 
 const validationSchema = Yup.object({
-  GroupName: Yup.string().required("CourseGroupNameRequired"),
-  GroupCapacity: Yup.string().required("CourseGroupCapacityRequired"),
+  GroupName: Yup.string().trim().required("CourseGroupNameRequired"),
+  GroupCapacity: Yup.string().trim().required("CourseGroupCapacityRequired"),
 });
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "CourseGroup",
+    name: t("CourseGroup"),
     sortable: true,
     minWidth: "100px",
     maxWidth: "300px",
     sortField: "groupName",
     selector: (row) => row.groupName,
-    cell: (row) => (
-      <div className="d-flex align-items-center gap-1 text-truncate">
-        <span className="fw-bolder">{row.groupName}</span>
-      </div>
-    ),
+    cell: (row) => <span className="fw-bolder">{row.groupName}</span>,
   },
   {
-    name: "TeacherName",
+    name: t("TeacherName"),
     sortable: true,
     minWidth: "200px",
     maxWidth: "250px",
     sortField: "teacherName",
     selector: (row) => row.teacherName,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">{row.teacherName}</span>
-      </div>
-    ),
+    cell: (row) => <span className="fw-bolder">{row.teacherName}</span>,
   },
   {
-    name: "GroupCapacity",
+    name: t("GroupCapacity"),
     sortable: true,
     minWidth: "200px",
     maxWidth: "150px",
     sortField: "groupCapacity",
     selector: (row) => row.groupCapacity,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">{row.groupCapacity}</span>
-      </div>
-    ),
+    cell: (row) => <span className="fw-bolder">{row.groupCapacity}</span>,
   },
   {
-    name: "Actions",
-    sortable: true,
+    name: t("Actions"),
     minWidth: "20px",
     maxWidth: "200px",
-    sortField: "capacity",
-    selector: (row) => row.capacity,
     cell: (row) => {
-      const options = { numeral: true, numeralThousandsGroupStyle: "thousand" };
       const { t } = useTranslation();
       const { courseId } = useParams();
       const queryClient = useQueryClient();
-      const [centeredModal, setCenteredModal] = useState(false);
+      const [editModal, setEditModal] = useState(false);
 
       const defaultValues = {
         Id: row.groupId ?? "",
@@ -94,7 +76,10 @@ export const columns = [
         control,
         handleSubmit,
         formState: { errors },
-      } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+      } = useForm({
+        defaultValues,
+        resolver: yupResolver(validationSchema),
+      });
 
       const { mutate: removeCourseGroupMutate } = useMutation({
         mutationFn: removeCourseGroup,
@@ -105,16 +90,13 @@ export const columns = [
         onSuccess: (response, _, context) => {
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
-            queryClient.invalidateQueries({
-              queryKey: [`CourseGroup-${courseId}`],
-            });
-            setCenteredModal(false);
+            queryClient.invalidateQueries({ queryKey: [`CourseGroup-${courseId}`] });
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
 
@@ -127,16 +109,14 @@ export const columns = [
         onSuccess: (response, _, context) => {
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
-            queryClient.invalidateQueries({
-              queryKey: [`CourseGroup-${courseId}`],
-            });
-            setCenteredModal(false);
+            queryClient.invalidateQueries({ queryKey: [`CourseGroup-${courseId}`] });
+            setEditModal(false);
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
 
@@ -145,32 +125,33 @@ export const columns = [
         updateCourseGroupMutate(formData);
       };
 
-      const handleToggle = () => setCenteredModal(!centeredModal);
-
       return (
         <div className="d-flex align-items-center gap-1">
-          <Button.Ripple onClick={handleToggle} color="primary" size="sm">
-            {t("Edit")}
-          </Button.Ripple>
-          <Button.Ripple
+          <Edit
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setEditModal(true)}
+          />
+          <Trash
+            size={17}
+            className="cursor-pointer"
             onClick={() => {
               const formData = new FormData();
               formData.append("Id", row.groupId);
               removeCourseGroupMutate(formData);
             }}
-            color="danger"
-            size="sm"
-          >
-            {t("Remove")}
-          </Button.Ripple>
+          />
+
           <Modal
-            unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={handleToggle}
+            unmountOnClose
+            isOpen={editModal}
+            toggle={() => setEditModal(!editModal)}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader toggle={handleToggle}>{t("CourseGroups")}</ModalHeader>
+            <ModalHeader toggle={() => setEditModal(!editModal)}>
+              {t("EditGroup")}
+            </ModalHeader>
             <ModalBody>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Col sm="12" className="mb-1">
@@ -181,22 +162,21 @@ export const columns = [
                     name="GroupName"
                     control={control}
                     render={({ field }) => (
-                      <>
-                        <Input
-                          id="GroupName"
-                          placeholder={t("CourseGroupNamePlaceholder")}
-                          invalid={!!errors.GroupName}
-                          {...field}
-                        />
-                        {errors.GroupName && (
-                          <div className="invalid-feedback d-block">
-                            {t(errors.GroupName.message)}
-                          </div>
-                        )}
-                      </>
+                      <Input
+                        id="GroupName"
+                        placeholder={t("CourseGroupNamePlaceholder")}
+                        invalid={!!errors.GroupName}
+                        {...field}
+                      />
                     )}
                   />
+                  {errors.GroupName && (
+                    <span className="invalid-feedback d-block">
+                      {t(errors.GroupName.message)}
+                    </span>
+                  )}
                 </Col>
+
                 <Col sm="12">
                   <Label className="form-label" for="GroupCapacity">
                     {t("CourseGroupCapacity")}
@@ -205,36 +185,31 @@ export const columns = [
                     name="GroupCapacity"
                     control={control}
                     render={({ field }) => (
-                      <>
-                        <InputGroup className="input-group-merge">
-                          <Cleave
-                            className={`form-control ${
-                              errors.GroupCapacity ? "is-invalid" : ""
-                            }`}
-                            placeholder={t("CourseGroupCapacity")}
-                            options={options}
-                            id="GroupCapacity"
-                            value={field.value}
-                            onChange={(e) => field.onChange(e.target.rawValue)}
-                          />
-                        </InputGroup>
-                        {errors.GroupCapacity && (
-                          <div className="invalid-feedback d-block">
-                            {t(errors.GroupCapacity.message)}
-                          </div>
-                        )}
-                      </>
+                      <InputGroup className="input-group-merge">
+                        <Cleave
+                          className={`form-control ${errors.GroupCapacity ? "is-invalid" : ""}`}
+                          placeholder={t("CourseGroupCapacityPlaceholder")}
+                          options={{ numeral: true, numeralThousandsGroupStyle: "thousand" }}
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.rawValue)}
+                        />
+                      </InputGroup>
                     )}
                   />
+                  {errors.GroupCapacity && (
+                    <span className="invalid-feedback d-block">
+                      {t(errors.GroupCapacity.message)}
+                    </span>
+                  )}
                 </Col>
               </form>
             </ModalBody>
-            <ModalFooter className="d-flex justify-content-between">
-              <Button color="secondary" outline onClick={handleToggle}>
+            <ModalFooter className="d-flex align-items-center justify-content-between">
+              <Button color="secondary" outline onClick={() => setEditModal(false)}>
                 {t("Cancel")}
               </Button>
               <Button color="primary" onClick={handleSubmit(onSubmit)}>
-                {t("ApplyStatus")}
+                {t("SaveChanges")}
               </Button>
             </ModalFooter>
           </Modal>

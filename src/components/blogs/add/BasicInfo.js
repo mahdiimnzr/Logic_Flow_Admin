@@ -1,7 +1,6 @@
 import { Fragment, useState, useEffect } from 'react'
 import { Label, Row, Col, Input, FormFeedback, Button, Spinner } from 'reactstrap'
 import Select from 'react-select'
-import Select from 'react-select'
 import { ArrowLeft, ArrowRight } from 'react-feather'
 import { Controller } from 'react-hook-form'
 import { getNewsCategories } from '../../../core/services/api/blogs/blogs.service'
@@ -97,7 +96,6 @@ const BasicInfo = ({ stepper, control, errors, trigger }) => {
                             )
                         }}
                     />
-                    {errors.categoryId && <FormFeedback className='d-block'>{errors.categoryId.message}</FormFeedback>}
                     {errors.categoryId && <FormFeedback className='d-block'>{errors.categoryId.message}</FormFeedback>}
                 </Col>
 

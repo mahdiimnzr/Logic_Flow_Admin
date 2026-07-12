@@ -288,7 +288,7 @@ const AccountDetails = ({ stepper }) => {
                 <Editor
                   placeholder={t("CourseDescribePlaceholder")}
                   onChange={async (data) => {
-                    field.onChange(JSON.stringify((await data).blocks));
+                    field.onChange(JSON.stringify(await data));
                   }}
                   error={errors.Describe && true}
                   editorBlock={"editorJs-container"}

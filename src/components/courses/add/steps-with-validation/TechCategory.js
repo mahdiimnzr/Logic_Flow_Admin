@@ -55,7 +55,7 @@ const TechCategory = ({ stepper }) => {
 
   const [selectedTechnologies, setSelectedTechnologies] = useState([]);
 
-  const technologyList = courseAdd?.data?.technologyDtos?.map((item) => ({
+  const technologyList = courseAdd?.data?.data?.technologyDtos?.map((item) => ({
     value: item.id,
     label: item.techName,
   }));
