@@ -18,33 +18,21 @@ import {
 import Cleave from "cleave.js/react";
 import DatePicker from "react-multi-date-picker";
 import { useDispatch, useSelector } from "react-redux";
-import { updateAddCourseSliceParams } from "../../../../redux/actions";
+import { updateEditCourseSliceParams } from "../../../../redux/actions";
 import { useTranslation } from "react-i18next";
 import Editor from "../../../common/Editor";
 
-const defaultValues = {
-  Title: "",
-  Cost: "",
-  Capacity: "",
-  SessionNumber: "",
-  Describe: "",
-  MiniDescribe: "",
-  StartTime: null,
-  EndTime: null,
-  CurrentCoursePaymentNumber: "",
-};
-
-const AccountDetails = ({ stepper }) => {
+const AccountDetails = ({ stepper, data }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
   const SignupSchema = yup.object().shape({
-    Title: yup.string().trim().required(t("CourseTitleRequired")),
-    Cost: yup.string().trim().required(t("CourseCostRequired")),
-    Capacity: yup.string().trim().required(t("CourseCapacityRequired")),
-    SessionNumber: yup.string().trim().required(t("CourseSessionNumberRequired")),
-    Describe: yup.string().trim().required(t("CourseDescribeRequired")),
-    MiniDescribe: yup.string().trim().required(t("CourseMiniDescribeRequired")),
+    Title: yup.string().required(t("CourseTitleRequired")),
+    Cost: yup.string().required(t("CourseCostRequired")),
+    Capacity: yup.string().required(t("CourseCapacityRequired")),
+    SessionNumber: yup.string().required(t("CourseSessionNumberRequired")),
+    Describe: yup.string().required(t("CourseDescribeRequired")),
+    MiniDescribe: yup.string().required(t("CourseMiniDescribeRequired")),
     StartTime: yup.date().nullable().required(t("CourseStartTimeRequired")),
     EndTime: yup
       .date()
@@ -53,13 +41,50 @@ const AccountDetails = ({ stepper }) => {
       .required(t("CourseEndTimeRequired")),
     CurrentCoursePaymentNumber: yup
       .string()
-      .trim()
       .required(t("CourseCurrentPaymentNumberRequired")),
   });
+
+  const defaultValues = {
+    Title: data?.title ?? "",
+    Cost: data?.cost ?? "",
+    Capacity: data?.capacity ?? "",
+    SessionNumber: "",
+    Describe: data?.describe ?? "",
+    MiniDescribe: data?.miniDescribe ?? "",
+    StartTime: data?.startTime ?? null,
+    EndTime: data?.endTime ?? null,
+    CurrentCoursePaymentNumber: "",
+  };
 
   const numericOptions = {
     numeral: true,
     numeralThousandsGroupStyle: "thousand",
+  };
+
+  const getEditorBlocks = (desc) => {
+    if (!desc) return {};
+    try {
+      const describe = JSON.parse(desc);
+      if (!Array.isArray(describe.blocks)) throw new Error();
+
+      describe?.blocks.map((data) => ({
+        ...data,
+        type: data.type === "p" ? "paragraph" : data.type,
+      }));
+
+      return describe;
+    } catch {
+      return {
+        time: new Date(),
+        blocks: [
+          {
+            type: "paragraph",
+            data: { text: desc },
+          },
+        ],
+        version: "2.81.0",
+      };
+    }
   };
 
   const {
@@ -73,34 +98,34 @@ const AccountDetails = ({ stepper }) => {
   });
 
   const onSubmit = (value) => {
-    dispatch(updateAddCourseSliceParams({ key: "Title", value: value.Title }));
-    dispatch(updateAddCourseSliceParams({ key: "Cost", value: value.Cost }));
+    dispatch(updateEditCourseSliceParams({ key: "Title", value: value.Title }));
+    dispatch(updateEditCourseSliceParams({ key: "Cost", value: value.Cost }));
     dispatch(
-      updateAddCourseSliceParams({ key: "Capacity", value: value.Capacity }),
+      updateEditCourseSliceParams({ key: "Capacity", value: value.Capacity }),
     );
     dispatch(
-      updateAddCourseSliceParams({
+      updateEditCourseSliceParams({
         key: "SessionNumber",
         value: value.SessionNumber,
       }),
     );
     dispatch(
-      updateAddCourseSliceParams({ key: "Describe", value: value.Describe }),
+      updateEditCourseSliceParams({ key: "Describe", value: value.Describe }),
     );
     dispatch(
-      updateAddCourseSliceParams({
+      updateEditCourseSliceParams({
         key: "MiniDescribe",
         value: value.MiniDescribe,
       }),
     );
     dispatch(
-      updateAddCourseSliceParams({ key: "StartTime", value: value.StartTime }),
+      updateEditCourseSliceParams({ key: "StartTime", value: value.StartTime }),
     );
     dispatch(
-      updateAddCourseSliceParams({ key: "EndTime", value: value.EndTime }),
+      updateEditCourseSliceParams({ key: "EndTime", value: value.EndTime }),
     );
     dispatch(
-      updateAddCourseSliceParams({
+      updateEditCourseSliceParams({
         key: "CurrentCoursePaymentNumber",
         value: value.CurrentCoursePaymentNumber,
       }),
@@ -169,8 +194,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.Cost ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.Cost ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseCostPlaceholder")}
                     options={numericOptions}
                     id="Cost"
@@ -199,8 +225,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseCurrentPaymentNumberPlaceholder")}
                     options={numericOptions}
                     id="CurrentCoursePaymentNumber"
@@ -229,8 +256,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.Capacity ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.Capacity ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseCapacityPlaceholder")}
                     options={numericOptions}
                     id="Capacity"
@@ -259,8 +287,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.SessionNumber ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.SessionNumber ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseSessionNumberPlaceholder")}
                     options={numericOptions}
                     id="SessionNumber"
@@ -287,6 +316,7 @@ const AccountDetails = ({ stepper }) => {
               name="Describe"
               render={({ field }) => (
                 <Editor
+                  data={getEditorBlocks(data?.describe)}
                   placeholder={t("CourseDescribePlaceholder")}
                   onChange={async (data) => {
                     field.onChange(JSON.stringify(await data));
@@ -325,8 +355,9 @@ const AccountDetails = ({ stepper }) => {
                         field.onChange(null);
                       }
                     }}
-                    inputClass={`form-control ${errors.StartTime ? "is-invalid" : ""
-                      }`}
+                    inputClass={`form-control ${
+                      errors.StartTime ? "is-invalid" : ""
+                    }`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.StartTime && (
@@ -363,8 +394,9 @@ const AccountDetails = ({ stepper }) => {
                         field.onChange(null);
                       }
                     }}
-                    inputClass={`form-control ${errors.EndTime ? "is-invalid" : ""
-                      }`}
+                    inputClass={`form-control ${
+                      errors.EndTime ? "is-invalid" : ""
+                    }`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.EndTime && (

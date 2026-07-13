@@ -27,6 +27,7 @@ import {
   CardBody,
   CardTitle,
   CardHeader,
+  Spinner,
 } from "reactstrap";
 
 // ** Styles
@@ -94,7 +95,7 @@ const CustomHeader = ({
   );
 };
 
-const CommentsList = ({ commentsList, usersList }) => {
+const CommentsList = ({ commentsList, usersList, isFetching }) => {
   // ** Redux
   const dispatch = useDispatch();
 
@@ -213,23 +214,24 @@ const CommentsList = ({ commentsList, usersList }) => {
   // ** Custom Pagination
   const CustomPagination = () => {
     return (
-      <ReactPaginate
-        previousLabel={""}
-        nextLabel={""}
-        pageCount={count || 1}
-        activeClassName="active"
-        forcePage={currentPage !== 0 ? currentPage - 1 : 0}
-        onPageChange={(page) => handlePagination(page)}
-        pageClassName={"page-item"}
-        nextLinkClassName={"page-link"}
-        nextClassName={"page-item next"}
-        previousClassName={"page-item prev"}
-        previousLinkClassName={"page-link"}
-        pageLinkClassName={"page-link"}
-        containerClassName={
-          "pagination react-paginate justify-content-end my-2 pe-1"
-        }
-      />
+      <div className="d-flex align-items-center justify-content-end gap-1">
+        {isFetching && <Spinner />}
+        <ReactPaginate
+          previousLabel=""
+          nextLabel=""
+          pageCount={count || 1}
+          activeClassName="active"
+          forcePage={currentPage ? currentPage - 1 : 0}
+          onPageChange={handlePagination}
+          pageClassName="page-item"
+          nextLinkClassName="page-link"
+          nextClassName="page-item next"
+          previousClassName="page-item prev"
+          previousLinkClassName="page-link"
+          pageLinkClassName="page-link"
+          containerClassName="pagination react-paginate justify-content-end my-2 pe-1"
+        />
+      </div>
     );
   };
 
@@ -296,8 +298,8 @@ const CommentsList = ({ commentsList, usersList }) => {
                     data.value === "accept"
                       ? true
                       : data.value === "notAccept"
-                        ? false
-                        : data.value;
+                      ? false
+                      : data.value;
                   dispatch(
                     updateCommentCourseListParams({
                       key: "Accept",

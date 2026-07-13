@@ -410,5 +410,15 @@
   "EditGroup": "ویرایش گروه",
   "SearchSocialGroups": "جستجوی گروه‌های اجتماعی...",
   "SearchMentors": "جستجوی دستیاران...",
-  "SearchWorks": "جستجوی وظایف..."
+  "SearchWorks": "جستجوی وظایف...",
+  "EditCourseInfo": "ویرایش اطلاعات دوره",
+  "EditCourseInfoSubtitle": "اطلاعات پایه دوره را ویرایش کنید",
+  "EditCourseDetails": "ویرایش جزئیات دوره",
+  "EditCourseDetailsSubtitle": "جزئیات و تنظیمات دوره را ویرایش کنید",
+  "EditCourseSeoDetails": "ویرایش اطلاعات سئو",
+  "EditCourseSeoDetailsSubtitle": "اطلاعات سئو و تصاویر دوره را ویرایش کنید",
+  "EditCourse": "ویرایش دوره",
+  "TitleRequired": "عنوان الزامی است",
+  "DescribeRequired": "توضیحات الزامی است",
+  "SendReply": "ارسال دیدگاه"
 }

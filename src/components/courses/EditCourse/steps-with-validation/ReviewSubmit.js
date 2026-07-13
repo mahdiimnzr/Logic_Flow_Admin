@@ -7,69 +7,52 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import formDataConverter from "../../../../core/utils/formDataConvertor";
 import formatDate from "../../../../core/utils/formatDate";
-import {
-  createCourseStepTwo,
-  addCourseTechnology,
-} from "../../../../core/services/api/CourseList/courseList.service";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { updateCourseDetail } from "../../../../core/services/api/CourseList/courseList.service";
 import HandleIdentityEditorJs from "../../../common/EditorDetailValidation";
 
-const ReviewSubmit = ({ stepper }) => {
+const ReviewSubmit = ({ stepper, usersList }) => {
+  const { courseId } = useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const params = useSelector((state) => state.addCourseSlice.params);
-  const courseAdd = queryClient.getQueryState(["CourseAdd"]);
+  const params = useSelector((state) => state.editCourseSlice.params);
+  const CourseLevels = queryClient.getQueryState(["CourseLevels"]);
+  const CourseStatus = queryClient.getQueryState(["CourseStatus"]);
+  const CourseTypes = queryClient.getQueryState(["CourseTypes"]);
+  const CourseTerms = queryClient.getQueryState(["CourseTerms"]);
+  const CourseClassRoom = queryClient.getQueryState(["CourseClassRoom"]);
+  const teachers = usersList?.listUser?.filter((value) =>
+    value.userRoles.includes("teacher"),
+  );
 
-  const courseTypeName = courseAdd?.data?.data?.courseTypeDtos?.find(
+  const courseTypeName = CourseTypes?.data?.data?.find(
     (item) => item.id == params.CourseTypeId,
   )?.typeName;
 
-  const statusName = courseAdd?.data?.data?.statusDtos?.find(
+  const statusName = CourseStatus?.data?.data?.find(
     (item) => item.id == params.CourseStatusId,
   )?.statusName;
 
-  const levelName = courseAdd?.data?.data?.courseLevelDtos?.find(
+  const levelName = CourseLevels?.data?.data?.find(
     (item) => item.id == params.CourseLvlId,
   )?.levelName;
 
-  const classRoomName = courseAdd?.data?.data?.classRoomDtos?.find(
+  const classRoomName = CourseClassRoom?.data?.data?.find(
     (item) => item.id == params.ClassId,
   )?.classRoomName;
 
-  const teacherName = courseAdd?.data?.data?.teachers?.find(
-    (item) => item.teacherId == params.TeacherId,
-  )?.fullName;
+  const teacherName =
+    teachers?.find((item) => item.id == params.TeacherId)?.fName +
+    " " +
+    teachers?.find((item) => item.id == params.TeacherId)?.lName;
 
-  const termName = courseAdd?.data?.data?.termDtos?.find(
+  const termName = CourseTerms?.data?.data?.find(
     (item) => item.id == params.TremId,
   )?.termName;
 
-  const technologyNames = params.TechnologyIds?.map(
-    (tech) =>
-      courseAdd?.data?.data?.technologyDtos?.find(
-        (item) => item.id == tech.techId,
-      )?.techName,
-  );
-
-  const { mutate: addTechnologies, isPending: isTechPending } = useMutation({
-    mutationFn: ({ courseId, technologies }) =>
-      addCourseTechnology({ courseId, body: technologies }),
-    onSuccess: (response) => {
-      if (response.data.success) {
-        toast.success(response.data.message);
-        navigate("/Courses/List");
-      } else {
-        toast.error(response.data.message);
-      }
-    },
-    onError: (response) => {
-      toast.error(response?.data?.message ?? t("ErrorOccurred"));
-    },
-  });
-
-  const { mutate: submitCourse, isPending: isCoursePending } = useMutation({
-    mutationFn: createCourseStepTwo,
+  const { mutate: updateCourseMutate, iePending } = useMutation({
+    mutationFn: updateCourseDetail,
     onMutate: () => {
       const toastId = toast.loading(t("Loading"));
       return { toastId };
@@ -77,26 +60,23 @@ const ReviewSubmit = ({ stepper }) => {
     onSuccess: (response, _, context) => {
       if (response.data.success) {
         toast.success(response.data.message, { id: context.toastId });
-        const courseId = response.data.id;
-        addTechnologies({
-          courseId,
-          technologies: params.TechnologyIds,
+        queryClient.invalidateQueries({
+          queryKey: [`CourseDetail-${courseId}`],
         });
+        navigate(`/Courses/Detail/${courseId}`);
       } else {
         toast.error(response.data.message, { id: context.toastId });
       }
     },
     onError: (response, _, context) => {
-      toast.error(response?.data?.message ?? t("ErrorOccurred"), {
-        id: context.toastId,
-      });
+      toast.error(response.data.message, { id: context.toastId });
     },
   });
 
   const onSubmit = () => {
-    const { TechnologyIds, ...courseParams } = params;
-    const formData = formDataConverter(courseParams);
-    submitCourse(formData);
+    const data = { Id: courseId, ...params };
+    const formData = formDataConverter(data);
+    updateCourseMutate(formData);
   };
 
   return (
@@ -254,10 +234,10 @@ const ReviewSubmit = ({ stepper }) => {
               <span className="fw-bold text-muted small">
                 {t("CourseImageAddress")}:{" "}
               </span>
-              {params.Image ? (
+              {params.imageAddress ? (
                 <div className="mt-50">
                   <img
-                    src={URL.createObjectURL(params.Image)}
+                    src={params.imageAddress}
                     alt="course"
                     style={{
                       maxHeight: 160,
@@ -272,30 +252,6 @@ const ReviewSubmit = ({ stepper }) => {
             </Col>
           </Row>
         </div>
-
-        <div className="mb-2">
-          <h6 className="fw-bold border-bottom pb-50 mb-1 text-primary">
-            {t("AddCourseTechCategory")}
-          </h6>
-          <Row>
-            <Col md="12" className="mb-75">
-              <span className="fw-bold text-muted small">
-                {t("CourseTechnologyId")}:{" "}
-              </span>
-              <div className="d-flex flex-wrap gap-50 mt-50">
-                {technologyNames?.length > 0 ? (
-                  technologyNames.map((name, index) => (
-                    <Badge key={index} color="light-primary" pill>
-                      {name}
-                    </Badge>
-                  ))
-                ) : (
-                  <span className="text-danger">—</span>
-                )}
-              </div>
-            </Col>
-          </Row>
-        </div>
       </div>
 
       <div className="d-flex justify-content-between mt-2">
@@ -304,7 +260,7 @@ const ReviewSubmit = ({ stepper }) => {
           color="primary"
           className="btn-prev"
           onClick={() => stepper.previous()}
-          disabled={isCoursePending || isTechPending}
+          disabled={iePending}
         >
           <ArrowLeft size={14} className="align-middle me-sm-25 me-0" />
           <span className="align-middle d-sm-inline-block d-none">
@@ -314,13 +270,11 @@ const ReviewSubmit = ({ stepper }) => {
         <Button
           type="button"
           color="success"
-          disabled={isCoursePending || isTechPending}
+          disabled={iePending}
           onClick={onSubmit}
         >
-          {(isCoursePending || isTechPending) && (
-            <Spinner size="sm" className="me-50" />
-          )}
-          {t("CreateCourse")}
+          {iePending && <Spinner size="sm" className="me-50" />}
+          {t("EditCourse")}
         </Button>
       </div>
     </Fragment>
