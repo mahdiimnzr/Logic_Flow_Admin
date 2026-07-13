@@ -8,8 +8,6 @@ import BlogFilterCard from '../components/blogs/BlogFilterCard'
 import TableServerSide from '../components/blogs/TableServerSide'
 import BreadCrumbs from "@components/breadcrumbs"
 
-
-
 const BlogsList = () => {
 
     const [statusFilter, setStatusFilter] = useState(null);

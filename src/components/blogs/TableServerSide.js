@@ -3,7 +3,6 @@ import { Query, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { getAdminBlogsList } from "../../core/services/api/blogs/blogs.service";
 import BlogsColumns from "./BlogsColumns";
-
 import ReactPaginate from "react-paginate";
 import { ChevronDown } from "react-feather";
 import DataTable from "react-data-table-component";
@@ -21,9 +20,11 @@ import {
 } from "reactstrap";
 import { isAction } from "@reduxjs/toolkit";
 import { useNavbarColor } from "./../../utility/hooks/useNavbarColor";
+import { useSkin } from '@hooks/useSkin';
 
 const DataTableServerSide = ({ statusFilter }) => {
   const navigate = useNavigate();
+  const { skin } = useSkin()
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -104,21 +105,54 @@ const DataTableServerSide = ({ statusFilter }) => {
   };
 
   const customStyles = {
+    table: {
+      style: {
+        backgroundColor: 'transparent',
+      }
+    },
     headRow: {
       style: {
-        backgroundColor: '#f3f2f7',
-      },
+        backgroundColor: skin === 'dark' ? '#343d55' : '#f3f2f7',
+        color: skin === 'dark' ? '#d0d2d6' : '#5e5873',
+        borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
+      }
     },
+    rows: {
+      style: {
+        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+        color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
+        borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
+        '&:hover': {
+          backgroundColor: skin === 'dark' ? '#343d55' : '#f8f8f8',
+        }
+      }
+    },
+    pagination: {
+      style: {
+        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+        color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
+        borderTopColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
+      }
+    },
+    noData: {
+      style: {
+        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+        color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
+      }
+    },
+    tableWrapper: {
+      style: {
+        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
+      }
+    }
   };
 
   return (
     <Fragment>
-      <Card className="bg-white">
+      <Card >
         <CardHeader className="border-bottom">
           <CardTitle tag="h4">لیست مقالات </CardTitle>
         </CardHeader>
-
-
         <Row className="mx-0 mt-1 mb-50 align-items-center">
           <Col sm="12" md="7" className="d-flex align-items-center flex-wrap gap-2 mb-1 mb-sm-0">
 
@@ -164,7 +198,10 @@ const DataTableServerSide = ({ statusFilter }) => {
           {(isLoading || isFetching) && (
             <div
               className=" d-flex justify-content-center position-absolute w-100 h-100 align-items-center"
-              style={{ zIndex: 1, backgroundColor: "rgba(255,255,255,0.6)" }}
+              style={{
+                zIndex: 1, backgroundColor: skin === 'dark' ? "rgba(40, 48, 70, 0.8)" : "rgba(255,255,255,0.6)",
+                borderRadius: "0.5rem"
+              }}
             >
               <Spinner color="primary" />
             </div>
