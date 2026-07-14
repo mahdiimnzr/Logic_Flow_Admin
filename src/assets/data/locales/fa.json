@@ -420,5 +420,9 @@
   "EditCourse": "ویرایش دوره",
   "TitleRequired": "عنوان الزامی است",
   "DescribeRequired": "توضیحات الزامی است",
-  "SendReply": "ارسال دیدگاه"
+  "SendReply": "ارسال دیدگاه",
+  "ScheduleManagement": "مدیریت بازه زمانی",
+  "AdminSchedule": "بازه زمانی ادمین",
+  "TeacherSchedule": "بازه زمانی استاد",
+  "StudentSchedule": "بازه زمانی دانشجو"
 }

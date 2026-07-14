@@ -7,6 +7,7 @@ import {
   Database,
   FileText,
   Book,
+  Calendar,
 } from "react-feather";
 
 export default [
@@ -93,6 +94,31 @@ export default [
         title: "ArticleCategories",
         icon: <Circle size={12} />,
         navLink: "/blogs/categories",
+      },
+    ],
+  },
+  {
+    id: "scheduleManagement",
+    title: "ScheduleManagement",
+    icon: <Calendar size={20} />,
+    children: [
+      {
+        id: "adminSchedule",
+        title: "AdminSchedule",
+        icon: <Circle size={12} />,
+        navLink: "/Schedule/Admin",
+      },
+      {
+        id: "teacherSchedule",
+        title: "TeacherSchedule",
+        icon: <Circle size={12} />,
+        navLink: "/Schedule/Teacher",
+      },
+      {
+        id: "studentSchedule",
+        title: "StudentSchedule",
+        icon: <Circle size={12} />,
+        navLink: "/Schedule/Student",
       },
     ],
   },

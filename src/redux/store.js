@@ -7,6 +7,7 @@ import courseListSlice from "./courseListSlice";
 import courseCommentsListSlice from "./courseCommentsListSlice";
 import addCoursesSlice from "./addCourseSlice";
 import editCourseSlice from "./editCourseSlice";
+import scheduleSlice from "./scheduleSlice";
 
 const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ const store = configureStore({
     courseCommentsListSlice: courseCommentsListSlice.reducer,
     addCourseSlice: addCoursesSlice.reducer,
     editCourseSlice: editCourseSlice.reducer,
+    scheduleSlice: scheduleSlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware({
