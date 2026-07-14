@@ -13,4 +13,5 @@ export const { updateParams: updateAddCourseSliceParams } =
   addCoursesSlice.actions;
 export const { updateParams: updateEditCourseSliceParams } =
   editCourseSlice.actions;
-export const { updateAdminParams } = scheduleSlice.actions;
+export const { updateAdminParams, updateTeacherParams, updateStudentParams } =
+  scheduleSlice.actions;

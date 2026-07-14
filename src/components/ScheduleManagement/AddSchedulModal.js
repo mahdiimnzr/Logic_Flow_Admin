@@ -11,7 +11,6 @@ import {
   Button,
   Col,
   FormFeedback,
-  Input,
   Label,
   Modal,
   ModalBody,
@@ -30,6 +29,7 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
   const queryClient = useQueryClient();
 
   const courses = queryClient.getQueryState(["ScheduleCoursesFilterAdmin"]);
+
   const courseGroups = queryClient.getQueryState(["AdminScheduleCourseGroups"]);
 
   const formatTime = (date) =>
@@ -42,52 +42,57 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
 
   const [currentCourse, setCurrentCourse] = useState({
     value: null,
-    label: t("UsersSelection"),
+    label: t("SelectCourse"),
   });
+
   const [currentGroup, setCurrentGroup] = useState({
     value: null,
-    label: t("UsersSelection"),
+    label: t("SelectGroup"),
   });
 
   const coursesOptions = useMemo(
     () =>
-      (courses?.data?.data?.courseDtos ?? []).map((user) => ({
-        value: user.courseId,
-        label: user.title,
+      (courses?.data?.data?.courseDtos ?? []).map((course) => ({
+        value: course.courseId,
+        label: course.title,
       })),
     [courses],
   );
+
   const groupsOptions = useMemo(() => {
-    const group = (courseGroups?.data?.data?.courseGroupDtos ?? [])?.filter(
+    const group = (courseGroups?.data?.data?.courseGroupDtos ?? []).filter(
       (value) => value.course.courseId == currentCourse.value,
     );
-    return (group ?? [])?.map((value) => ({
-      value: value.groupId,
-      label: value.groupName,
+
+    return group.map((value) => ({
+      value: value?.groupId,
+      label: value?.groupName,
     }));
-  }, [currentCourse]);
+  }, [currentCourse, courseGroups]);
 
   const validationSchema = Yup.object({
-    currentCurseId: Yup.string().required("BuildingNameRequired"),
-    courseGroupId: Yup.string().required("BuildingNameRequired"),
-    startDate: Yup.string().nullable().required("FloorRequired"),
-    startTime: Yup.string().nullable().required("SelectLocationRequired"),
-    endTime: Yup.string().nullable().required("SelectLocationRequired"),
+    currentCurseId: Yup.string().required(t("CourseRequired")),
+    courseGroupId: Yup.string().required(t("GroupRequired")),
+    startDate: Yup.date().nullable().required(t("StartDateRequired")),
+    startTime: Yup.date().nullable().required(t("StartTimeRequired")),
+    endTime: Yup.date()
+      .nullable()
+      .min(Yup.ref("startTime"), t("EndTimeAfterStartTime"))
+      .required(t("EndTimeRequired")),
   });
 
   const defaultValues = {
     currentCurseId: "",
     courseGroupId: "",
     startDate: null,
-    startTime: "",
-    endTime: "",
+    startTime: null,
+    endTime: null,
   };
 
   const {
     control,
     handleSubmit,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm({
     defaultValues,
@@ -96,30 +101,33 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
 
   const { mutate: addBuildingMutate } = useMutation({
     mutationFn: addSchedule,
+
     onMutate: () => {
       const toastId = toast.loading(t("Loading"));
       return { toastId };
     },
+
     onSuccess: (response, _, context) => {
       if (response.data.success) {
         toast.success(response.data.message, {
           id: context.toastId,
         });
+
         queryClient.invalidateQueries({
           queryKey: ["AdminSchedule"],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["TeacherSchedule"],
+        });
+
         toggleAddModal();
-        setValue("currentCurseId", "");
-        setValue("courseGroupId", "");
-        setValue("startDate", null);
-        setValue("startTime", "");
-        setValue("endTime", "");
-      } else if (!response.data.success) {
-        toast.error(error?.response?.data?.message || t("SomethingWentWrong"), {
+      } else {
+        toast.error(response?.data?.message || t("SomethingWentWrong"), {
           id: context.toastId,
         });
       }
     },
+
     onError: (response, _, context) => {
       toast.error(response?.data?.message || t("SomethingWentWrong"), {
         id: context.toastId,
@@ -128,38 +136,43 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
   });
 
   const onSubmit = (data) => {
-    const values = {
+    addBuildingMutate({
       currentCurseId: data.currentCurseId,
       courseGroupId: data.courseGroupId,
       startDate: data.startDate,
       startTime: formatTime(data.startTime),
       endTime: formatTime(data.endTime),
-    };
-    addBuildingMutate(values);
+    });
   };
 
   useEffect(() => {
     setValue("startDate", addScheduleProp.startDate);
     setValue("startTime", addScheduleProp.startDate);
-  }, [addScheduleProp]);
+  }, [addScheduleProp, setValue]);
+
   return (
     <Modal
       isOpen={addModal}
       toggle={toggleAddModal}
-      className="modal-dialog-centered modal-lg"
+      className="modal-dialog-centered"
+      onClosed={() => {
+        setValue("currentCurseId", "");
+        setValue("courseGroupId", "");
+        setValue("startDate", null);
+        setValue("startTime", null);
+        setValue("endTime", null);
+      }}
       style={{
         fontFamily: "IRANYekanXFaNum",
       }}
     >
-      <ModalHeader toggle={toggleAddModal} />
+      <ModalHeader toggle={toggleAddModal}>{t("AddSchedule")}</ModalHeader>
+
       <ModalBody className="px-sm-5 mx-50 pb-5">
-        <div className="text-center mb-2">
-          <h1>{t("AddBuilding")}</h1>
-        </div>
         <Row tag="form" className="gy-1" onSubmit={handleSubmit(onSubmit)}>
           <Col xs={12}>
             <Label className="form-label" for="currentCurseId">
-              {t("Building")}
+              {t("SelectCourse")}
             </Label>
 
             <Controller
@@ -175,29 +188,39 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
                   classNamePrefix="select"
                   options={coursesOptions}
                   value={currentCourse}
-                  placeholder={t("BuildingPlaceholder")}
+                  placeholder={t("SelectCourse")}
                   id="currentCurseId"
                   name="currentCurseId"
                   onChange={(data) => {
                     setCurrentCourse(data);
                     field.onChange(data.value);
+
                     setCurrentGroup({
                       value: null,
-                      label: t("UsersSelection"),
+                      label: t("SelectGroup"),
                     });
+
                     setValue("courseGroupId", "");
+                  }}
+                  styles={{
+                    option: (base) => ({
+                      ...base,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }),
                   }}
                 />
               )}
             />
 
             {errors.currentCurseId && (
-              <FormFeedback>{t(errors.currentCurseId.message)}</FormFeedback>
+              <FormFeedback>{errors.currentCurseId.message}</FormFeedback>
             )}
           </Col>
           <Col xs={12}>
             <Label className="form-label" for="courseGroupId">
-              {t("Building")}
+              {t("SelectGroup")}
             </Label>
 
             <Controller
@@ -213,25 +236,35 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
                   classNamePrefix="select"
                   options={groupsOptions}
                   value={currentGroup}
-                  placeholder={t("BuildingPlaceholder")}
+                  placeholder={t("SelectGroup")}
                   id="courseGroupId"
                   name="courseGroupId"
                   onChange={(data) => {
                     setCurrentGroup(data);
                     field.onChange(data.value);
                   }}
+                  styles={{
+                    option: (base) => ({
+                      ...base,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }),
+                  }}
                 />
               )}
             />
 
             {errors.courseGroupId && (
-              <FormFeedback>{t(errors.courseGroupId.message)}</FormFeedback>
+              <FormFeedback>{errors.courseGroupId.message}</FormFeedback>
             )}
           </Col>
+
           <Col md="12" className="mb-1">
             <Label className="form-label" for="startDate">
-              {t("CourseStartDate")} :
+              {t("StartDate")}
             </Label>
+
             <Controller
               name="startDate"
               control={control}
@@ -257,6 +290,7 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
                     }`}
                     containerStyle={{ width: "100%" }}
                   />
+
                   {errors.startDate && (
                     <span className="invalid-feedback d-block">
                       {errors.startDate.message}
@@ -266,27 +300,30 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
               )}
             />
           </Col>
-          <Col xs="6" dir="ltr">
+
+          <Col xs="6">
             <Label className="form-label" id="startTime">
-              Basic 24hrs
+              {t("StartTime")}
             </Label>
+
             <Controller
               name="startTime"
               control={control}
               render={({ field }) => (
                 <Flatpickr
-                  style={{ direction: "ltr" }}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.startTime ? "is-invalid" : ""
+                  }`}
+                  style={{ opacity: 1 }}
                   value={field.value ? new Date(field.value) : null}
                   id="startTime"
-                  placeholder="زمان شروع انتخاب کنید"
+                  placeholder={t("StartTime")}
                   options={{
                     enableTime: true,
                     noCalendar: true,
                     dateFormat: "H:i",
                     time_24hr: true,
                   }}
-                  dir="ltr"
                   onChange={(date) => {
                     const value = new Date(date);
                     field.onChange(value.toISOString());
@@ -294,33 +331,37 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
                 />
               )}
             />
+
             {errors.startTime && (
               <span className="invalid-feedback d-block">
                 {errors.startTime.message}
               </span>
             )}
           </Col>
-          <Col xs="6" dir="ltr">
+
+          <Col xs="6">
             <Label className="form-label" id="endTime">
-              Basic 24hrs
+              {t("EndTime")}
             </Label>
+
             <Controller
               name="endTime"
               control={control}
               render={({ field }) => (
                 <Flatpickr
-                  style={{ direction: "ltr" }}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.endTime ? "is-invalid" : ""
+                  }`}
+                  style={{ opacity: 1 }}
                   value={field.value ? new Date(field.value) : null}
-                  placeholder="زمان پایان انتخاب کنید"
                   id="endTime"
+                  placeholder={t("EndTime")}
                   options={{
                     enableTime: true,
                     noCalendar: true,
                     dateFormat: "H:i",
                     time_24hr: true,
                   }}
-                  dir="ltr"
                   onChange={(date) => {
                     const value = new Date(date);
                     field.onChange(value.toISOString());
@@ -328,16 +369,19 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
                 />
               )}
             />
+
             {errors.endTime && (
               <span className="invalid-feedback d-block">
                 {errors.endTime.message}
               </span>
             )}
           </Col>
+
           <Col xs={12} className="d-flex justify-content-between mt-2">
             <Button color="primary" type="submit">
-              افزودن زمان بندی
+              {t("AddSchedule")}
             </Button>
+
             <Button color="secondary" outline onClick={toggleAddModal}>
               {t("Cancel")}
             </Button>

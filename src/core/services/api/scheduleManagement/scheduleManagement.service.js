@@ -4,6 +4,10 @@ import useGetQuery from "../../common/useGetQuery";
 
 export const useGetAdminSchedule = (params) =>
   useGetQuery("AdminSchedule", "Schedual/GetAdminScheduals", params);
+export const useGetTeacherSchedule = (params) =>
+  useGetQuery("TeacherSchedule", "Schedual/GetTeacherScheduals", params);
+export const useGetStudentSchedule = (params) =>
+  useGetQuery("StudentSchedule", "Schedual/GetStudentScheduals", params);
 export const useGetCourses = () =>
   useGetQuery("ScheduleCoursesFilterAdmin", "Course/CourseList");
 export const updateScheduleStatus = (body) =>

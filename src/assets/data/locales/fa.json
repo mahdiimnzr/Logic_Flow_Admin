@@ -424,5 +424,19 @@
   "ScheduleManagement": "مدیریت بازه زمانی",
   "AdminSchedule": "بازه زمانی ادمین",
   "TeacherSchedule": "بازه زمانی استاد",
-  "StudentSchedule": "بازه زمانی دانشجو"
+  "StudentSchedule": "بازه زمانی دانشجو",
+  "AttendanceStatus": "وضعیت حضور غیاب",
+  "AttendanceDone": "حضور غیاب انجام شده",
+  "AttendanceNotDone": "حضور غیاب انجام نشده",
+  "SelectCourse": "انتخاب دوره",
+  "None": "هیچکدام",
+  "StartDatePlaceholder": "انتخاب تاریخ شروع",
+  "EndDatePlaceholder": "انتخاب تاریخ پایان",
+  "AddSchedule": "افزودن زمان بندی",
+  "CourseRequired": "انتخاب دوره الزامی است",
+  "StartTimeRequired": "انتخاب زمان شروع الزامی است",
+  "EndTimeRequired": "انتخاب زمان پایان الزامی است",
+  "EndTimeAfterStartTime": "زمان پایان باید پس از زمان شروع باشد",
+  "StartTime": "زمان شروع",
+  "EndTime": "زمان پایان"
 }

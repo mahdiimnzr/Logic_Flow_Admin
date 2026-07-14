@@ -4,7 +4,7 @@ import illustration from "@src/assets/images/pages/calendar-illustration.png";
 import Select from "react-select";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { updateAdminParams } from "../../../redux/actions";
+import { updateTeacherParams } from "../../../redux/actions";
 import { useDispatch } from "react-redux";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
@@ -18,28 +18,6 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-
-  const courses = queryClient.getQueryState(["ScheduleCoursesFilterAdmin"]);
-
-  const [currentCourse, setCurrentCourse] = useState({
-    value: null,
-    label: t("SelectCourse"),
-  });
-
-  const coursesOptions = useMemo(() => {
-    const options = (courses?.data?.data?.courseDtos ?? []).map((course) => ({
-      value: course.courseId,
-      label: course.title,
-    }));
-
-    return [
-      {
-        value: null,
-        label: t("None"),
-      },
-      ...options,
-    ];
-  }, [courses, t]);
 
   return (
     <Fragment>
@@ -64,9 +42,9 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
             <Col xs="12" className="mt-2">
               <Label
                 className="form-label d-flex align-items-center justify-content-between"
-                for="userId"
+                style={{ fontSize: "20px" }}
               >
-                {t("SelectCourse")}
+                {t("Filters")}
 
                 {isFetching && (
                   <Spinner
@@ -77,34 +55,6 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                   />
                 )}
               </Label>
-
-              <Select
-                name="userId"
-                id="userId"
-                options={coursesOptions}
-                placeholder={t("SelectCourse")}
-                classNamePrefix="select"
-                className="react-select"
-                value={currentCourse}
-                onChange={(selected) => {
-                  setCurrentCourse(selected);
-
-                  dispatch(
-                    updateAdminParams({
-                      key: "courseId",
-                      value: selected.value,
-                    }),
-                  );
-                }}
-                styles={{
-                  option: (base) => ({
-                    ...base,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }),
-                }}
-              />
             </Col>
 
             <Col xs="12" className="mt-2">
@@ -122,7 +72,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                       setStartDate(null);
 
                       dispatch(
-                        updateAdminParams({
+                        updateTeacherParams({
                           key: "startDate",
                           value: null,
                         }),
@@ -142,7 +92,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                 onChange={(date) => {
                   if (date) {
                     dispatch(
-                      updateAdminParams({
+                      updateTeacherParams({
                         key: "startDate",
                         value: date.toDate().toISOString(),
                       }),
@@ -151,7 +101,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                     setStartDate(date.toDate().toISOString());
                   } else {
                     dispatch(
-                      updateAdminParams({
+                      updateTeacherParams({
                         key: "startDate",
                         value: null,
                       }),
@@ -180,7 +130,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                       setEndDate(null);
 
                       dispatch(
-                        updateAdminParams({
+                        updateTeacherParams({
                           key: "endDate",
                           value: null,
                         }),
@@ -200,7 +150,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                 onChange={(date) => {
                   if (date) {
                     dispatch(
-                      updateAdminParams({
+                      updateTeacherParams({
                         key: "endDate",
                         value: date.toDate().toISOString(),
                       }),
@@ -209,7 +159,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                     setEndDate(date.toDate().toISOString());
                   } else {
                     dispatch(
-                      updateAdminParams({
+                      updateTeacherParams({
                         key: "endDate",
                         value: null,
                       }),
