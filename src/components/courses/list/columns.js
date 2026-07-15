@@ -73,15 +73,20 @@ export const columns = (t) => [
   {
     name: t("CourseTitle"),
     sortable: true,
-    minWidth: "350px",
+    minWidth: "200px",
     sortField: "client.name",
     cell: (row) => {
       return (
-        <div className="d-flex justify-content-left align-items-center">
+        <div className="d-flex justify-content-left align-items-center text-truncate">
           {renderClient(row)}
-          <div className="d-flex flex-column">
-            <Link to={`/Courses/Detail/${row?.courseId}`} className="user-name text-truncate mb-0">{row?.title}</Link>
-            <small className="text-truncate text-muted mb-0">
+          <div className="d-flex flex-column text-truncate">
+            <Link
+              to={`/Courses/Detail/${row?.courseId}`}
+              className="user-name text-truncate mb-0"
+            >
+              {row?.title}
+            </Link>
+            <small className="text-muted text-truncate mb-0">
               {row?.miniDescribe}
             </small>
           </div>
@@ -103,7 +108,11 @@ export const columns = (t) => [
     sortable: true,
     minWidth: "150px",
     sortField: "total",
-    cell: (row) => <span>{formatPrice(row?.cost) || 0} {t("Toman")}</span>,
+    cell: (row) => (
+      <span>
+        {formatPrice(row?.cost) || 0} {t("Toman")}
+      </span>
+    ),
   },
   {
     sortable: true,
@@ -188,7 +197,7 @@ export const columns = (t) => [
           <Link to={`/Courses/Edit/${row?.courseId}`}>
             <Edit size={17} className="me-50" />
           </Link>
-          <UncontrolledDropdown direction='up'>
+          <UncontrolledDropdown direction="up">
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>
