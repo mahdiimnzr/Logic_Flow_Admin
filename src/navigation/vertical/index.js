@@ -1,3 +1,4 @@
+import { title } from "process";
 import {
   Home,
   Airplay,
@@ -71,6 +72,25 @@ export default [
         navLink: "ManagementCourses/TermsList",
       },
     ],
+  },
+  {
+    id: "Sessions",
+    title: "جلسات",
+    icon: <Book size={20}/>,
+    children: [
+      {
+        id: "SessionList",
+        title: "لیست جلسه‌ها",
+        icon: <Circle size={12} />,
+        navLink: "session/list",
+      },
+      {
+        id: "SessionDetails",
+        title: "جزئیات فیک جلسه‌ها",
+        icon: <Circle size={12} />,
+        navLink: "session/detail/:id",
+      },
+    ]
   },
   {
     id: "blogsPage",
