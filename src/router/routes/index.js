@@ -19,6 +19,7 @@ import CommentsRoute from "./Comments";
 import BlogsRoute from "./Blogs";
 import ManagementCoursesRoute from "./ManagementCourse";
 import BuildingRoute from "./Buildings";
+import SessionRoute from "./Session";
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -45,6 +46,7 @@ const Routes = [
   ...BlogsRoute,
   ...ManagementCoursesRoute,
   ...BuildingRoute,
+  ...SessionRoute,
   {
     path: "/error",
     element: <Error />,
