@@ -11,6 +11,7 @@ import {
   Button,
   Col,
   FormFeedback,
+  InputGroup,
   Label,
   Modal,
   ModalBody,
@@ -23,14 +24,27 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import DatePicker from "react-multi-date-picker";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import Cleave from "cleave.js/react";
 
 const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const courses = queryClient.getQueryState(["ScheduleCoursesFilterAdmin"]);
+  const numericOptions = {
+    numeral: true,
+    numeralPositiveOnly: true,
+    numeralThousandsGroupStyle: "thousand",
+  };
 
-  const courseGroups = queryClient.getQueryState(["AdminScheduleCourseGroups"]);
+  const courses = queryClient.getQueryState([
+    "ScheduleCoursesFilterAdmin",
+    { RowsOfPage: 500000 },
+  ]);
+
+  const courseGroups = queryClient.getQueryState([
+    "AdminScheduleCourseGroups",
+    { RowsOfPage: 500000 },
+  ]);
 
   const formatTime = (date) =>
     new Date(date).toLocaleTimeString("en-GB", {
@@ -79,6 +93,11 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
       .nullable()
       .min(Yup.ref("startTime"), t("EndTimeAfterStartTime"))
       .required(t("EndTimeRequired")),
+    weekNumber: Yup.string().required(t("WeekNumberRequired")),
+    rowEffect: Yup.number()
+      .lessThan(8, t("RowEffectLessThan"))
+      .required(t("RowEffectRequired"))
+      .typeError(t("RowEffectTypeError")),
   });
 
   const defaultValues = {
@@ -87,6 +106,8 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
     startDate: null,
     startTime: null,
     endTime: null,
+    weekNumber: "",
+    rowEffect: null,
   };
 
   const {
@@ -99,7 +120,7 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
     resolver: yupResolver(validationSchema),
   });
 
-  const { mutate: addBuildingMutate } = useMutation({
+  const { mutate: addScheduleMutate } = useMutation({
     mutationFn: addSchedule,
 
     onMutate: () => {
@@ -136,12 +157,14 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
   });
 
   const onSubmit = (data) => {
-    addBuildingMutate({
+    addScheduleMutate({
       currentCurseId: data.currentCurseId,
       courseGroupId: data.courseGroupId,
       startDate: data.startDate,
       startTime: formatTime(data.startTime),
       endTime: formatTime(data.endTime),
+      weekNumber: Number(data.weekNumber),
+      rowEffect: Number(data.rowEffect),
     });
   };
 
@@ -156,11 +179,21 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
       toggle={toggleAddModal}
       className="modal-dialog-centered"
       onClosed={() => {
+        setCurrentCourse({
+          value: null,
+          label: t("SelectCourse"),
+        });
+        setCurrentGroup({
+          value: null,
+          label: t("SelectGroup"),
+        });
         setValue("currentCurseId", "");
         setValue("courseGroupId", "");
         setValue("startDate", null);
         setValue("startTime", null);
         setValue("endTime", null);
+        setValue("weekNumber", "");
+        setValue("rowEffect", null);
       }}
       style={{
         fontFamily: "IRANYekanXFaNum",
@@ -373,6 +406,66 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
             {errors.endTime && (
               <span className="invalid-feedback d-block">
                 {errors.endTime.message}
+              </span>
+            )}
+          </Col>
+          <Col md="6" className="mb-1">
+            <Label className="form-label" for="weekNumber">
+              {t("WeekNumber")}
+            </Label>
+            <Controller
+              control={control}
+              id="weekNumber"
+              name="weekNumber"
+              render={({ field }) => (
+                <InputGroup className="input-group-merge">
+                  <Cleave
+                    {...field}
+                    className={`form-control ${
+                      errors.weekNumber ? "is-invalid" : ""
+                    }`}
+                    placeholder={t("WeekNumber")}
+                    options={numericOptions}
+                    id="weekNumber"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.rawValue)}
+                  />
+                </InputGroup>
+              )}
+            />
+            {errors.weekNumber && (
+              <span className="invalid-feedback d-block">
+                {errors.weekNumber.message}
+              </span>
+            )}
+          </Col>
+          <Col md="6" className="mb-1">
+            <Label className="form-label" for="rowEffect">
+              {t("RowEffect")}
+            </Label>
+            <Controller
+              control={control}
+              id="rowEffect"
+              name="rowEffect"
+              render={({ field }) => (
+                <InputGroup className="input-group-merge">
+                  <Cleave
+                    {...field}
+                    className={`form-control ${
+                      errors.rowEffect ? "is-invalid" : ""
+                    }`}
+                    placeholder={t("RowEffect")}
+                    options={numericOptions}
+                    id="rowEffect"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.rawValue)}
+                  />
+                </InputGroup>
+              )}
+            />
+            {errors.rowEffect && (
+              <span className="invalid-feedback d-block">
+                {errors.rowEffect.message}
               </span>
             )}
           </Col>

@@ -19,7 +19,6 @@ import CommentsRoute from "./Comments";
 import BlogsRoute from "./Blogs";
 import ManagementCoursesRoute from "./ManagementCourse";
 import BuildingRoute from "./Buildings";
-import SessionRoute from "./Session";
 import Schedule from "./Schedule";
 import ticketRoute from "./Ticket"
 

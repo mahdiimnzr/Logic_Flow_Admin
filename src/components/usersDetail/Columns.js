@@ -1,65 +1,13 @@
-// ** React Imports
-import { Link, useNavigate } from "react-router-dom";
-
-// ** Custom Components
-import Avatar from "@components/avatar";
-import Select from "react-select";
-
-// ** Utils
-import { selectThemeColors } from "@utils";
-
-// ** Icons Imports
-import {
-  Slack,
-  User,
-  Settings,
-  Database,
-  Edit2,
-  MoreVertical,
-  FileText,
-  Trash2,
-  Archive,
-  Eye,
-} from "react-feather";
-
-// ** Reactstrap Imports
-import {
-  Badge,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Label,
-  Input,
-} from "reactstrap";
+import { Link } from "react-router-dom";
+import { Eye } from "react-feather";
 import { useTranslation } from "react-i18next";
-import formatDate from "../../core/utils/formatDate";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
-import { useState } from "react";
-import {
-  addUserAccess,
-  useGetUserList,
-} from "../../core/services/api/Users/users.service";
-import { useSelector } from "react-redux";
 import formatPrice from "../../core/utils/formatPrice";
-import { t } from "i18next";
 import ImageFallback from "../common/ImageFallback";
 import courseImage from "../../assets/images/coursePng.png";
 
-const statusObj = {
-  active: "light-success",
-  deActive: "light-secondary",
-};
-
-export const columns = [
+export const columns = (t) => [
   {
-    name: "Course Title",
+    name: t("CourseTitle"),
     sortable: true,
     minWidth: "300px",
     sortField: "title",
@@ -72,17 +20,18 @@ export const columns = [
           fallback={courseImage}
           src={row.imageAddress}
         />
+
         <Link
           to={`/Courses/Detail/${row.courseId}`}
           className="user_name text-body text-truncate"
         >
-          <span className="fw-bolder text-truncate">{row.title} </span>
+          <span className="fw-bolder text-truncate">{row.title}</span>
         </Link>
       </div>
     ),
   },
   {
-    name: "Teacher",
+    name: t("Teacher"),
     sortable: true,
     minWidth: "200px",
     sortField: "teacher",
@@ -93,13 +42,13 @@ export const columns = [
           to={`/Users/Detail/${row.teacherId}`}
           className="user_name text-truncate text-body"
         >
-          <span className="fw-bolder">{row.teacherName} </span>
+          <span className="fw-bolder">{row.teacherName}</span>
         </Link>
       </div>
     ),
   },
   {
-    name: "course Cost",
+    name: t("CourseCost"),
     sortable: true,
     minWidth: "200px",
     sortField: "cost",
@@ -113,7 +62,7 @@ export const columns = [
     ),
   },
   {
-    name: "Course Capacity",
+    name: t("CourseCapacity"),
     sortable: true,
     minWidth: "200px",
     sortField: "capacity",
@@ -125,7 +74,7 @@ export const columns = [
     ),
   },
   {
-    name: "Course Status",
+    name: t("CourseStatus"),
     sortable: true,
     minWidth: "200px",
     sortField: "courseStatusName",
@@ -137,7 +86,7 @@ export const columns = [
     ),
   },
   {
-    name: "Actions",
+    name: t("Actions"),
     sortable: true,
     minWidth: "20px",
     sortField: "capacity",

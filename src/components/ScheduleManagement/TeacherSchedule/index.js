@@ -17,11 +17,14 @@ const calendarsColor = {
   ETC: "info",
 };
 
-const CalendarComponent = ({ data, isFetching }) => {
+const CalendarComponent = ({ data, isFetching, isLoading }) => {
   const store = useSelector((state) => state.calendar);
   const queryClient = useQueryClient();
 
-  const courseGroups = queryClient.getQueryState(["AdminScheduleCourseGroups"]);
+  const courseGroups = queryClient.getQueryState([
+    "AdminScheduleCourseGroups",
+    { RowsOfPage: 500000 },
+  ]);
 
   const [calendarApi, setCalendarApi] = useState(null);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
@@ -102,6 +105,7 @@ const CalendarComponent = ({ data, isFetching }) => {
               toggleAddModal={toggleSidebar}
               isFetching={isFetching}
               setAddScheduleProp={setAddScheduleProp}
+              isLoading={isLoading}
             />
           </Col>
 
