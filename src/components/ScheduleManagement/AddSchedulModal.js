@@ -36,7 +36,10 @@ const AddScheduleModal = ({ addModal, toggleAddModal, addScheduleProp }) => {
     numeralThousandsGroupStyle: "thousand",
   };
 
-  const courses = queryClient.getQueryState(["ScheduleCoursesFilterAdmin"]);
+  const courses = queryClient.getQueryState([
+    "ScheduleCoursesFilterAdmin",
+    { RowsOfPage: 500000 },
+  ]);
 
   const courseGroups = queryClient.getQueryState([
     "AdminScheduleCourseGroups",

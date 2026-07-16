@@ -17,7 +17,7 @@ const calendarsColor = {
   ETC: "info",
 };
 
-const CalendarComponent = ({ data, isFetching }) => {
+const CalendarComponent = ({ data, isFetching, isLoading }) => {
   const store = useSelector((state) => state.calendar);
   const queryClient = useQueryClient();
 
@@ -105,6 +105,7 @@ const CalendarComponent = ({ data, isFetching }) => {
               toggleAddModal={toggleSidebar}
               isFetching={isFetching}
               setAddScheduleProp={setAddScheduleProp}
+              isLoading={isLoading}
             />
           </Col>
 

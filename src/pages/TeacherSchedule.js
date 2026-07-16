@@ -10,8 +10,7 @@ import CalendarComponent from "../components/ScheduleManagement/TeacherSchedule"
 
 const TeacherSchedule = () => {
   const params = useSelector((state) => state.scheduleSlice.params.teacher);
-  const { isLoading, data, refetch, isFetching } =
-    useGetTeacherSchedule(params);
+  const { isLoading, data, isFetching } = useGetTeacherSchedule(params);
   const { isLoading: coursesLoading } = useGetCourses({ RowsOfPage: 500000 });
   const { isLoading: groupsLoading } = useGetCourseGroups({
     RowsOfPage: 500000,
@@ -20,10 +19,14 @@ const TeacherSchedule = () => {
   useEffect(() => {
     refetch();
   }, [params]);
-  return isLoading || coursesLoading ? (
+  return groupsLoading || coursesLoading ? (
     <Spinner />
   ) : (
-    <CalendarComponent data={data?.data} isFetching={isFetching} />
+    <CalendarComponent
+      data={data?.data}
+      isFetching={isFetching}
+      isLoading={isLoading}
+    />
   );
 };
 
