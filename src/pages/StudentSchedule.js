@@ -1,28 +1,22 @@
 import {
   useGetCourseGroups,
   useGetCourses,
-  useGetStudentSchedule,
-  useGetTeacherSchedule,
+  useGetStudents,
 } from "../core/services/api/scheduleManagement/scheduleManagement.service";
 import Spinner from "../@core/components/spinner/Fallback-spinner";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
 import CalendarComponent from "../components/ScheduleManagement/StudentSchedule";
 
 const StudentSchedule = () => {
-  const params = useSelector((state) => state.scheduleSlice.params.students);
-  const { isLoading, data, refetch, isFetching } =
-    useGetStudentSchedule(params);
-  const { isLoading: coursesLoading } = useGetCourses();
-  const { isLoading: groupsLoading } = useGetCourseGroups();
+  const { isLoading: studentsLoading } = useGetStudents({ RowsOfPage: 500000 });
+  const { isLoading: coursesLoading } = useGetCourses({ RowsOfPage: 500000 });
+  const { isLoading: groupsLoading } = useGetCourseGroups({
+    RowsOfPage: 500000,
+  });
 
-  useEffect(() => {
-    refetch();
-  }, [params]);
-  return isLoading || coursesLoading ? (
+  return coursesLoading || groupsLoading || studentsLoading ? (
     <Spinner />
   ) : (
-    <CalendarComponent data={data?.data} isFetching={isFetching} />
+    <CalendarComponent />
   );
 };
 

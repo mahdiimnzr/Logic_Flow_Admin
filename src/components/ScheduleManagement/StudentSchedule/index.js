@@ -7,6 +7,8 @@ import { useRTL } from "@hooks/useRTL";
 import { useSelector } from "react-redux";
 import "@styles/react/apps/app-calendar.scss";
 import AddScheduleModal from "../AddSchedulModal";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetStudentSchedule } from "../../../core/services/api/scheduleManagement/scheduleManagement.service";
 
 const calendarsColor = {
   Business: "primary",
@@ -16,8 +18,19 @@ const calendarsColor = {
   ETC: "info",
 };
 
-const CalendarComponent = ({ data, isFetching }) => {
+const CalendarComponent = () => {
+  const params = useSelector((state) => state.scheduleSlice.params.student);
   const store = useSelector((state) => state.calendar);
+  const queryClient = useQueryClient();
+
+  const { isLoading, data, isFetching } = useGetStudentSchedule(params, {
+    enabled: !!params?.StudentId,
+  });
+
+  const courseGroups = queryClient.getQueryState([
+    "AdminScheduleCourseGroups",
+    { RowsOfPage: 500000 },
+  ]);
 
   const [calendarApi, setCalendarApi] = useState(null);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
@@ -41,7 +54,11 @@ const CalendarComponent = ({ data, isFetching }) => {
 
   const myEvents = useMemo(
     () =>
-      data?.map((value) => {
+      data?.data?.map((value) => {
+        const thisGroup = (
+          courseGroups?.data?.data?.courseGroupDtos ?? []
+        ).find((group) => group.groupId == value.courseGroupId);
+
         const endDate = new Date(value.startDate);
         const startDate = new Date(value.startDate);
 
@@ -68,7 +85,7 @@ const CalendarComponent = ({ data, isFetching }) => {
           extendedProps: { calendar: "Business" },
           id: value.id,
           start: startDate.toISOString(),
-          title: value.coursegroup.groupName,
+          title: thisGroup?.groupName,
           url: "",
           active: value.AP,
         };

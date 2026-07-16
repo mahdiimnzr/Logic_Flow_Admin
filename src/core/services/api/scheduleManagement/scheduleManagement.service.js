@@ -6,10 +6,15 @@ export const useGetAdminSchedule = (params) =>
   useGetQuery("AdminSchedule", "Schedual/GetAdminScheduals", params);
 export const useGetTeacherSchedule = (params) =>
   useGetQuery("TeacherSchedule", "Schedual/GetTeacherScheduals", params);
-export const useGetStudentSchedule = (params) =>
-  useGetQuery("StudentSchedule", "Schedual/GetStudentScheduals", params);
-export const useGetCourses = () =>
-  useGetQuery("ScheduleCoursesFilterAdmin", "Course/CourseList");
+export const useGetStudentSchedule = (params, options = {}) =>
+  useGetQuery(
+    "StudentSchedule",
+    "Schedual/GetStudentScheduals",
+    params,
+    options,
+  );
+export const useGetCourses = (params) =>
+  useGetQuery("ScheduleCoursesFilterAdmin", "Course/CourseList", params);
 export const updateScheduleStatus = (body) =>
   putParams("Schedual/LockToRiase", body);
 export const addSchedule = (body) =>
@@ -20,7 +25,18 @@ export const addSchedule = (body) =>
       startDate: body.startDate,
       startTime: body.startTime,
       endTime: body.endTime,
+      weekNumber: body.weekNumber,
+      rowEffect: body.rowEffect,
     },
   );
-export const useGetCourseGroups = () =>
-  useGetQuery("AdminScheduleCourseGroups", "CourseGroup");
+export const useGetCourseGroups = (params) =>
+  useGetQuery("AdminScheduleCourseGroups", "CourseGroup", params);
+export const useGetStudents = (params) =>
+  useGetQuery("ScheduleStudentsList", "User/UserMannage", params);
+export const useGetSessionStudents = (sessionId, options = {}) =>
+  useGetQuery(
+    `SessionStudents-${sessionId}`,
+    `Schedual/GetStudentScheduals/${sessionId}`,
+    undefined,
+    options,
+  );

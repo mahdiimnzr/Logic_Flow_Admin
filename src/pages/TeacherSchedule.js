@@ -12,8 +12,10 @@ const TeacherSchedule = () => {
   const params = useSelector((state) => state.scheduleSlice.params.teacher);
   const { isLoading, data, refetch, isFetching } =
     useGetTeacherSchedule(params);
-  const { isLoading: coursesLoading } = useGetCourses();
-  const { isLoading: groupsLoading } = useGetCourseGroups();
+  const { isLoading: coursesLoading } = useGetCourses({ RowsOfPage: 500000 });
+  const { isLoading: groupsLoading } = useGetCourseGroups({
+    RowsOfPage: 500000,
+  });
 
   useEffect(() => {
     refetch();

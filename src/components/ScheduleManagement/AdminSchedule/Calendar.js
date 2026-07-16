@@ -6,26 +6,13 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import faLocale from "@fullcalendar/core/locales/fa";
-import Select from "react-select";
-import { selectThemeColors } from "@utils";
-import toast from "react-hot-toast";
-import {
-  Button,
-  Card,
-  CardBody,
-  Label,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from "reactstrap";
+import { Card, CardBody } from "reactstrap";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateScheduleStatus } from "../../../core/services/api/scheduleManagement/scheduleManagement.service";
+import StateModal from "../StateModal";
+import SessionDetailModal from "../SessionDetailModal";
 
 const Calendar = (props) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const calendarRef = useRef(null);
 
   const {
@@ -38,10 +25,14 @@ const Calendar = (props) => {
   } = props;
 
   const [statusModal, setStatusModal] = useState(false);
+  const [sessionDetailModal, setSessionDetailModal] = useState(false);
 
   const [statusProp, setStatusProp] = useState({
     active: false,
     id: null,
+  });
+  const [sessionDetailProp, setSessionDetailProp] = useState({
+    sessionId: "",
   });
 
   const [selectedStatus, setSelectedStatus] = useState({
@@ -49,17 +40,6 @@ const Calendar = (props) => {
     label:
       statusProp.active === true ? t("AttendanceDone") : t("AttendanceNotDone"),
   });
-
-  const statusOptions = [
-    {
-      value: "active",
-      label: t("AttendanceDone"),
-    },
-    {
-      value: "inActive",
-      label: t("AttendanceNotDone"),
-    },
-  ];
 
   const calendarOptions = {
     events: store?.events?.length ? store.events : [],
@@ -92,12 +72,14 @@ const Calendar = (props) => {
             : t("AttendanceNotDone"),
       });
 
-      setStatusModal(!statusModal);
-
       setStatusProp({
         active: clickedEvent._def.extendedProps.active,
         id: clickedEvent._def.publicId,
       });
+      setSessionDetailProp({
+        sessionId: clickedEvent._def.publicId,
+      });
+      setSessionDetailModal(!sessionDetailModal);
     },
 
     dateClick(info) {
@@ -113,86 +95,26 @@ const Calendar = (props) => {
     direction: isRtl ? "rtl" : "ltr",
   };
 
-  const { mutate: updateStatusMutate } = useMutation({
-    mutationFn: updateScheduleStatus,
-
-    onMutate: () => {
-      const toastId = toast.loading(t("Loading"));
-      return { toastId };
-    },
-
-    onSuccess: (response, _, context) => {
-      if (response?.data?.success === true) {
-        setStatusModal(!statusModal);
-
-        toast.success(response?.data?.message, {
-          id: context.toastId,
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ["AdminSchedule"],
-        });
-      } else {
-        toast.error(response?.data?.message, {
-          id: context.toastId,
-        });
-      }
-    },
-
-    onError: (response, _, context) => {
-      toast.error(response?.data?.message, {
-        id: context.toastId,
-      });
-    },
-  });
-
   return (
     <Card className="shadow-none border-0 mb-0 rounded-0">
       <CardBody className="pb-0">
         <FullCalendar {...calendarOptions} />
       </CardBody>
 
-      <Modal
-        unmountOnClose
-        isOpen={statusModal}
-        toggle={() => setStatusModal(!statusModal)}
-        className="modal-dialog-centered"
-        style={{ fontFamily: "IRANYekanXFaNum" }}
-      >
-        <ModalHeader toggle={() => setStatusModal(!statusModal)}>
-          {t("AttendanceStatus")}
-        </ModalHeader>
-
-        <ModalBody>
-          <p className="text-muted mb-1">{t("ApplyStatus")}</p>
-
-          <Label for="role-select">{t("AttendanceStatus")}</Label>
-
-          <Select
-            isClearable={false}
-            value={selectedStatus}
-            options={statusOptions}
-            className="react-select"
-            classNamePrefix="select"
-            theme={selectThemeColors}
-            onChange={(data) => setSelectedStatus(data)}
-          />
-        </ModalBody>
-
-        <ModalFooter>
-          <Button
-            color="primary"
-            onClick={() => {
-              updateStatusMutate({
-                active: selectedStatus.value === "active",
-                id: statusProp.id,
-              });
-            }}
-          >
-            {t("ApplyStatus")}
-          </Button>
-        </ModalFooter>
-      </Modal>
+      <StateModal
+        statusModal={statusModal}
+        setStatusModal={setStatusModal}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        statusProp={statusProp}
+      />
+      <SessionDetailModal
+        isOpen={sessionDetailModal}
+        setIsOpen={setSessionDetailModal}
+        sessionDetailProp={sessionDetailProp}
+        toggleStatusModal={() => setStatusModal(!statusModal)}
+        statusProp={statusProp}
+      />
     </Card>
   );
 };

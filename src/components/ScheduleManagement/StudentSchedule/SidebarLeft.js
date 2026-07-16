@@ -4,7 +4,7 @@ import illustration from "@src/assets/images/pages/calendar-illustration.png";
 import Select from "react-select";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { updateAdminParams } from "../../../redux/actions";
+import { updateStudentParams } from "../../../redux/actions";
 import { useDispatch } from "react-redux";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
@@ -19,17 +19,28 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const courses = queryClient.getQueryState(["ScheduleCoursesFilterAdmin"]);
+  const users = queryClient.getQueryState([
+    "ScheduleStudentsList",
+    { RowsOfPage: 500000 },
+  ]);
 
-  const [currentCourse, setCurrentCourse] = useState({
+  const students = useMemo(
+    () =>
+      (users?.data?.data?.listUser ?? [])?.filter((value) =>
+        value.roles.includes("student"),
+      ),
+    [users],
+  );
+
+  const [currentStudent, setCurrentStudent] = useState({
     value: null,
-    label: t("SelectCourse"),
+    label: t("SelectUser"),
   });
 
-  const coursesOptions = useMemo(() => {
-    const options = (courses?.data?.data?.courseDtos ?? []).map((course) => ({
-      value: course.courseId,
-      label: course.title,
+  const studentsOption = useMemo(() => {
+    const options = (students ?? []).map((student) => ({
+      value: student.id,
+      label: student.fName + " " + student.lName,
     }));
 
     return [
@@ -39,7 +50,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
       },
       ...options,
     ];
-  }, [courses, t]);
+  }, [students]);
 
   return (
     <Fragment>
@@ -66,7 +77,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                 className="form-label d-flex align-items-center justify-content-between"
                 for="userId"
               >
-                {t("SelectCourse")}
+                {t("SelectUser")}
 
                 {isFetching && (
                   <Spinner
@@ -81,17 +92,17 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
               <Select
                 name="userId"
                 id="userId"
-                options={coursesOptions}
-                placeholder={t("SelectCourse")}
+                options={studentsOption}
+                placeholder={t("SelectUser")}
                 classNamePrefix="select"
                 className="react-select"
-                value={currentCourse}
+                value={currentStudent}
                 onChange={(selected) => {
-                  setCurrentCourse(selected);
+                  setCurrentStudent(selected);
 
                   dispatch(
-                    updateAdminParams({
-                      key: "courseId",
+                    updateStudentParams({
+                      key: "StudentId",
                       value: selected.value,
                     }),
                   );
@@ -122,7 +133,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                       setStartDate(null);
 
                       dispatch(
-                        updateAdminParams({
+                        updateStudentParams({
                           key: "startDate",
                           value: null,
                         }),
@@ -142,7 +153,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                 onChange={(date) => {
                   if (date) {
                     dispatch(
-                      updateAdminParams({
+                      updateStudentParams({
                         key: "startDate",
                         value: date.toDate().toISOString(),
                       }),
@@ -151,7 +162,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                     setStartDate(date.toDate().toISOString());
                   } else {
                     dispatch(
-                      updateAdminParams({
+                      updateStudentParams({
                         key: "startDate",
                         value: null,
                       }),
@@ -180,7 +191,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                       setEndDate(null);
 
                       dispatch(
-                        updateAdminParams({
+                        updateStudentParams({
                           key: "endDate",
                           value: null,
                         }),
@@ -200,7 +211,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                 onChange={(date) => {
                   if (date) {
                     dispatch(
-                      updateAdminParams({
+                      updateStudentParams({
                         key: "endDate",
                         value: date.toDate().toISOString(),
                       }),
@@ -209,7 +220,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
                     setEndDate(date.toDate().toISOString());
                   } else {
                     dispatch(
-                      updateAdminParams({
+                      updateStudentParams({
                         key: "endDate",
                         value: null,
                       }),

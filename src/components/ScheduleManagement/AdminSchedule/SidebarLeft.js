@@ -19,7 +19,10 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const courses = queryClient.getQueryState(["ScheduleCoursesFilterAdmin"]);
+  const courses = queryClient.getQueryState([
+    "ScheduleCoursesFilterAdmin",
+    { RowsOfPage: 500000 },
+  ]);
 
   const [currentCourse, setCurrentCourse] = useState({
     value: null,
@@ -39,7 +42,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
       },
       ...options,
     ];
-  }, [courses, t]);
+  }, [courses]);
 
   return (
     <Fragment>

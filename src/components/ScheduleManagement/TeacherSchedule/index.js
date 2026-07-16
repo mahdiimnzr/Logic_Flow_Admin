@@ -21,7 +21,10 @@ const CalendarComponent = ({ data, isFetching }) => {
   const store = useSelector((state) => state.calendar);
   const queryClient = useQueryClient();
 
-  const courseGroups = queryClient.getQueryState(["AdminScheduleCourseGroups"]);
+  const courseGroups = queryClient.getQueryState([
+    "AdminScheduleCourseGroups",
+    { RowsOfPage: 500000 },
+  ]);
 
   const [calendarApi, setCalendarApi] = useState(null);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
