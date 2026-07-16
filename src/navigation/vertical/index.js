@@ -76,7 +76,7 @@ export default [
   {
     id: "Sessions",
     title: "جلسات",
-    icon: <Book size={20}/>,
+    icon: <Book size={20} />,
     children: [
       {
         id: "SessionList",
@@ -159,5 +159,11 @@ export default [
     title: "Buildings",
     icon: <Database size={20} />,
     navLink: "/Buildings/List",
+  },
+  {
+    id: "Tickets",
+    title: "Tickets",
+    icon: <FileText size={20} />,
+    navLink: "/AllTickets",
   },
 ];
