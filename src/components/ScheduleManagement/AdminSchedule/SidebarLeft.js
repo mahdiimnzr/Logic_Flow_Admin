@@ -5,21 +5,30 @@ import Select from "react-select";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { updateAdminParams } from "../../../redux/actions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { X } from "react-feather";
 
-const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
+const SidebarLeft = ({
+  toggleAddModal,
+  setAddScheduleProp,
+  isFetching,
+  isLoading,
+}) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
+  const params = useSelector((state) => state.scheduleSlice.params.admin);
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const courses = queryClient.getQueryState(["ScheduleCoursesFilterAdmin"]);
+  const courses = queryClient.getQueryState([
+    "ScheduleCoursesFilterAdmin",
+    { RowsOfPage: 500000 },
+  ]);
 
   const [currentCourse, setCurrentCourse] = useState({
     value: null,
@@ -39,7 +48,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
       },
       ...options,
     ];
-  }, [courses, t]);
+  }, [courses]);
 
   return (
     <Fragment>
@@ -68,7 +77,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
               >
                 {t("SelectCourse")}
 
-                {isFetching && (
+                {(isFetching || isLoading) && (
                   <Spinner
                     style={{
                       width: "17px",

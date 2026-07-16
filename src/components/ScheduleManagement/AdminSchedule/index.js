@@ -16,7 +16,7 @@ const calendarsColor = {
   ETC: "info",
 };
 
-const CalendarComponent = ({ data, isFetching }) => {
+const CalendarComponent = ({ data, isFetching, isLoading }) => {
   const store = useSelector((state) => state.calendar);
 
   const [calendarApi, setCalendarApi] = useState(null);
@@ -92,6 +92,7 @@ const CalendarComponent = ({ data, isFetching }) => {
             <SidebarLeft
               toggleAddModal={toggleSidebar}
               isFetching={isFetching}
+              isLoading={isLoading}
               setAddScheduleProp={setAddScheduleProp}
             />
           </Col>

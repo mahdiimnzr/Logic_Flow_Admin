@@ -11,7 +11,12 @@ import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { X } from "react-feather";
 
-const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
+const SidebarLeft = ({
+  toggleAddModal,
+  setAddScheduleProp,
+  isFetching,
+  isLoading,
+}) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
@@ -46,7 +51,7 @@ const SidebarLeft = ({ toggleAddModal, setAddScheduleProp, isFetching }) => {
               >
                 {t("Filters")}
 
-                {isFetching && (
+                {(isFetching || isLoading) && (
                   <Spinner
                     style={{
                       width: "17px",

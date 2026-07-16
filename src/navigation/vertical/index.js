@@ -74,25 +74,6 @@ export default [
     ],
   },
   {
-    id: "Sessions",
-    title: "جلسات",
-    icon: <Book size={20}/>,
-    children: [
-      {
-        id: "SessionList",
-        title: "لیست جلسه‌ها",
-        icon: <Circle size={12} />,
-        navLink: "session/list",
-      },
-      {
-        id: "SessionDetails",
-        title: "جزئیات فیک جلسه‌ها",
-        icon: <Circle size={12} />,
-        navLink: "session/detail/:id",
-      },
-    ]
-  },
-  {
     id: "blogsPage",
     title: "NewsManagement",
     icon: <FileText size={20} />,
