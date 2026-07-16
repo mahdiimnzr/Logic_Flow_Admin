@@ -20,6 +20,7 @@ import BlogsRoute from "./Blogs";
 import ManagementCoursesRoute from "./ManagementCourse";
 import BuildingRoute from "./Buildings";
 import Schedule from "./Schedule";
+import ticketRoute from "./Ticket"
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -47,6 +48,8 @@ const Routes = [
   ...Schedule,
   ...ManagementCoursesRoute,
   ...BuildingRoute,
+  ...SessionRoute,
+  ...ticketRoute,
   {
     path: "/error",
     element: <Error />,
