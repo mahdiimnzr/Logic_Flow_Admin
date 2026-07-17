@@ -141,4 +141,10 @@ export default [
     icon: <Database size={20} />,
     navLink: "/Buildings/List",
   },
+  {
+    id: "Tickets",
+    title: "Tickets",
+    icon: <FileText size={20} />,
+    navLink: "/AllTickets",
+  },
 ];

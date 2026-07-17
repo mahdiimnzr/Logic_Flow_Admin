@@ -16,9 +16,6 @@ const TeacherSchedule = () => {
     RowsOfPage: 500000,
   });
 
-  useEffect(() => {
-    refetch();
-  }, [params]);
   return groupsLoading || coursesLoading ? (
     <Spinner />
   ) : (

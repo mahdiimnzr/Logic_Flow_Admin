@@ -11,6 +11,7 @@ import {
   Label,
   Input,
   FormFeedback,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -53,7 +54,7 @@ export const columns = (t) => [
     minWidth: "200px",
     sortField: "statusName",
     selector: (row) => row.statusName,
-    cell: (row) => renderClient(row)
+    cell: (row) => renderClient(row),
   },
   {
     name: t("StatusName"),
@@ -96,7 +97,9 @@ export const columns = (t) => [
           return { toastId };
         },
         onSuccess: (response, _, context) => {
-          toast.success(response.data.message || t("StatusUpdated"), { id: context.toastId });
+          toast.success(response.data.message || t("StatusUpdated"), {
+            id: context.toastId,
+          });
           queryClient.invalidateQueries({ queryKey: ["Status"] });
           setEditModal(false);
         },
@@ -112,10 +115,14 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1">
           <Edit
+            id={`EyeStatus-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={() => setEditModal(true)}
           />
+          <UncontrolledTooltip placement="top" target={`EyeStatus-${row.id}`}>
+            ویرایش وضعیت دوره
+          </UncontrolledTooltip>
 
           <Modal
             isOpen={editModal}
@@ -127,7 +134,11 @@ export const columns = (t) => [
               {t("EditStatus")}
             </ModalHeader>
             <ModalBody className="px-sm-5 mx-50 pb-5">
-              <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
+              <Row
+                tag="form"
+                className="gy-1 pt-75"
+                onSubmit={handleSubmit(onSubmit)}
+              >
                 <Col xs={12}>
                   <Label className="form-label" for="statusName">
                     {t("StatusName")}
@@ -144,13 +155,22 @@ export const columns = (t) => [
                       />
                     )}
                   />
-                  {errors.statusName && <FormFeedback>{t(errors.statusName.message)}</FormFeedback>}
+                  {errors.statusName && (
+                    <FormFeedback>{t(errors.statusName.message)}</FormFeedback>
+                  )}
                 </Col>
-                <Col xs={12} className="text-center d-flex justify-content-between mt-2 pt-50">
+                <Col
+                  xs={12}
+                  className="text-center d-flex justify-content-between mt-2 pt-50"
+                >
                   <Button type="submit" className="me-1" color="primary">
                     {t("SaveChanges")}
                   </Button>
-                  <Button color="secondary" outline onClick={() => setEditModal(false)}>
+                  <Button
+                    color="secondary"
+                    outline
+                    onClick={() => setEditModal(false)}
+                  >
                     {t("Cancel")}
                   </Button>
                 </Col>
