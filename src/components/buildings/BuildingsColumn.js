@@ -110,15 +110,8 @@ export const columns = (t) => [
 
           <UncontrolledDropdown>
             <DropdownToggle tag="span">
-              <MoreVertical
-                id={`Status-${row.id}`}
-                size={17}
-                className="cursor-pointer"
-              />
+              <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>
-            <UncontrolledTooltip placement="top" target={`Status-${row.id}`}>
-              تغییر وضعیت
-            </UncontrolledTooltip>
 
             <DropdownMenu end>
               <DropdownItem

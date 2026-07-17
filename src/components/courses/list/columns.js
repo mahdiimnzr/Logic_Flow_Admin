@@ -205,7 +205,7 @@ export const columns = (t) => [
             ویرایش دوره
           </UncontrolledTooltip>
 
-          <UncontrolledDropdown direction="up">
+          <UncontrolledDropdown direction="down">
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>

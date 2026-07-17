@@ -268,18 +268,8 @@ export const columns = (t) => [
           </UncontrolledTooltip>
           <UncontrolledDropdown>
             <DropdownToggle tag="span">
-              <MoreVertical
-                id={`notification-${row.id}`}
-                size={17}
-                className="cursor-pointer"
-              />
+              <MoreVertical س size={17} className="cursor-pointer" />
             </DropdownToggle>
-            <UncontrolledTooltip
-              placement="top"
-              target={`notification-${row.id}`}
-            >
-              اعلان ها
-            </UncontrolledTooltip>
 
             <DropdownMenu end>
               <DropdownItem

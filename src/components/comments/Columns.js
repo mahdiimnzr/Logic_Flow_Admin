@@ -185,19 +185,21 @@ export const columns = (t) => [
           </UncontrolledTooltip>
 
           {!row.accept && (
-            <Check
-              // id={`Approve-${row.commentId}`}
-              size={17}
-              className="me-50 cursor-pointer"
-              onClick={() => acceptCommentMutate(row.commentId)}
-            />
+            <>
+              <Check
+                id={`Approve-${row.commentId}`}
+                size={17}
+                className="me-50 cursor-pointer"
+                onClick={() => acceptCommentMutate(row.commentId)}
+              />
+              <UncontrolledTooltip
+                placement="top"
+                target={`Approve-${row.commentId}`}
+              >
+                تأیید دیدگاه
+              </UncontrolledTooltip>
+            </>
           )}
-          {/* <UncontrolledTooltip
-            placement="top"
-            target={`Approve-${row.commentId}`}
-          >
-            تأیید دیدگاه
-          </UncontrolledTooltip> */}
           <Modal
             unmountOnClose
             isOpen={replyModal}
