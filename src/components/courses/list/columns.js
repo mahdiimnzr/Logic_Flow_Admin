@@ -74,11 +74,11 @@ export const columns = (t) => [
   {
     name: t("CourseTitle"),
     sortable: true,
-    minWidth: "350px",
+    minWidth: "200px",
     sortField: "client.name",
     cell: (row) => {
       return (
-        <div className="d-flex justify-content-left align-items-center">
+        <div className="d-flex justify-content-left align-items-center text-truncate">
           {renderClient(row)}
           <div className="d-flex flex-column">
             <Link
@@ -87,7 +87,7 @@ export const columns = (t) => [
             >
               {row?.title}
             </Link>
-            <small className="text-truncate text-muted mb-0">
+            <small className="text-muted text-truncate mb-0">
               {row?.miniDescribe}
             </small>
           </div>
