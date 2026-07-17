@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownItem,
   Badge,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -98,10 +99,14 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1 align-items-center">
           <Eye
+            id={`Eye-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={toggleDetailModal}
           />
+          <UncontrolledTooltip placement="top" target={`Eye-${row.id}`}>
+            جزئیات ساختمان
+          </UncontrolledTooltip>
 
           <UncontrolledDropdown>
             <DropdownToggle tag="span">

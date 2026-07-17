@@ -19,19 +19,24 @@ import {
   Col,
   Row,
   FormFeedback,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import formatDate from "../../core/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { addNotifForUser, addUserAccess, useGetUserList } from "../../core/services/api/Users/users.service";
+import {
+  addNotifForUser,
+  addUserAccess,
+  useGetUserList,
+} from "../../core/services/api/Users/users.service";
 import { useSelector } from "react-redux";
 import profile from "/public/Profile.png";
 import ImageFallback from "../common/ImageFallback";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup"
+import * as Yup from "yup";
 
 const validationSchema = Yup.object({
   message: Yup.string().trim().required("MessageRequired"),
@@ -53,7 +58,9 @@ const renderClient = (row) => {
       initials
       className="me-1"
       color={row.avatarColor || "light-primary"}
-      content={row?.fName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"}
+      content={
+        row?.fName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"
+      }
     />
   );
 };
@@ -182,7 +189,7 @@ export const columns = (t) => [
 
       const defaultValues = {
         message: "",
-        userId: row.id
+        userId: row.id,
       };
 
       const {
@@ -194,7 +201,6 @@ export const columns = (t) => [
         defaultValues,
         resolver: yupResolver(validationSchema),
       });
-
 
       const { mutate: accessUserMutate } = useMutation({
         mutationFn: addUserAccess,
@@ -223,10 +229,12 @@ export const columns = (t) => [
           return { toastId };
         },
         onSuccess: (response, _, context) => {
-          toast.success(response.data.message || t("StatusUpdated"), { id: context.toastId });
+          toast.success(response.data.message || t("StatusUpdated"), {
+            id: context.toastId,
+          });
           queryClient.invalidateQueries({ queryKey: ["UsersList"] });
-          setNotificationModal(!notificationModal)
-          setValue("message", "")
+          setNotificationModal(!notificationModal);
+          setValue("message", "");
         },
         onError: (_, context) => {
           toast.error(t("ErrorOccurred"), { id: context.toastId });
@@ -240,30 +248,49 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1 align-items-center">
           <Link to={`/Users/Detail/${row.id}`}>
-            <Eye size={17} className="me-50 cursor-pointer" />
+            <Eye
+              id={`eyeDetail-${row.id}`}
+              size={17}
+              className="me-50 cursor-pointer"
+            />
           </Link>
+          <UncontrolledTooltip placement="top" target={`eyeDetail-${row.id}`}>
+            جزئیات کاربر
+          </UncontrolledTooltip>
           <Shield
+            id={`Access-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={() => setCenteredModal(true)}
           />
+          <UncontrolledTooltip placement="top" target={`Access-${row.id}`}>
+            دسترسی
+          </UncontrolledTooltip>
           <UncontrolledDropdown>
             <DropdownToggle tag="span">
-              <MoreVertical size={17} className="cursor-pointer" />
+              <MoreVertical
+                id={`notification-${row.id}`}
+                size={17}
+                className="cursor-pointer"
+              />
             </DropdownToggle>
+            <UncontrolledTooltip
+              placement="top"
+              target={`notification-${row.id}`}
+            >
+              اعلان ها
+            </UncontrolledTooltip>
 
             <DropdownMenu end>
               <DropdownItem
                 className="w-100"
                 onClick={(e) => {
                   e.preventDefault();
-                  setNotificationModal(!notificationModal)
+                  setNotificationModal(!notificationModal);
                 }}
               >
                 <Bell size={14} className="me-50" />
-                <span className="align-middle">
-                  {t("SendNotif")}
-                </span>
+                <span className="align-middle">{t("SendNotif")}</span>
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
@@ -274,11 +301,17 @@ export const columns = (t) => [
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader toggle={() => setNotificationModal(!notificationModal)}>
+            <ModalHeader
+              toggle={() => setNotificationModal(!notificationModal)}
+            >
               {t("Notif")}
             </ModalHeader>
             <ModalBody className="px-sm-5 mx-50 pb-5">
-              <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
+              <Row
+                tag="form"
+                className="gy-1 pt-75"
+                onSubmit={handleSubmit(onSubmit)}
+              >
                 <Col xs={12}>
                   <Label className="form-label" for="message">
                     {t("NotifMessage")}
@@ -293,17 +326,26 @@ export const columns = (t) => [
                         type="textarea"
                         placeholder={t("NotifMessage")}
                         invalid={!!errors.message}
-                        style={{ minHeight: '100px' }}
+                        style={{ minHeight: "100px" }}
                       />
                     )}
                   />
-                  {errors.message && <FormFeedback>{t(errors.message.message)}</FormFeedback>}
+                  {errors.message && (
+                    <FormFeedback>{t(errors.message.message)}</FormFeedback>
+                  )}
                 </Col>
-                <Col xs={12} className="text-center d-flex justify-content-between mt-2 pt-50">
+                <Col
+                  xs={12}
+                  className="text-center d-flex justify-content-between mt-2 pt-50"
+                >
                   <Button type="submit" className="me-1" color="primary">
                     {t("SaveChanges")}
                   </Button>
-                  <Button color="secondary" outline onClick={() => setNotificationModal(!notificationModal)}>
+                  <Button
+                    color="secondary"
+                    outline
+                    onClick={() => setNotificationModal(!notificationModal)}
+                  >
                     {t("Cancel")}
                   </Button>
                 </Col>
