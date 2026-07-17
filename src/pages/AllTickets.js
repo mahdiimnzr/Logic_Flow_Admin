@@ -1,133 +1,163 @@
-import React, { useState } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import DataTable from "react-data-table-component";
-import { Card, CardHeader, CardTitle, Input, Row, Col, Badge, Button, Spinner } from "reactstrap";
-import { Eye, UserCheck } from "lucide-react";
+import { Card, Spinner, TabContent, TabPane } from "reactstrap";
+import { ChevronDown } from "react-feather";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import ReactPaginate from "react-paginate";
+import { toast } from "react-hot-toast";
+import BreadCrumbs from "@components/breadcrumbs";
+import { useSkin } from "@hooks/useSkin";
 
-import { getAllTicketsAdmin } from "@/core/services/api/ticket/ticket.service";
+import {
+    getAllTicketsAdmin,
+    acceptTicketAdmin,
+    getNotAcceptedTicketsSupporter,
+    getMyTicketsSupporter
+} from "../core/services/api/ticket/ticket.service";
+
+import TicketTabs from "../components/ticket/TicketTabs";
+import TicketHeader from "../components/ticket/TicketHeader";
+import { getTicketColumns } from "../components/ticket/TicketColumns";
 
 const AllTickets = () => {
-    const navigate = useNavigate();
+    const { skin } = useSkin();
 
+    const [activeTab, setActiveTab] = useState("1");
     const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(0);
+    const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const { data: ticketsData, isLoading } = useQuery({
-        queryKey: ["allTicketsAdmin", currentPage, rowsPerPage, searchTerm],
-        queryFn: () => getAllTicketsAdmin(currentPage, rowsPerPage, searchTerm),
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => setDebouncedSearchValue(searchTerm), 1000);
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
+
+    const fetchTicketsData = () => {
+        if (activeTab === "1") return getAllTicketsAdmin(0, 1000, debouncedSearchValue);
+        if (activeTab === "2") return getMyTicketsSupporter(0, 1000, debouncedSearchValue);
+        if (activeTab === "3") return getNotAcceptedTicketsSupporter(0, 1000, debouncedSearchValue);
+    };
+
+    const { data: ticketsData, isLoading, isFetching, refetch } = useQuery({
+        queryKey: ["ticketsList", activeTab, debouncedSearchValue],
+        queryFn: fetchTicketsData,
         keepPreviousData: true,
     });
 
-    const columns = [
-        {
-            name: "موضوع تیکت",
-            minWidth: "250px",
-            selector: (row) => row.problem,
-            cell: (row) => <span className="text-truncate font-weight-bold">{row.problem}</span>,
-        },
-        {
-            name: "کد کاربر",
-            minWidth: "100px",
-            selector: (row) => row.userId,
-            cell: (row) => <span>{row.userId}</span>,
-        },
-        {
-            name: "وضعیت",
-            minWidth: "120px",
-            selector: (row) => row.isDone,
-            cell: (row) => {
-                return row.isDone ? (
-                    <Badge color="light-secondary" pill>بسته شده</Badge>
-                ) : row.supporterId ? (
-                    <Badge color="light-warning" pill>در حال بررسی</Badge>
-                ) : (
-                    <Badge color="light-danger" pill>در انتظار پشتیبان</Badge>
-                );
-            },
-        },
-        {
-            name: "تاریخ بروزرسانی",
-            minWidth: "150px",
-            selector: (row) => row.updateDate,
-            cell: (row) => <span>{row.updateDate ? row.updateDate.substring(0, 10) : "---"}</span>,
-        },
-        {
-            name: "عملیات",
-            minWidth: "150px",
-            cell: (row) => (
-                <div className="d-flex align-items-center gap-1">
-                    <Button
-                        color="flat-primary"
-                        className="btn-icon rounded-circle"
-                        onClick={() => navigate(`/AdminPanel/TicketDetail/${row.id}`)}
-                    >
-                        <Eye size={18} />
-                    </Button>
-                    {!row.supporterId && !row.isDone && (
-                        <Button
-                            color="flat-success"
-                            className="btn-icon rounded-circle"
-                            title="پذیرش تیکت"
-                            onClick={() => console.log("Accept Ticket", row.id)}
-                        >
-                            <UserCheck size={18} />
-                        </Button>
-                    )}
-                </div>
-            ),
-        },
-    ];
+    const toggleTab = (tab) => {
+        if (activeTab !== tab) {
+            setActiveTab(tab);
+            setCurrentPage(1);
+        }
+    };
+
+    const rawData = Array.isArray(ticketsData) ? ticketsData : [];
+    const filteredData = rawData.filter(ticket =>
+        ticket.problem?.toLowerCase().includes(debouncedSearchValue.toLowerCase())
+    );
+
+    const totalCount = filteredData.length;
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const displayData = filteredData.slice(startIndex, startIndex + rowsPerPage);
+
+    const handleAcceptTicket = async (ticketId) => {
+        const result = await acceptTicketAdmin(ticketId);
+        const isSuccess = result && (result.success === true || result.id !== undefined || result.status === 200);
+
+        if (isSuccess) {
+            toast.success(result.message || "تیکت با موفقیت پذیرفته شد.");
+            refetch();
+        } else {
+            toast.error("خطا در پذیرش تیکت.");
+        }
+    };
 
     const handleFilter = (e) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(0);
+        setCurrentPage(1);
+    };
+
+    const handlePerPage = (e) => {
+        setRowsPerPage(parseInt(e.target.value));
+        setCurrentPage(1);
+    };
+
+    const CustomPagination = () => {
+        const count = Math.ceil(totalCount / rowsPerPage);
+        return (
+            <ReactPaginate
+                previousLabel={""}
+                nextLabel={""}
+                breakLabel="..."
+                pageCount={Math.ceil(count) || 1}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={2}
+                activeClassName="active"
+                forcePage={currentPage !== 0 ? currentPage - 1 : 0}
+                onPageChange={(page) => setCurrentPage(page.selected + 1)}
+                pageClassName="page-item"
+                breakClassName="page-item"
+                nextLinkClassName="page-link"
+                pageLinkClassName="page-link"
+                breakLinkClassName="page-link"
+                previousLinkClassName="page-link"
+                nextClassName="page-item next-item"
+                previousClassName="page-item prev-item"
+                containerClassName={"pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1"}
+            />
+        );
+    };
+
+    const customStyles = {
+        table: { style: { backgroundColor: 'transparent' } },
+        headRow: { style: { backgroundColor: skin === 'dark' ? '#343d55' : '#f3f2f7', color: skin === 'dark' ? '#d0d2d6' : '#5e5873', borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1' } },
+        rows: { style: { backgroundColor: skin === 'dark' ? '#283046' : '#ffffff', color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b', borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1', '&:hover': { backgroundColor: skin === 'dark' ? '#343d55' : '#f8f8f8' } } },
+        pagination: { style: { backgroundColor: skin === 'dark' ? '#283046' : '#ffffff', color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b', borderTopColor: skin === 'dark' ? '#3b4253' : '#ebe9f1' } },
+        noData: { style: { backgroundColor: skin === 'dark' ? '#283046' : '#ffffff', color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b' } },
+        tableWrapper: { style: { backgroundColor: skin === 'dark' ? '#283046' : '#ffffff' } }
     };
 
     return (
-        <Card>
-            <CardHeader className="border-bottom d-flex justify-content-between align-items-center">
-                <CardTitle tag="h4">مدیریت کل تیکت‌ها</CardTitle>
-            </CardHeader>
+        <Fragment>
+            <BreadCrumbs title="لیست تیکت ها" data={[{ title: "مدیریت تیکت ها" }, { title: "لیست تیکت ها" }]} />
 
-            <Row className="mx-0 mt-1 mb-50">
-                <Col sm="6">
-                    <div className="d-flex align-items-center">
-                        <span className="me-1">جستجو:</span>
-                        <Input
-                            className="dataTable-filter w-100"
-                            type="text"
-                            placeholder="جستجو در موضوع تیکت..."
-                            value={searchTerm}
-                            onChange={handleFilter}
+            <TicketTabs activeTab={activeTab} toggleTab={toggleTab} />
+
+            <TabContent activeTab={activeTab}>
+                <TabPane tabId={activeTab}>
+                    <Card>
+                        <TicketHeader
+                            rowsPerPage={rowsPerPage}
+                            handlePerPage={handlePerPage}
+                            searchTerm={searchTerm}
+                            handleFilter={handleFilter}
                         />
-                    </div>
-                </Col>
-            </Row>
 
-            <div className="react-dataTable">
-                <DataTable
-                    noHeader
-                    pagination
-                    paginationServer
-                    highlightOnHover
-                    responsive
-                    progressPending={isLoading}
-                    progressComponent={<Spinner color="primary" className="my-2" />}
-                    columns={columns}
-                    data={ticketsData || []}
-                    className="react-dataTable"
-                    sortIcon={<span className="ms-50">▼</span>}
-                    paginationTotalRows={100} 
-                    onChangePage={(page) => setCurrentPage(page - 1)}
-                    onChangeRowsPerPage={(newPerPage, page) => {
-                        setRowsPerPage(newPerPage);
-                        setCurrentPage(page - 1);
-                    }}
-                />
-            </div>
-        </Card>
+                        <div className="react-dataTable position-relative">
+                            {(isLoading || isFetching) && (
+                                <div className="d-flex justify-content-center position-absolute w-100 h-100 align-items-center" style={{ zIndex: 1, backgroundColor: skin === 'dark' ? "rgba(40, 48, 70, 0.8)" : "rgba(255,255,255,0.6)", borderRadius: "0.5rem" }}>
+                                    <Spinner color="primary" />
+                                </div>
+                            )}
+
+                            <DataTable
+                                noHeader
+                                pagination
+                                paginationServer
+                                className="react-dataTable"
+                                columns={getTicketColumns(handleAcceptTicket)}
+                                sortIcon={<ChevronDown size={10} />}
+                                paginationComponent={CustomPagination}
+                                data={displayData}
+                                customStyles={customStyles}
+                                noDataComponent={<div className="p-4 text-center text-muted">رکوردی برای نمایش وجود ندارد</div>}
+                            />
+                        </div>
+                    </Card>
+                </TabPane>
+            </TabContent>
+        </Fragment>
     );
 };
 
