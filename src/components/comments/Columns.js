@@ -12,6 +12,7 @@ import {
   Col,
   Row,
   FormFeedback,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -164,25 +165,39 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1">
           <Eye
+            id={`Eye-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={() => setDetailModal(true)}
           />
+          <UncontrolledTooltip placement="top" target={`Eye-${row.id}`}>
+            جزئیات دیدگاه
+          </UncontrolledTooltip>
+
+          <Send
+            id={`AddComment-${row.id}`}
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setReplyModal(true)}
+          />
+          <UncontrolledTooltip placement="top" target={`AddComment-${row.id}`}>
+            افزودن دیدگاه
+          </UncontrolledTooltip>
 
           {!row.accept && (
             <Check
+              // id={`Approve-${row.commentId}`}
               size={17}
               className="me-50 cursor-pointer"
               onClick={() => acceptCommentMutate(row.commentId)}
             />
           )}
-
-          <Send
-            size={17}
-            className="me-50 cursor-pointer"
-            onClick={() => setReplyModal(true)}
-          />
-
+          {/* <UncontrolledTooltip
+            placement="top"
+            target={`Approve-${row.commentId}`}
+          >
+            تأیید دیدگاه
+          </UncontrolledTooltip> */}
           <Modal
             unmountOnClose
             isOpen={replyModal}

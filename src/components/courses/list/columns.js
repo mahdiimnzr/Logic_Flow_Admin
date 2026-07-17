@@ -15,6 +15,7 @@ import {
   Label,
   Button,
   ModalFooter,
+  UncontrolledTooltip,
 } from "reactstrap";
 import {
   Eye,
@@ -79,7 +80,7 @@ export const columns = (t) => [
       return (
         <div className="d-flex justify-content-left align-items-center text-truncate">
           {renderClient(row)}
-          <div className="d-flex flex-column text-truncate">
+          <div className="d-flex flex-column">
             <Link
               to={`/Courses/Detail/${row?.courseId}`}
               className="user-name text-truncate mb-0"
@@ -192,11 +193,18 @@ export const columns = (t) => [
             to={`/Courses/Detail/${row?.courseId}`}
             id={`pw-tooltip-${row?.courseId}`}
           >
-            <Eye size={17} className="mx-1" />
+            <Eye id={`Eye-${row.courseId}`} size={17} className="mx-1" />
           </Link>
+          <UncontrolledTooltip placement="top" target={`Eye-${row.courseId}`}>
+            جزئیات دوره
+          </UncontrolledTooltip>
           <Link to={`/Courses/Edit/${row?.courseId}`}>
-            <Edit size={17} className="me-50" />
+            <Edit id={`Edit-${row.courseId}`} size={17} className="me-50" />
           </Link>
+          <UncontrolledTooltip placement="top" target={`Edit-${row.courseId}`}>
+            ویرایش دوره
+          </UncontrolledTooltip>
+
           <UncontrolledDropdown direction="up">
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
