@@ -80,7 +80,7 @@ export const columns = (t) => [
       return (
         <div className="d-flex justify-content-left align-items-center text-truncate">
           {renderClient(row)}
-          <div className="d-flex flex-column">
+          <div className="d-flex flex-column text-truncate">
             <Link
               to={`/Courses/Detail/${row?.courseId}`}
               className="user-name text-truncate mb-0"
