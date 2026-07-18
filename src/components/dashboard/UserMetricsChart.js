@@ -2,7 +2,10 @@ import React from 'react';
 import Chart from 'react-apexcharts';
 import { Card, CardHeader, CardTitle, CardBody } from 'reactstrap';
 
-const UserMetricsChart = ({ dataSeries = [0, 0] }) => {
+const UserMetricsChart = ({ dataSeries = [0, 0], skin }) => {
+    const textColor = skin === 'dark' ? '#b4b7bd' : '#5e5873';
+    const trackColor = skin === 'dark' ? '#3b4253' : 'rgba(128,128,128,0.1)';
+
     const options = {
         chart: {
             sparkline: { enabled: true }
@@ -11,14 +14,22 @@ const UserMetricsChart = ({ dataSeries = [0, 0] }) => {
         plotOptions: {
             radialBar: {
                 hollow: { size: '45%' },
-                track: { background: 'rgba(128,128,128,0.1)' },
+                track: { background: trackColor },
                 dataLabels: {
-                    name: { fontSize: '13px', fontFamily: 'IRANYekanXFaNum', color: 'var(--bs-heading-color)' },
-                    value: { fontSize: '15px', color: 'var(--bs-heading-color)', formatter: val => `${val}%` },
+                    name: { 
+                        fontSize: '13px', 
+                        fontFamily: 'IRANYekanXFaNum', 
+                        color: textColor 
+                    },
+                    value: { 
+                        fontSize: '15px', 
+                        color: textColor, 
+                        formatter: val => `${val}%` 
+                    },
                     total: {
                         show: true,
                         label: 'شاخص‌ها',
-                        color: 'var(--bs-heading-color)',
+                        color: textColor,
                         formatter: () => 'کاربران'
                     }
                 }

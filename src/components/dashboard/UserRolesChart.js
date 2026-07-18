@@ -2,7 +2,10 @@ import React from 'react';
 import Chart from 'react-apexcharts';
 import { Card, CardHeader, CardTitle, CardBody } from 'reactstrap';
 
-const UserRolesChart = ({ dataSeries = [0, 0, 0, 0] }) => {
+const UserRolesChart = ({ dataSeries = [0, 0, 0, 0], skin }) => {
+
+  const textColor = skin === 'dark' ? '#b4b7bd' : '#5e5873';
+
   const options = {
     colors: ['#7367f0', '#ff9f43', '#28c76f', '#ea5455'], 
     chart: {
@@ -21,11 +24,20 @@ const UserRolesChart = ({ dataSeries = [0, 0, 0, 0] }) => {
         donut: {
           labels: {
             show: true,
-            name: { fontSize: '14px', fontFamily: 'IRANSans' },
-            value: { fontSize: '16px', formatter: val => `${val} نفر` },
+            name: { 
+                fontSize: '14px', 
+                fontFamily: 'IRANSans',
+                color: textColor 
+            },
+            value: { 
+                fontSize: '16px', 
+                color: textColor,
+                formatter: val => `${val} نفر` 
+            },
             total: {
               show: true,
               label: 'کل نقش‌ها',
+              color: textColor,
               formatter: w => w.globals.seriesTotals.reduce((a, b) => a + b, 0)
             }
           }
