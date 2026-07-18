@@ -53,3 +53,12 @@ export const getMyTicketsSupporter = async (pageNumber = 0, perPage = 1000, quer
         return false;
     }
 };
+
+export const getTicketAutoComplete = async (text) => {
+  try {
+    const response = await apiClient.get(`/ticket/autoComplete/${text}`);
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+};
