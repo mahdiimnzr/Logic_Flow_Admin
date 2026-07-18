@@ -4,7 +4,10 @@ import Chart from 'react-apexcharts'
 // ** Reactstrap Imports
 import { Card, CardHeader, CardTitle, CardBody, CardSubtitle } from 'reactstrap'
 
-const ApexRadiarChart = ({ data = [] }) => {
+const ApexRadiarChart = ({ data = [], skin }) => {
+
+  const textColor = skin === 'dark' ? '#b4b7bd' : '#5e5873';
+  const strokeColor = skin === 'dark' ? '#283046' : '#fff';
 
   const series = data.map(item => item.countUsed);
   const labels = data.map(item => item.techName);
@@ -15,12 +18,14 @@ const ApexRadiarChart = ({ data = [] }) => {
 
   // ** Chart Options
   const options = {
+    stroke: { colors: [strokeColor] },
     legend: {
       show: true,
       position: 'bottom',
       fontFamily:"inherit",
       labels: {
-        useSeriesColors: true
+        colors: textColor,
+        useSeriesColors: false
       }
     },
     labels: labels,
@@ -39,14 +44,14 @@ const ApexRadiarChart = ({ data = [] }) => {
             name: {
               fontSize: '1.5rem',
               fontFamily: 'inherit',
-              color: 'var(--bs-heading-color)'
+              color: textColor
             },
             value: {
               fontSize: '1rem',
               fontFamily: 'inherit',
-              color: 'var(--bs-heading-color)',
+              color: textColor,
               formatter(val) {
-                return `${parseInt(val)}دوره`
+                return `${parseInt(val)} دوره`
               }
             },
             total: {
@@ -54,7 +59,7 @@ const ApexRadiarChart = ({ data = [] }) => {
               fontSize: '1.2rem',
               fontFamily:"inherit",
               label: 'همه موارد',
-              color: 'var(--bs-heading-color)',
+              color: textColor,
               formatter() {
                 const total = series.reduce((a, b) => a + b, 0)
                 return `${total} مورد`

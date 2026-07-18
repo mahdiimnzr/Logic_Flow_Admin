@@ -15,6 +15,8 @@ import UserMetricsChart from "../components/dashboard/UserMetricsChart";
 import UserRolesChart from "../components/dashboard/UserRolesChart";
 import "@styles/react/libs/react-select/_react-select.scss";
 
+import { useSkin } from "@hooks/useSkin";
+
 import {
   getLandingReport,
   getDashboardAdminReport,
@@ -28,6 +30,8 @@ import { getAdminBlogsList } from './../core/services/api/blogs/blogs.service';
 import toast from "react-hot-toast";
 
 const Dashboard = () => {
+
+  const { skin } = useSkin();
 
   const [dashboardReport, setDashboardReport] = useState(null);
   const [teachersCount, setTeachersCount] = useState(0);
@@ -152,14 +156,14 @@ const Dashboard = () => {
       <Spinner color="primary" />
     </div>
   ) : (
-    <div id="dashboard-analytics">
+    <div id="dashboard-analytics" className={skin === 'dark' ? 'text-white' : 'text-body'}>
       <Row className="match-height">
         <Col lg="3" sm="6" className="mb-2">
           <StatsHorizontal
             color="primary"
             icon={<Users size={21} />}
             stats={usersCount ? usersCount.toLocaleString("fa-IR") : "0"}
-            statTitle="کل کاربران"
+            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>کل کاربران</span>}
           />
         </Col>
         <Col lg="3" sm="6" className="mb-2">
@@ -167,7 +171,7 @@ const Dashboard = () => {
             color="success"
             icon={<UserCheck size={21} />}
             stats={teachersCount.toString()}
-            statTitle="تعداد اساتید"
+            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>تعداد اساتید</span>}
           />
         </Col>
         <Col lg="3" sm="6" className="mb-2">
@@ -175,7 +179,7 @@ const Dashboard = () => {
             color="info"
             icon={<BookOpen size={21} />}
             stats={coursesCount.toString()}
-            statTitle="کل دوره‌ها"
+            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>کل دوره‌ها</span>}
           />
         </Col>
         <Col lg="3" sm="6" className="mb-2">
@@ -187,21 +191,21 @@ const Dashboard = () => {
                 ? `${formatLargeNumber(dashboardReport.allPaymentCost)} تومان`
                 : "0 تومان"
             }
-            statTitle="مجموع پرداختی‌ها"
+            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>مجموع پرداختی‌ها</span>}
           />
         </Col>
       </Row>
       <Row className="match-height mt-2">
         <Col lg="6" md="12" sm="12" className="mb-2">
-          <UserMetricsChart dataSeries={userMetrics} />
+          <UserMetricsChart dataSeries={userMetrics} skin={skin} />
         </Col>
         <Col lg="6" md="12" sm="12" className="mb-2">
-          <UserRolesChart dataSeries={userRoles} />
+          <UserRolesChart dataSeries={userRoles} skin={skin} />
         </Col>
       </Row>
       <Row className="match-height">
         <Col lg="6" md="12" sm="12" className="mb-2">
-          <CourseStatusChart dataSeries={courseStatus} />
+          <CourseStatusChart dataSeries={courseStatus} skin={skin} />
         </Col>
         <Col lg="6" md="12" sm="12" className="mb-2">
           <SupportTracker
@@ -218,20 +222,21 @@ const Dashboard = () => {
             statCenterValue={dashboardReport?.allReserveAccept || 0}
             statLeftTitle="لغو شده"
             statLeftValue={dashboardReport?.reserveNotAcceptPercent || 0}
+            skin={skin}
           />
         </Col>
       </Row>
       <Row className="match-height mt-2">
         <Col lg="6" md="12" sm="12" className="mb-2">
-          <ApexRadiarChart data={techReport} />
+          <ApexRadiarChart data={techReport} skin={skin} />
         </Col>
         <Col lg="6" md="12" sm="12" className="mb-2">
-          <LatestCoursesTable courses={latestCourses} />
+          <LatestCoursesTable courses={latestCourses} skin={skin} />
         </Col>
       </Row>
       <Row className="match-height mt-2">
         <Col lg="12" md="12" sm="12" className="mb-2">
-          <TopBlogsTable blogs={topBlogs} />
+          <TopBlogsTable blogs={topBlogs} skin={skin} />
         </Col>
       </Row>
     </div>
