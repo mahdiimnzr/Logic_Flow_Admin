@@ -7,12 +7,14 @@ export const useGetAddressByCoordination = (buildings, enabled) =>
   useGetQueries(
     buildings.map((value) => ({
       queryKey: `BuildingAddress-${value.id}`,
-      pathUrl: `https://photon.komoot.io/reverse?lon=${value.longitude}&lat=${value.latitude}`,
+      pathUrl: `https://photonmap.mahdi7813nazarzadeh-c44.workers.dev/reverse?lon=${value.longitude}&lat=${value.latitude}`,
       enabled,
     })),
   );
 export const getAddressByCoordination = (lat, lon) =>
-  apiClient(`https://photon.komoot.io/reverse?lon=${lon}&lat=${lat}`);
+  apiClient(
+    `https://photonmap.mahdi7813nazarzadeh-c44.workers.dev/reverse?lon=${lon}&lat=${lat}`,
+  );
 
 export const addBuildings = (body) => postParams("Building", body);
 export const updateBuildings = (body) => putParams("Building", body);

@@ -15,6 +15,7 @@ import {
   Label,
   Button,
   ModalFooter,
+  UncontrolledTooltip,
 } from "reactstrap";
 import {
   Eye,
@@ -73,15 +74,20 @@ export const columns = (t) => [
   {
     name: t("CourseTitle"),
     sortable: true,
-    minWidth: "350px",
+    minWidth: "200px",
     sortField: "client.name",
     cell: (row) => {
       return (
-        <div className="d-flex justify-content-left align-items-center">
+        <div className="d-flex justify-content-left align-items-center text-truncate">
           {renderClient(row)}
-          <div className="d-flex flex-column">
-            <Link to={`/Courses/Detail/${row?.courseId}`} className="user-name text-truncate mb-0">{row?.title}</Link>
-            <small className="text-truncate text-muted mb-0">
+          <div className="d-flex flex-column text-truncate">
+            <Link
+              to={`/Courses/Detail/${row?.courseId}`}
+              className="user-name text-truncate mb-0"
+            >
+              {row?.title}
+            </Link>
+            <small className="text-muted text-truncate mb-0">
               {row?.miniDescribe}
             </small>
           </div>
@@ -103,7 +109,11 @@ export const columns = (t) => [
     sortable: true,
     minWidth: "150px",
     sortField: "total",
-    cell: (row) => <span>{formatPrice(row?.cost) || 0} {t("Toman")}</span>,
+    cell: (row) => (
+      <span>
+        {formatPrice(row?.cost) || 0} {t("Toman")}
+      </span>
+    ),
   },
   {
     sortable: true,
@@ -183,12 +193,19 @@ export const columns = (t) => [
             to={`/Courses/Detail/${row?.courseId}`}
             id={`pw-tooltip-${row?.courseId}`}
           >
-            <Eye size={17} className="mx-1" />
+            <Eye id={`Eye-${row.courseId}`} size={17} className="mx-1" />
           </Link>
+          <UncontrolledTooltip placement="top" target={`Eye-${row.courseId}`}>
+            جزئیات دوره
+          </UncontrolledTooltip>
           <Link to={`/Courses/Edit/${row?.courseId}`}>
-            <Edit size={17} className="me-50" />
+            <Edit id={`Edit-${row.courseId}`} size={17} className="me-50" />
           </Link>
-          <UncontrolledDropdown direction='up'>
+          <UncontrolledTooltip placement="top" target={`Edit-${row.courseId}`}>
+            ویرایش دوره
+          </UncontrolledTooltip>
+
+          <UncontrolledDropdown direction="down">
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>

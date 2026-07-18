@@ -1,43 +1,12 @@
-// ** React Imports
-import { Fragment, useState, useEffect, useMemo } from "react";
-
-// ** Table Columns
+import { Fragment } from "react";
 import { columns } from "./Columns";
-
-// ** Debounce Search
-import debounce from "debounce";
-
-// ** Third Party Components
-import Select from "react-select";
-import ReactPaginate from "react-paginate";
 import DataTable from "react-data-table-component";
-import { ChevronDown } from "react-feather";
-
-// ** Utils
-import { selectThemeColors } from "@utils";
-
-// ** Reactstrap Imports
-import {
-  Row,
-  Col,
-  Card,
-  Input,
-  Label,
-  Button,
-  CardBody,
-  CardTitle,
-  CardHeader,
-} from "reactstrap";
-
-// ** Styles
-import "@styles/react/libs/react-select/_react-select.scss";
 import "@styles/react/libs/tables/react-dataTable-component.scss";
 import { useTranslation } from "react-i18next";
+import { Card } from "reactstrap";
 
 const UserCourses = ({ data }) => {
-  // ** I18n
   const { t } = useTranslation();
-
   return (
     <Fragment>
       <Card className="overflow-hidden">
@@ -45,7 +14,7 @@ const UserCourses = ({ data }) => {
           <DataTable
             noHeader
             responsive
-            columns={columns}
+            columns={columns(t)}
             className="react-dataTable"
             data={data ? data : []}
           />

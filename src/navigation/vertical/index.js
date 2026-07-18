@@ -1,3 +1,4 @@
+import { title } from "process";
 import {
   Home,
   Airplay,
@@ -7,6 +8,7 @@ import {
   Database,
   FileText,
   Book,
+  Calendar,
 } from "react-feather";
 
 export default [
@@ -97,6 +99,31 @@ export default [
     ],
   },
   {
+    id: "scheduleManagement",
+    title: "ScheduleManagement",
+    icon: <Calendar size={20} />,
+    children: [
+      {
+        id: "adminSchedule",
+        title: "AdminSchedule",
+        icon: <Circle size={12} />,
+        navLink: "/Schedule/Admin",
+      },
+      {
+        id: "teacherSchedule",
+        title: "TeacherSchedule",
+        icon: <Circle size={12} />,
+        navLink: "/Schedule/Teacher",
+      },
+      {
+        id: "studentSchedule",
+        title: "StudentSchedule",
+        icon: <Circle size={12} />,
+        navLink: "/Schedule/Student",
+      },
+    ],
+  },
+  {
     id: "comments",
     title: "Comments",
     icon: <MessageSquare size={20} />,
@@ -113,5 +140,11 @@ export default [
     title: "Buildings",
     icon: <Database size={20} />,
     navLink: "/Buildings/List",
+  },
+  {
+    id: "Tickets",
+    title: "Tickets",
+    icon: <FileText size={20} />,
+    navLink: "/AllTickets",
   },
 ];

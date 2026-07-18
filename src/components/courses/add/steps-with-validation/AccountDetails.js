@@ -39,12 +39,12 @@ const AccountDetails = ({ stepper }) => {
   const { t } = useTranslation();
 
   const SignupSchema = yup.object().shape({
-    Title: yup.string().required(t("CourseTitleRequired")),
-    Cost: yup.string().required(t("CourseCostRequired")),
-    Capacity: yup.string().required(t("CourseCapacityRequired")),
-    SessionNumber: yup.string().required(t("CourseSessionNumberRequired")),
-    Describe: yup.string().required(t("CourseDescribeRequired")),
-    MiniDescribe: yup.string().required(t("CourseMiniDescribeRequired")),
+    Title: yup.string().trim().required(t("CourseTitleRequired")),
+    Cost: yup.string().trim().required(t("CourseCostRequired")),
+    Capacity: yup.string().trim().required(t("CourseCapacityRequired")),
+    SessionNumber: yup.string().trim().required(t("CourseSessionNumberRequired")),
+    Describe: yup.string().trim().required(t("CourseDescribeRequired")),
+    MiniDescribe: yup.string().trim().required(t("CourseMiniDescribeRequired")),
     StartTime: yup.date().nullable().required(t("CourseStartTimeRequired")),
     EndTime: yup
       .date()
@@ -53,6 +53,7 @@ const AccountDetails = ({ stepper }) => {
       .required(t("CourseEndTimeRequired")),
     CurrentCoursePaymentNumber: yup
       .string()
+      .trim()
       .required(t("CourseCurrentPaymentNumberRequired")),
   });
 
