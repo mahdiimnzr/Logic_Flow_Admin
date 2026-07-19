@@ -1,51 +1,46 @@
-// ** React Imports
-import { Fragment, useState } from "react";
-
-// ** Reactstrap Imports
+import { Fragment, useEffect, useState } from "react";
 import { Row, Col, TabContent, TabPane } from "reactstrap";
-
-// ** Demo Components
 import Spinner from "@components/spinner/Fallback-spinner";
-
 import Breadcrumbs from "@components/breadcrumbs";
 import AccountSetting from "../components/usersDetail/AccountSetting";
-
-// ** Styles
 import "@styles/react/libs/flatpickr/flatpickr.scss";
 import "@styles/react/pages/page-account-settings.scss";
-
 import {
   useGetUserDetail,
   useGetCourseDetails,
   useGetCourseGroupCourses,
 } from "../core/services/api/Users/users.service";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Tabs from "../components/usersDetail/Tabs";
 import UserCourses from "../components/usersDetail/UserCourses";
 import UserReserveCourses from "../components/usersDetail/UserReserveCourses";
+import toast from "react-hot-toast";
 
 const UsersDetail = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { userId } = useParams();
   const [activeTab, setActiveTab] = useState("1");
 
   const { isLoading, data: userDetail } = useGetUserDetail(userId);
 
+  const user = userDetail?.data;
+
   const courseStudentQueries = useGetCourseDetails(
-    userDetail?.data?.courseStudent.map((value) => value.courseId) ?? [],
-    !isLoading && !!userDetail,
+    user?.courseStudent?.map((value) => value.courseId) ?? [],
+    !isLoading && !!user,
   );
 
   const courseReserveQueries = useGetCourseDetails(
-    userDetail?.data?.courseReserve.map((value) => value.courseId) ?? [],
-    !isLoading && !!userDetail,
+    user?.courseReserve?.map((value) => value.courseId) ?? [],
+    !isLoading && !!user,
   );
 
   const courseGroupQueries = useGetCourseGroupCourses(
     courseReserveQueries.map((value, index) => ({
       TeacherId: value.data?.data?.teacherId,
-      CourseId: userDetail?.data?.courseReserve[index]?.courseId,
+      CourseId: user?.courseReserve?.[index]?.courseId,
     })),
     courseReserveQueries.every((value) => value.isSuccess),
   );
@@ -60,7 +55,7 @@ const UsersDetail = () => {
     )
     .map((value, index) => ({
       ...value.data?.data,
-      accept: userDetail?.data?.courseReserve[index]?.accept,
+      accept: user?.courseReserve?.[index]?.accept,
       groupId: courseGroupQueries[index]?.data?.data,
     }));
 
@@ -73,9 +68,18 @@ const UsersDetail = () => {
     setActiveTab(tab);
   };
 
-  return isLoading || coursesLoading ? (
-    <Spinner />
-  ) : (
+  useEffect(() => {
+    if (userDetail?.data?.success === false) {
+      navigate("/Users/List");
+      toast.error(userDetail?.data?.message);
+    }
+  }, [userDetail]);
+
+  if (isLoading || coursesLoading) {
+    return <Spinner />;
+  }
+
+  return (
     <Fragment>
       <Breadcrumbs
         title={t("ProfileDetails")}
@@ -84,7 +88,8 @@ const UsersDetail = () => {
           { title: t("ProfileDetails") },
         ]}
       />
-      {userDetail?.data !== null ? (
+
+      {user && (
         <Row>
           <Col xs={12}>
             <Tabs
@@ -92,27 +97,27 @@ const UsersDetail = () => {
               activeTab={activeTab}
               toggleTab={toggleTab}
             />
+
             <TabContent activeTab={activeTab}>
               <TabPane tabId="1">
-                <AccountSetting data={userDetail?.data} />
+                <AccountSetting data={user} />
               </TabPane>
             </TabContent>
+
             <TabContent activeTab={activeTab}>
               <TabPane tabId="2">
                 <UserCourses data={courses} />
               </TabPane>
             </TabContent>
+
             <TabContent activeTab={activeTab}>
               <TabPane tabId="3">
-                <UserReserveCourses
-                  data={reserveCourses}
-                  reserveIs={userDetail?.data}
-                />
+                <UserReserveCourses data={reserveCourses} reserveIs={user} />
               </TabPane>
             </TabContent>
           </Col>
         </Row>
-      ) : null}
+      )}
     </Fragment>
   );
 };

@@ -16,11 +16,19 @@ const TeacherSchedule = () => {
     RowsOfPage: 500000,
   });
 
+  useEffect(() => {
+    if (data?.data?.success == false) {
+      navigate("/");
+      toast.error(data?.data?.message);
+    }
+    () => null;
+  }, [data?.data]);
+
   return groupsLoading || coursesLoading ? (
     <Spinner />
   ) : (
     <CalendarComponent
-      data={data?.data}
+      data={Array.isArray(data?.data) ? data?.data : []}
       isFetching={isFetching}
       isLoading={isLoading}
     />

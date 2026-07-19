@@ -71,13 +71,13 @@ const AccountSetting = ({ data }) => {
 
   const checkIsTeacher = useMemo(() => {
     return (
-      data?.roles.some((role) => role.roleName.includes("teacher")) ?? false
+      data?.roles?.some((role) => role.roleName.includes("teacher")) ?? false
     );
   }, [data]);
 
   const checkIsStudent = useMemo(() => {
     return (
-      data?.roles.some((role) => role.roleName.includes("student")) ?? false
+      data?.roles?.some((role) => role.roleName.includes("student")) ?? false
     );
   }, [data]);
 
@@ -346,8 +346,9 @@ const AccountSetting = ({ data }) => {
                       <InputGroup className="input-group-merge">
                         <Cleave
                           dir="ltr"
-                          className={`form-control ${errors.phoneNumber ? "is-invalid" : ""
-                            }`}
+                          className={`form-control ${
+                            errors.phoneNumber ? "is-invalid" : ""
+                          }`}
                           placeholder="0912 912 9192"
                           options={options}
                           id="phoneNumber"
@@ -473,8 +474,9 @@ const AccountSetting = ({ data }) => {
                       <InputGroup className="input-group-merge">
                         <Cleave
                           dir="ltr"
-                          className={`form-control ${errors.nationalCode ? "is-invalid" : ""
-                            }`}
+                          className={`form-control ${
+                            errors.nationalCode ? "is-invalid" : ""
+                          }`}
                           placeholder="200-202020-2"
                           options={nationalCodeOptions}
                           id="nationalCode"
@@ -709,8 +711,9 @@ const AccountSetting = ({ data }) => {
                           }
                         }}
                         placeholder="mm/dd/yyyy"
-                        inputClass={`form-control ${errors.birthDay ? "is-invalid" : ""
-                          }`}
+                        inputClass={`form-control ${
+                          errors.birthDay ? "is-invalid" : ""
+                        }`}
                         containerStyle={{ width: "100%" }}
                       />
                       {errors.birthDay && (

@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import classnames from "classnames";
 import { Row, Col } from "reactstrap";
 import Calendar from "./Calendar";
@@ -9,6 +9,8 @@ import "@styles/react/apps/app-calendar.scss";
 import AddScheduleModal from "../AddSchedulModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetStudentSchedule } from "../../../core/services/api/scheduleManagement/scheduleManagement.service";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const calendarsColor = {
   Business: "primary",
@@ -19,6 +21,7 @@ const calendarsColor = {
 };
 
 const CalendarComponent = () => {
+  const navigate = useNavigate();
   const params = useSelector((state) => state.scheduleSlice.params.student);
   const store = useSelector((state) => state.calendar);
   const queryClient = useQueryClient();
@@ -54,7 +57,7 @@ const CalendarComponent = () => {
 
   const myEvents = useMemo(
     () =>
-      data?.data?.map((value) => {
+      (Array.isArray(data?.data) ? data?.data : [])?.map((value) => {
         const thisGroup = (
           courseGroups?.data?.data?.courseGroupDtos ?? []
         ).find((group) => group.groupId == value.courseGroupId);
@@ -92,6 +95,14 @@ const CalendarComponent = () => {
       }),
     [data],
   );
+
+  useEffect(() => {
+    if (data?.data?.success == false) {
+      navigate("/");
+      toast.error(data?.data?.message);
+    }
+    () => null;
+  }, [data?.data]);
 
   return (
     <Fragment>
