@@ -470,5 +470,7 @@
   "AddHomework": "افزودن تکلیف",
   "Add": "افزودن",
   "HomeworkTitleRequired": "وارد کردن عنوان تکلیف الزامی است",
-  "HomeworkDescriptionRequired": "وارد کردن توضیحات تکلیف الزامی است"
+  "HomeworkDescriptionRequired": "وارد کردن توضیحات تکلیف الزامی است",
+  "createWithAi": "ساخت به کمک AI",
+  "Generating": "درحال ساخت"
 }

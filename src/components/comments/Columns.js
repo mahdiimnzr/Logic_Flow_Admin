@@ -41,9 +41,6 @@ export const columns = (t) => [
   {
     name: t("Writer"),
     minWidth: "50px",
-    sortable: true,
-    sortField: "author",
-    selector: (row) => row.author,
     cell: (row) => (
       <div className="d-flex flex-column">
         <Link
@@ -58,9 +55,6 @@ export const columns = (t) => [
   {
     name: t("CommentTitle"),
     minWidth: "80px",
-    sortable: true,
-    sortField: "commentTitle",
-    selector: (row) => row.commentTitle,
     cell: (row) => (
       <span className="fw-bolder text-truncate">{row.commentTitle}</span>
     ),
@@ -68,9 +62,7 @@ export const columns = (t) => [
   {
     name: t("CommentDescribe"),
     minWidth: "200px",
-    sortable: true,
-    sortField: "describe",
-    selector: (row) => row.describe,
+    maxWidth: "320px",
     cell: (row) => (
       <span className="text-truncate text-muted mb-0">{row.describe}</span>
     ),

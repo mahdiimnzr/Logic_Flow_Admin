@@ -24,6 +24,13 @@ const Editor = ({ data, onChange, editorBlock, placeholder, error }) => {
       }
     };
   }, []);
+  useEffect(() => {
+    if (!ref.current || !data) return;
+
+    ref.current.isReady.then(() => {
+      ref.current.render(data);
+    });
+  }, [data]);
 
   return (
     <div

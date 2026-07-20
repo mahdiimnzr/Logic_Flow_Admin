@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { ArrowLeft, ArrowRight } from "react-feather";
@@ -25,6 +25,8 @@ import Editor from "../../../common/Editor";
 const AccountDetails = ({ stepper, data }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
+
+  const [editorData, setEditorData] = useState({});
 
   const SignupSchema = yup.object().shape({
     Title: yup.string().required(t("CourseTitleRequired")),
@@ -72,9 +74,9 @@ const AccountDetails = ({ stepper, data }) => {
         type: data.type === "p" ? "paragraph" : data.type,
       }));
 
-      return describe;
+      return setEditorData(describe);
     } catch {
-      return {
+      return setEditorData({
         time: new Date(),
         blocks: [
           {
@@ -83,7 +85,7 @@ const AccountDetails = ({ stepper, data }) => {
           },
         ],
         version: "2.81.0",
-      };
+      });
     }
   };
 
@@ -132,6 +134,10 @@ const AccountDetails = ({ stepper, data }) => {
     );
     stepper.next();
   };
+
+  useEffect(() => {
+    getEditorBlocks(data?.describe);
+  }, []);
 
   return (
     <Fragment>
@@ -316,7 +322,7 @@ const AccountDetails = ({ stepper, data }) => {
               name="Describe"
               render={({ field }) => (
                 <Editor
-                  data={getEditorBlocks(data?.describe)}
+                  data={editorData}
                   placeholder={t("CourseDescribePlaceholder")}
                   onChange={async (data) => {
                     field.onChange(JSON.stringify(await data));

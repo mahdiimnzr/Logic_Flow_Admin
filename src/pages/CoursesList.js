@@ -12,7 +12,12 @@ import { useTranslation } from "react-i18next";
 const CoursesList = () => {
   const { t } = useTranslation();
   const params = useSelector((state) => state.courseListSlice.params);
-  const { isLoading, data: courseList, refetch, isFetching } = useGetCourseList(params);
+  const {
+    isLoading,
+    data: courseList,
+    refetch,
+    isFetching,
+  } = useGetCourseList(params);
   const { isLoading: statusLoading } = useGetStatus();
 
   useEffect(() => {

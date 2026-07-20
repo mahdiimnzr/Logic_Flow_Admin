@@ -1,93 +1,129 @@
-import { useEffect, useState } from "react";
+import React from "react";
 
 const CreateEditorJsBlocks = ({ editorData }) => {
-    const [editor, setEditor] = useState();
+  if (!editorData) return null;
 
-    useEffect(() => {
-        if (editorData.length == 0) return;
+  let editor = null;
 
-        setEditor(JSON.parse(editorData));
-    }, [editorData]);
+  try {
+    editor =
+      typeof editorData === "string" ? JSON.parse(editorData) : editorData;
+  } catch {
+    return <p className="fs-5">{editorData}</p>;
+  }
 
-    const loadBlocks = (data) => {
-        return data?.blocks?.map((block, index) => {
-            switch (block.type) {
-                case "paragraph":
-                    return (
-                        <p className="fs-5" key={index}>
-                            {block?.data?.text}
-                        </p>
-                    );
-                case "header":
-                    switch (block?.data?.level) {
-                        case 1:
-                            return <h1>{block?.data?.text}</h1>;
-                        case 2:
-                            return <h2>{block?.data?.text}</h2>;
-                        case 3:
-                            return <h3>{block?.data?.text}</h3>;
-                        case 4:
-                            return <h4>{block?.data?.text}</h4>;
-                        case 5:
-                            return <h5>{block?.data?.text}</h5>;
-                        case 6:
-                            return <h6>{block?.data?.text}</h6>;
-                    }
-                case "quote":
-                    return (
-                        <div
-                            className="my-4"
-                            style={{
-                                backgroundColor: "#EFEEFE",
-                                paddingTop: "20px",
-                                paddingBottom: "20px",
-                                paddingLeft: "32px",
-                                paddingRight: "32px",
-                                display: "flex",
-                                width: "83%",
-                                justifyContent: "space-between",
-                                marginLeft: "auto",
-                                marginRight: "auto",
-                                borderRight: "5px solid #5751E1",
-                                color: "#6D6C80",
-                            }}
-                        >
-                            <p className="w-5/6 max-sm:text-sm">{block?.data?.text}</p>
-                        </div>
-                    );
-                case "list":
-                    return (
-                        <ul className="my-1">
-                            {block?.data?.items.map((item, index) => (
-                                <li
-                                    key={index}
-                                    className="d-flex align-items-center gap-75 mb-1"
-                                >
-                                    <div
-                                        style={{
-                                            width: "30px",
-                                            height: "30px",
-                                            backgroundColor: "#FFC224",
-                                            borderRadius: "50%",
-                                            border: "1px solid #000",
-                                        }}
-                                        className="d-flex justify-content-center align-items-center"
-                                    >
-                                    </div>
-                                    <span style={{ color: "#161439" }} className="fs-4">
-                                        {item.content}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    );
-                default:
-                    <></>;
+  if (!editor || !editor.blocks || !Array.isArray(editor.blocks)) {
+    return <p className="fs-5">{editorData}</p>;
+  }
+
+  return (
+    <>
+      {editor.blocks.map((block, index) => {
+        switch (block.type) {
+          case "header":
+            switch (block.data.level) {
+              case 1:
+                return <h1 key={index}>{block.data.text}</h1>;
+
+              case 2:
+                return <h2 key={index}>{block.data.text}</h2>;
+
+              case 3:
+                return <h3 key={index}>{block.data.text}</h3>;
+
+              case 4:
+                return <h4 key={index}>{block.data.text}</h4>;
+
+              case 5:
+                return <h5 key={index}>{block.data.text}</h5>;
+
+              case 6:
+                return <h6 key={index}>{block.data.text}</h6>;
+
+              default:
+                return <h2 key={index}>{block.data.text}</h2>;
             }
-        });
-    };
 
-    return <div>{editorData && loadBlocks(editor)}</div>;
+          case "paragraph":
+            return (
+              <p key={index} className="fs-5">
+                {block.data.text}
+              </p>
+            );
+
+          case "quote":
+            return (
+              <div
+                key={index}
+                className="my-4"
+                style={{
+                  backgroundColor: "#EFEEFE",
+                  padding: "20px 32px",
+                  display: "flex",
+                  width: "83%",
+                  marginInline: "auto",
+                  borderRight: "5px solid #5751E1",
+                  color: "#6D6C80",
+                }}
+              >
+                <p className="w-100 m-0">{block.data.text}</p>
+              </div>
+            );
+
+          case "list":
+            return (
+              <ul key={index} className="my-3">
+                {block.data.items.map((item, i) => (
+                  <li key={i} className="d-flex align-items-center gap-2 mb-2">
+                    <div
+                      style={{
+                        width: 10,
+                        height: 10,
+                        background: "#FFC224",
+                        borderRadius: "50%",
+                      }}
+                    />
+
+                    <span>
+                      {typeof item === "string" ? item : item.content}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            );
+
+          case "checklist":
+            return (
+              <div key={index} className="my-3">
+                {block.data.items.map((item, i) => (
+                  <label
+                    key={i}
+                    className="d-flex align-items-center gap-2 mb-2"
+                  >
+                    <input type="checkbox" checked={item.checked} readOnly />
+
+                    <span>{item.text}</span>
+                  </label>
+                ))}
+              </div>
+            );
+
+          case "code":
+            return (
+              <pre
+                key={index}
+                className="p-3 rounded bg-dark text-white overflow-auto"
+              >
+                <code>{block.data.code}</code>
+              </pre>
+            );
+
+          default:
+            return null;
+        }
+      })}
+    </>
+  );
 };
 
 export default CreateEditorJsBlocks;
