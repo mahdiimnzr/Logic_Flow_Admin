@@ -12,11 +12,13 @@ export const getDescribe = async (messages) => {
 };
 
 export const generateImage = async (data) => {
-  return axios.post(
+  const response = axios.post(
     "https://image-generator.mahdi7813nazarzadeh-c44.workers.dev/",
     data,
     {
       responseType: "blob",
     },
   );
+
+  return response;
 };

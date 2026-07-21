@@ -24,7 +24,6 @@ import Editor from "../../../common/Editor";
 import { getDescribe } from "../../../../core/services/api/AI/ai.service";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
-import { isPending } from "@reduxjs/toolkit";
 
 const defaultValues = {
   Title: "",
@@ -42,22 +41,16 @@ const AccountDetails = ({ stepper }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
-  const [isAnswering, setIsAnswering] = useState(false);
   const [editorData, setEditorData] = useState({});
 
   const { mutate, isPending } = useMutation({
     mutationFn: getDescribe,
-    onMutate: () => {
-      setIsAnswering(true);
-    },
     onSuccess: (response) => {
-      setIsAnswering(false);
       setEditorData(response.data);
       setValue("Describe", JSON.stringify(response.data));
     },
 
     onError: () => {
-      setIsAnswering(false);
       toast.error("خطا در دریافت پاسخ");
     },
   });
@@ -342,9 +335,11 @@ const AccountDetails = ({ stepper }) => {
                   placeholder={t("CourseDescribePlaceholder")}
                   onChange={async (data) => {
                     field.onChange(JSON.stringify(await data));
+                    setEditorData(await data);
                   }}
                   error={errors.Describe && true}
                   editorBlock={"editorJs-container"}
+                  isAI={isPending}
                 />
               )}
             />

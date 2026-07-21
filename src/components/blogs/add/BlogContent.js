@@ -1,10 +1,14 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Label, Button } from "reactstrap";
 import { ArrowLeft, ArrowRight } from "react-feather";
 import { Controller } from "react-hook-form";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../common/Editor";
+import { getDescribe } from "../../../core/services/api/AI/ai.service";
+import toast from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 const BlogContent = ({
   stepper,
@@ -13,7 +17,32 @@ const BlogContent = ({
   trigger,
   isEditMode,
   getValues,
+  setValue,
 }) => {
+  const { t } = useTranslation();
+  const [error, setError] = useState(true);
+  const [editorData, setEditorData] = useState(getValues("describe") || {});
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: getDescribe,
+    onSuccess: (response) => {
+      setEditorData(response.data);
+      setValue("describe", JSON.stringify(response.data));
+    },
+
+    onError: (error) => {
+      toast.error("خطا در دریافت پاسخ");
+    },
+  });
+
+  const validationChecker = () => {
+    if (editorData?.blocks?.length > 0) {
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
+
   const getEditorBlocks = (desc) => {
     if (!desc) return {};
     try {
@@ -25,9 +54,9 @@ const BlogContent = ({
         type: data.type === "p" ? "paragraph" : data.type,
       }));
 
-      return describe;
+      return setEditorData(describe);
     } catch {
-      return {
+      return setEditorData({
         time: new Date(),
         blocks: [
           {
@@ -36,13 +65,18 @@ const BlogContent = ({
           },
         ],
         version: "2.81.0",
-      };
+      });
     }
   };
   const handleNext = async () => {
-    const isStepValid = await trigger(["describe"]);
-    if (isStepValid) stepper.next();
+    const isStepValid = error;
+
+    if (!isStepValid) stepper.next();
   };
+
+  useEffect(() => {
+    validationChecker();
+  }, [editorData]);
 
   return (
     <Fragment>
@@ -54,33 +88,52 @@ const BlogContent = ({
       <div className="mb-1">
         <Label className="form-label" for="describe">
           بدنه مقاله <span className="text-danger">*</span>
+          {!isEditMode && (
+            <Button
+              size="sm"
+              color="primary"
+              className="btn-prev mx-2"
+              disabled={isPending}
+              onClick={() =>
+                mutate([
+                  {
+                    role: "user",
+                    content:
+                      getValues("title").trim() +
+                      ", " +
+                      getValues("miniDescribe").trim(),
+                  },
+                ])
+              }
+            >
+              {isPending ? t("Generating") : t("createWithAi")}
+            </Button>
+          )}
         </Label>
 
-        <div className={errors.describe ? "border border-danger rounded" : ""}>
+        <div className={error ? "border border-danger rounded" : ""}>
           <Controller
             name="describe"
             control={control}
             render={({ field }) => (
               <Editor
-                data={
-                  isEditMode
-                    ? getEditorBlocks(getValues("describe"))
-                    : undefined
-                }
+                data={editorData}
                 placeholder={"وارد کردن متن مقاله الزامی است"}
                 onChange={async (data) => {
                   field.onChange(JSON.stringify(await data));
+                  setEditorData(await data);
                 }}
-                error={errors.describe && true}
+                error={error && true}
                 editorBlock={"editorJs-container"}
+                isAI={isPending}
               />
             )}
           />
         </div>
 
-        {errors.describe && (
+        {error && (
           <span className="text-danger fs-6 mt-1 d-block">
-            {errors.describe.message}
+            {t("CourseDescribeRequired")}
           </span>
         )}
       </div>

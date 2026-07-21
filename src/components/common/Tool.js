@@ -1,3 +1,4 @@
+import Paragraph from "@editorjs/paragraph";
 import Header from "@editorjs/header";
 import List from "@editorjs/list";
 import CheckList from "@editorjs/checklist";
@@ -8,6 +9,7 @@ import Delimiter from "@editorjs/delimiter";
 import Warning from "@editorjs/warning";
 
 const EditorJsTools = {
+  paragraph: Paragraph,
   header: Header,
   list: List,
   checklist: CheckList,

@@ -2,7 +2,14 @@ import React, { memo, useEffect, useRef } from "react";
 import EditorJs from "@editorjs/editorjs";
 import EditorJsTools from "./Tool";
 
-const Editor = ({ data, onChange, editorBlock, placeholder, error }) => {
+const Editor = ({
+  data,
+  onChange,
+  editorBlock,
+  placeholder,
+  error,
+  isAI = false,
+}) => {
   const ref = useRef();
   useEffect(() => {
     if (!ref.current) {
@@ -30,7 +37,7 @@ const Editor = ({ data, onChange, editorBlock, placeholder, error }) => {
     ref.current.isReady.then(() => {
       ref.current.render(data);
     });
-  }, [data]);
+  }, [isAI]);
 
   return (
     <div

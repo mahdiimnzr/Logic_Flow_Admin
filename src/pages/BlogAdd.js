@@ -195,6 +195,7 @@ const BlogAdd = () => {
           control={control}
           isEditMode={!!id}
           getValues={getValues}
+          setValue={setValue}
         />
       ),
     },
@@ -209,6 +210,7 @@ const BlogAdd = () => {
           control={control}
           trigger={trigger}
           setValue={setValue}
+          getValues={getValues}
         />
       ),
     },
