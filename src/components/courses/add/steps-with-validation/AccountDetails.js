@@ -311,6 +311,8 @@ const AccountDetails = ({ stepper }) => {
                 className="btn-prev mx-2"
                 disabled={isPending}
                 onClick={() =>
+                  getValues("Title") &&
+                  getValues("MiniDescribe") &&
                   mutate([
                     {
                       role: "user",
