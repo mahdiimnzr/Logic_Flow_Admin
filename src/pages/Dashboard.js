@@ -28,9 +28,11 @@ import {
 } from "./../core/services/api/dashboard/dashboard.service";
 import { getAdminBlogsList } from "./../core/services/api/blogs/blogs.service";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
   const { skin } = useSkin();
+  const { t } = useTranslation();
 
   const [dashboardReport, setDashboardReport] = useState(null);
   const [teachersCount, setTeachersCount] = useState(0);
@@ -166,11 +168,17 @@ const Dashboard = () => {
 
   const formatLargeNumber = (num) => {
     if (!num) return "0";
-    if (num >= 1e15) return (num / 1e15).toFixed(1) + " هزار همت";
-    if (num >= 1e12) return (num / 1e12).toFixed(1) + " همت";
-    if (num >= 1e9) return (num / 1e9).toFixed(1) + " میلیارد";
-    if (num >= 1e6) return (num / 1e6).toFixed(1) + " میلیون";
-    return num.toLocaleString("fa-IR");
+
+    if (num >= 1e15)
+      return `${(num / 1e15).toFixed(1)} ${t("dashboardThousandHemat")}`;
+
+    if (num >= 1e12) return `${(num / 1e12).toFixed(1)} ${t("dashboardHemat")}`;
+
+    if (num >= 1e9) return `${(num / 1e9).toFixed(1)} ${t("dashboardBillion")}`;
+
+    if (num >= 1e6) return `${(num / 1e6).toFixed(1)} ${t("dashboardMillion")}`;
+
+    return num.toLocaleString(i18n.language === "fa" ? "fa-IR" : "en-US");
   };
 
   return isLoading ? (
@@ -190,7 +198,7 @@ const Dashboard = () => {
             stats={usersCount ? usersCount.toLocaleString("fa-IR") : "0"}
             statTitle={
               <span className={skin === "dark" ? "text-light" : "text-body"}>
-                کل کاربران
+                {t("DashboardsUsers")}
               </span>
             }
           />
@@ -202,7 +210,7 @@ const Dashboard = () => {
             stats={teachersCount.toString()}
             statTitle={
               <span className={skin === "dark" ? "text-light" : "text-body"}>
-                تعداد اساتید
+                {t("DashboardsTeacher")}
               </span>
             }
           />
@@ -214,7 +222,7 @@ const Dashboard = () => {
             stats={coursesCount.toString()}
             statTitle={
               <span className={skin === "dark" ? "text-light" : "text-body"}>
-                کل دوره‌ها
+                {t("DashboardsCourses")}
               </span>
             }
           />
@@ -225,12 +233,14 @@ const Dashboard = () => {
             icon={<CreditCard size={21} />}
             stats={
               dashboardReport?.allPaymentCost
-                ? `${formatLargeNumber(dashboardReport.allPaymentCost)} تومان`
-                : "0 تومان"
+                ? `${formatLargeNumber(dashboardReport.allPaymentCost)} ${t(
+                    "dashboardMoney",
+                  )}`
+                : `0 ${t("dashboardMoney")}`
             }
             statTitle={
               <span className={skin === "dark" ? "text-light" : "text-body"}>
-                مجموع پرداختی‌ها
+                {t("dashboardPayments")}
               </span>
             }
           />
@@ -250,19 +260,19 @@ const Dashboard = () => {
         </Col>
         <Col lg="6" md="12" sm="12" className="mb-2">
           <SupportTracker
-            title="وضعیت رزروها"
-            totalTitle="کل رزروها"
+            title={t("DashboardsStatus")}
+            totalTitle={t("DashboardsTotalBookings")}
             totalCount={dashboardReport?.allReserve || 0}
-            chartLabel="درصد تایید"
+            chartLabel={t("DashboardsPercentage")}
             series={[dashboardReport?.reserveAcceptPercent || 0]}
-            statRightTitle="در انتظار"
+            statRightTitle={t("DashboardsWaiting")}
             statRightValue={
               (dashboardReport?.allReserve || 0) -
               (dashboardReport?.allReserveAccept || 0)
             }
-            statCenterTitle="تایید شده"
+            statCenterTitle={t("Accept")}
             statCenterValue={dashboardReport?.allReserveAccept || 0}
-            statLeftTitle="لغو شده"
+            statLeftTitle={t("DashboardsCancel")}
             statLeftValue={dashboardReport?.reserveNotAcceptPercent || 0}
             skin={skin}
           />
