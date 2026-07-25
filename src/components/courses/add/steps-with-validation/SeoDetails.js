@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { ArrowLeft, ArrowRight } from "react-feather";
@@ -19,6 +19,8 @@ import { updateAddCourseSliceParams } from "../../../../redux/actions";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import ImageDropZone from "../../../common/ImageDropZone";
+import { useMutation } from "@tanstack/react-query";
+import { generateImage } from "../../../../core/services/api/AI/ai.service";
 
 const defaultValues = {
   GoogleTitle: "",
@@ -31,6 +33,30 @@ const SeoDetails = ({ stepper }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const params = useSelector((state) => state.addCourseSlice.params);
+
+  const [aiImage, setAiImage] = useState(null);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: generateImage,
+    onSuccess: (response) => {
+      const file = new File([response.data], "ai-course-cover.png", {
+        type: response.data.type || "image/png",
+      });
+      setAiImage(file);
+      setValue("imageAddress", "ai-course-cover.png", {
+        shouldValidate: true,
+      });
+      dispatch(
+        updateAddCourseSliceParams({
+          key: "Image",
+          value: file,
+        }),
+      );
+    },
+    onError: () => {
+      toast.error("خطا در ساخت تصویر");
+    },
+  });
 
   const SignupSchema = yup.object().shape({
     GoogleTitle: yup.string().required(t("CourseGoogleTitleRequired")),
@@ -167,9 +193,25 @@ const SeoDetails = ({ stepper }) => {
           </Col>
 
           <Col sm="12" className="mb-1">
-            <Label for="imageAddress">{t("CourseImageAddress")}</Label>
+            <Label for="imageAddress">
+              {t("CourseImageAddress")}{" "}
+              <Button
+                size="sm"
+                color="primary"
+                className="btn-prev mx-2"
+                disabled={isPending}
+                onClick={() =>
+                  mutate({
+                    title: params.Title,
+                    miniDescription: params.MiniSecribe,
+                  })
+                }
+              >
+                {isPending ? t("Generating") : t("createWithAi")}
+              </Button>
+            </Label>
             <ImageDropZone
-              currentImage={null}
+              currentImage={aiImage}
               error={
                 errors.imageAddress ? t(errors.imageAddress.message) : null
               }

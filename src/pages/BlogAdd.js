@@ -1,32 +1,35 @@
-import { useRef, useState, useEffect, Fragment } from 'react'
-import { useForm } from 'react-hook-form'
-import { FileText, Image, Type, Eye } from 'react-feather'
-import { useNavigate, useParams } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import { useRef, useState, useEffect, Fragment } from "react";
+import { useForm } from "react-hook-form";
+import { FileText, Image, Type, Eye } from "react-feather";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
-import Wizard from "../components/blogs/wizard/index"
-import BasicInfo from '../components/blogs/add/BasicInfo';
-import BlogContent from '../components/blogs/add/BlogContent';
-import BlogCover from '../components/blogs/add/BlogCover';
-import BlogPreview from '../components/blogs/add/BlogPreview';
-import { createNewsBlog, getNewsById, updateNews, updateNewsFile } from '../core/services/api/blogs/blogs.service';
-import BreadCrumbs from "@components/breadcrumbs"
-
-
-import defaultIMG from "../assets/images/coursePng.png"
-const baseURL = import.meta.env.VITE_BASE_URL || ""
+import Wizard from "../components/blogs/wizard/index";
+import BasicInfo from "../components/blogs/add/BasicInfo";
+import BlogContent from "../components/blogs/add/BlogContent";
+import BlogCover from "../components/blogs/add/BlogCover";
+import BlogPreview from "../components/blogs/add/BlogPreview";
+import {
+  createNewsBlog,
+  getNewsById,
+  updateNews,
+  updateNewsFile,
+} from "../core/services/api/blogs/blogs.service";
+import BreadCrumbs from "@components/breadcrumbs";
+import defaultIMG from "../assets/images/coursePng.png";
+import Spinner from "@components/spinner/Fallback-spinner";
+const baseURL = import.meta.env.VITE_BASE_URL || "";
 
 const BlogAdd = () => {
+  const ref = useRef(null);
 
-  const ref = useRef(null)
+  const [stepper, setStepper] = useState(null);
 
-  const [stepper, setStepper] = useState(null)
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
+  const [originalData, setOriginalData] = useState(null);
 
-  const [originalData, setOriginalData] = useState(null)
-
-  const { id } = useParams()
+  const { id } = useParams();
 
   const {
     control,
@@ -50,18 +53,16 @@ const BlogAdd = () => {
       isSlider: false,
       categoryId: "",
       image: null,
-    }
-  })
+    },
+  });
 
   useEffect(() => {
     if (id) {
       const fetchArticleData = async () => {
         try {
-
           const data = await getNewsById(id);
 
           if (data && data.detailsNewsDto) {
-
             const news = data.detailsNewsDto;
             setOriginalData(news);
 
@@ -75,7 +76,7 @@ const BlogAdd = () => {
               isActive: news.active,
               isSlider: news.isSlider,
               categoryId: news.newsCatregoryId,
-              image: news.currentImageAddress
+              image: news.currentImageAddress,
             });
           }
         } catch (error) {
@@ -87,7 +88,6 @@ const BlogAdd = () => {
   }, [id, reset]);
 
   const onSubmit = async (data) => {
-
     if (id) {
       const updateFormData = new FormData();
 
@@ -101,15 +101,20 @@ const BlogAdd = () => {
       updateFormData.append("IsSlider", data.isSlider);
       updateFormData.append("Active", data.isActive);
       updateFormData.append("NewsCatregoryId", data.categoryId);
-      updateFormData.append("CurrentImageAddress", originalData.currentImageAddress || "");
-      updateFormData.append("CurrentImageAddressTumb", originalData.currentImageAddressTumb || "");
+      updateFormData.append(
+        "CurrentImageAddress",
+        originalData.currentImageAddress || "",
+      );
+      updateFormData.append(
+        "CurrentImageAddressTumb",
+        originalData.currentImageAddressTumb || "",
+      );
       updateFormData.append("SlideNumber", 1);
 
       try {
-
         const textUpdateResult = await updateNews(updateFormData);
 
-        if (data.image && typeof data.image !== 'string') {
+        if (data.image && typeof data.image !== "string") {
           const fileFormData = new FormData();
           fileFormData.append("NewsId", id);
           fileFormData.append("IsSlide", data.isSlider);
@@ -121,7 +126,7 @@ const BlogAdd = () => {
 
         if (textUpdateResult) {
           toast.success("مقاله با موفقیت ویرایش شد!");
-          navigate('/blogs/list');
+          navigate("/blogs/list");
         }
       } catch (error) {
         toast.error("خطا در ویرایش مقاله!");
@@ -146,27 +151,20 @@ const BlogAdd = () => {
       }
 
       try {
-
         const result = await createNewsBlog(formData);
         if (result && result.success) {
-
           toast.success("مقاله با موفقیت ایجاد شد!");
-          navigate("/blogs/list")
-
+          navigate("/blogs/list");
         } else {
-
-          toast.error("خطا در ساخت مقاله! لطفا دوباره تلاش کنید!")
+          toast.error("خطا در ساخت مقاله! لطفا دوباره تلاش کنید!");
           console.error("Error creating News!", result);
-
         }
       } catch (error) {
-
-        toast.error("مشکلی در ارتباط با سرور پیش آمد!")
+        toast.error("مشکلی در ارتباط با سرور پیش آمد!");
         console.error("Error API!", error);
-
       }
     }
-  }
+  };
 
   const steps = [
     {
@@ -174,50 +172,85 @@ const BlogAdd = () => {
       title: "اطلاعات پایه",
       subtitle: "عنوان و دسته بندی مقاله",
       icon: <Type size={18} />,
-      content: <BasicInfo stepper={stepper} control={control} errors={errors} trigger={trigger} register={register} />,
+      content: (
+        <BasicInfo
+          stepper={stepper}
+          control={control}
+          errors={errors}
+          trigger={trigger}
+          register={register}
+        />
+      ),
     },
     {
       id: "blog-content",
       title: "محتوای مقاله",
       subtitle: "متن اصلی مقاله",
       icon: <FileText size={18} />,
-      content: <BlogContent stepper={stepper} errors={errors} trigger={trigger} control={control} />,
+      content: (
+        <BlogContent
+          stepper={stepper}
+          errors={errors}
+          trigger={trigger}
+          control={control}
+          isEditMode={!!id}
+          getValues={getValues}
+          setValue={setValue}
+        />
+      ),
     },
     {
       id: "blog-cover",
       title: "کاور مقاله",
       subtitle: "آپلود عکس مقاله",
       icon: <Image size={18} />,
-      content: <BlogCover stepper={stepper} control={control} trigger={trigger} setValue={setValue} />,
+      content: (
+        <BlogCover
+          stepper={stepper}
+          control={control}
+          trigger={trigger}
+          setValue={setValue}
+          getValues={getValues}
+        />
+      ),
     },
     {
       id: "blog-preview",
       title: " پیش نمایش",
       subtitle: " تایید نهایی اطلاعات",
       icon: <Eye size={18} />,
-      content: <BlogPreview stepper={stepper} watch={watch} onSubmit={handleSubmit(onSubmit)} isEditMode={!!id} />,
+      content: (
+        <BlogPreview
+          stepper={stepper}
+          watch={watch}
+          onSubmit={handleSubmit(onSubmit)}
+          isEditMode={!!id}
+        />
+      ),
+    },
+  ];
 
-    }
-  ]
-
-  return (
-    <Fragment >
+  return id && !originalData ? (
+    <Spinner />
+  ) : (
+    <Fragment>
       <BreadCrumbs
         title=" ساخت مقاله جدید"
         data={[
-          { title: " مقالات", link: "/blogs/list" }, { title: "  افزودن مقاله " }
+          { title: " مقالات", link: "/blogs/list" },
+          { title: "  افزودن مقاله " },
         ]}
       />
-      <div className='horizontal-wizard'>
+      <div className="horizontal-wizard">
         <Wizard
           ref={ref}
           steps={steps}
           options={{ linear: true }}
-          instance={e => setStepper(e)}
+          instance={(e) => setStepper(e)}
         />
       </div>
     </Fragment>
-  )
-}
+  );
+};
 
-export default BlogAdd
+export default BlogAdd;

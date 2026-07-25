@@ -12,42 +12,44 @@ import {
   addCourseTechnology,
 } from "../../../../core/services/api/CourseList/courseList.service";
 import { useNavigate } from "react-router-dom";
+import HandleIdentityEditorJs from "../../../common/EditorDetailValidation";
 
 const ReviewSubmit = ({ stepper }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const params = useSelector((state) => state.addCourseSlice.params);
-  const courseAdd = queryClient.getQueryState(["CourseAdd"])
+  const courseAdd = queryClient.getQueryState(["CourseAdd"]);
 
-  const courseTypeName = courseAdd?.data?.courseTypeDtos?.find(
+  const courseTypeName = courseAdd?.data?.data?.courseTypeDtos?.find(
     (item) => item.id == params.CourseTypeId,
   )?.typeName;
 
-  const statusName = courseAdd?.data?.statusDtos?.find(
+  const statusName = courseAdd?.data?.data?.statusDtos?.find(
     (item) => item.id == params.CourseStatusId,
   )?.statusName;
 
-  const levelName = courseAdd?.data?.courseLevelDtos?.find(
+  const levelName = courseAdd?.data?.data?.courseLevelDtos?.find(
     (item) => item.id == params.CourseLvlId,
   )?.levelName;
 
-  const classRoomName = courseAdd?.data?.classRoomDtos?.find(
+  const classRoomName = courseAdd?.data?.data?.classRoomDtos?.find(
     (item) => item.id == params.ClassId,
   )?.classRoomName;
 
-  const teacherName = courseAdd?.data?.teachers?.find(
+  const teacherName = courseAdd?.data?.data?.teachers?.find(
     (item) => item.teacherId == params.TeacherId,
   )?.fullName;
 
-  const termName = courseAdd?.data?.termDtos?.find(
+  const termName = courseAdd?.data?.data?.termDtos?.find(
     (item) => item.id == params.TremId,
   )?.termName;
 
   const technologyNames = params.TechnologyIds?.map(
     (tech) =>
-      courseAdd?.data?.technologyDtos?.find((item) => item.id == tech.techId)
-        ?.techName,
+      courseAdd?.data?.data?.technologyDtos?.find(
+        (item) => item.id == tech.techId,
+      )?.techName,
   );
 
   const { mutate: addTechnologies, isPending: isTechPending } = useMutation({
@@ -56,7 +58,7 @@ const ReviewSubmit = ({ stepper }) => {
     onSuccess: (response) => {
       if (response.data.success) {
         toast.success(response.data.message);
-        navigate("/Courses/List")
+        navigate("/Courses/List");
       } else {
         toast.error(response.data.message);
       }
@@ -164,7 +166,7 @@ const ReviewSubmit = ({ stepper }) => {
               <span className="fw-bold text-muted small">
                 {t("CourseDescribe")}:{" "}
               </span>
-              <p className="mt-25">{params.Describe}</p>
+              <HandleIdentityEditorJs desc={params.Describe} />
             </Col>
           </Row>
         </div>

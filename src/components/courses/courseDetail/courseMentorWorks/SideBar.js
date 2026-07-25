@@ -1,22 +1,27 @@
-import { useState } from "react";
-import Select from "react-select";
+import Sidebar from "@components/sidebar";
+import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-import { useForm, Controller } from "react-hook-form";
+import Select from "react-select";
+import { selectThemeColors } from "@utils";
+import {
+  Button,
+  Label,
+  Form,
+  Input,
+  FormFeedback,
+} from "reactstrap";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Label, Form, Input, FormFeedback } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { selectThemeColors } from "@utils";
 import { addAssistanceWork } from "../../../../core/services/api/CourseList/courseList.service";
-import Sidebar from "@components/sidebar";
 
 const validationSchema = Yup.object({
-  worktitle: Yup.string().required("WorkTitleRequired"),
-  workDescribe: Yup.string().required("WorkDescribeRequired"),
+  worktitle: Yup.string().trim().required("WorkTitleRequired"),
+  workDescribe: Yup.string().trim().required("WorkDescribeRequired"),
   workDate: Yup.string().nullable().required("WorkDateRequired"),
   assistanceId: Yup.string().required("MentorRequired"),
 });
@@ -25,15 +30,10 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const mentorsList = mentors?.map((value) => {
-    const mentor = { value: value.id, label: value.assistanceName };
-    return mentor;
-  });
-
-  const [currentMentor, setCurrentMentor] = useState({
-    value: null,
-    label: t("SelectMentor"),
-  });
+  const mentorOptions = mentors?.map((mentor) => ({
+    value: mentor.id,
+    label: mentor.assistanceName,
+  })) || [];
 
   const defaultValues = {
     worktitle: "",
@@ -45,10 +45,13 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
   const {
     control,
     setValue,
-    reset,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+  } = useForm({
+    defaultValues,
+    resolver: yupResolver(validationSchema),
+  });
 
   const { mutate: createWorkMutate } = useMutation({
     mutationFn: addAssistanceWork,
@@ -65,8 +68,8 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
         toast.error(response.data.message, { id: context.toastId });
       }
     },
-    onError: (response, _, context) => {
-      toast.error(response.data.message, { id: context.toastId });
+    onError: (_, context) => {
+      toast.error(t("ErrorOccurred"), { id: context.toastId });
     },
   });
 
@@ -76,7 +79,6 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
 
   const handleSidebarClosed = () => {
     reset(defaultValues);
-    setCurrentMentor({ value: null, label: t("SelectMentor") });
   };
 
   return (
@@ -84,7 +86,7 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
       size="lg"
       open={open}
       title={t("NewWork")}
-      headerClassName="mb-1 flex justify-between"
+      headerClassName="mb-1"
       contentClassName="pt-0"
       toggleSidebar={toggleSidebar}
       onClosed={handleSidebarClosed}
@@ -92,7 +94,9 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
     >
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1">
-          <Label for="assistanceId">{t("SelectMentor")}</Label>
+          <Label className="form-label" for="assistanceId">
+            {t("SelectMentor")} <span className="text-danger">*</span>
+          </Label>
           <Controller
             name="assistanceId"
             control={control}
@@ -100,31 +104,25 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
               <Select
                 theme={selectThemeColors}
                 isClearable={false}
-                className={`react-select ${
-                  errors.assistanceId ? "is-invalid" : ""
-                }`}
+                className={`react-select ${errors.assistanceId ? "is-invalid" : ""}`}
                 classNamePrefix="select"
-                options={mentorsList}
-                value={currentMentor}
+                options={mentorOptions}
                 placeholder={t("SelectMentor")}
-                id="assistanceId"
-                name="assistanceId"
-                onChange={(data) => {
-                  setCurrentMentor(data);
-                  setValue("assistanceId", data.value);
+                onChange={(selected) => {
+                  field.onChange(selected?.value);
                 }}
               />
             )}
           />
           {errors.assistanceId && (
-            <div className="invalid-feedback d-block">
-              {t(errors.assistanceId.message)}
-            </div>
+            <FormFeedback>{t(errors.assistanceId.message)}</FormFeedback>
           )}
         </div>
 
         <div className="mb-1">
-          <Label for="worktitle">{t("WorkTitle")}</Label>
+          <Label className="form-label" for="worktitle">
+            {t("WorkTitle")} <span className="text-danger">*</span>
+          </Label>
           <Controller
             name="worktitle"
             control={control}
@@ -143,7 +141,9 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
         </div>
 
         <div className="mb-1">
-          <Label for="workDescribe">{t("WorkDescribe")}</Label>
+          <Label className="form-label" for="workDescribe">
+            {t("WorkDescribe")} <span className="text-danger">*</span>
+          </Label>
           <Controller
             name="workDescribe"
             control={control}
@@ -163,36 +163,29 @@ const SidebarNewWork = ({ open, toggleSidebar, mentors }) => {
         </div>
 
         <div className="mb-1">
-          <Label for="workDate">{t("WorkDate")}</Label>
+          <Label className="form-label" for="workDate">
+            {t("WorkDate")} <span className="text-danger">*</span>
+          </Label>
           <Controller
             name="workDate"
             control={control}
             render={({ field }) => (
               <>
                 <DatePicker
-                  id="workDate"
                   calendar={persian}
                   locale={persian_fa}
                   calendarPosition="bottom-center"
                   value={field.value ? new Date(field.value) : null}
                   editable={false}
                   onChange={(date) => {
-                    if (date) {
-                      field.onChange(date.toDate().toISOString());
-                    } else {
-                      field.onChange(null);
-                    }
+                    field.onChange(date ? date.toDate().toISOString() : null);
                   }}
                   placeholder="mm/dd/yyyy"
-                  inputClass={`form-control ${
-                    errors.workDate ? "is-invalid" : ""
-                  }`}
+                  inputClass={`form-control ${errors.workDate ? "is-invalid" : ""}`}
                   containerStyle={{ width: "100%" }}
                 />
                 {errors.workDate && (
-                  <div className="invalid-feedback d-block">
-                    {t(errors.workDate.message)}
-                  </div>
+                  <FormFeedback>{t(errors.workDate.message)}</FormFeedback>
                 )}
               </>
             )}

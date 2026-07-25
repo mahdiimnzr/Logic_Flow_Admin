@@ -25,7 +25,7 @@ const defaultValues = {
 const PersonalInfo = ({ stepper }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const SignupSchema = yup.object({
     CourseTypeId: yup.string().required(t("CourseTypeIdRequired")),
@@ -88,22 +88,24 @@ const PersonalInfo = ({ stepper }) => {
     stepper.next();
   };
 
-  const courseAdd = queryClient.getQueryState(["CourseAdd"])
+  const courseAdd = queryClient.getQueryState(["CourseAdd"]);
 
   const [currentCourseType, setCurrentCourseType] = useState({
     value: null,
     label: t("CourseTypeSelectPlaceholder"),
   });
-  const courseTypeList = courseAdd?.data?.courseTypeDtos?.map((value) => ({
-    value: value.id,
-    label: value.typeName,
-  }));
+  const courseTypeList = courseAdd?.data?.data?.courseTypeDtos?.map(
+    (value) => ({
+      value: value.id,
+      label: value.typeName,
+    }),
+  );
 
   const [currentStatus, setCurrentStatus] = useState({
     value: null,
     label: t("CourseStatusSelectPlaceholder"),
   });
-  const statusList = courseAdd?.data?.statusDtos?.map((value) => ({
+  const statusList = courseAdd?.data?.data?.statusDtos?.map((value) => ({
     value: value.id,
     label: value.statusName,
   }));
@@ -112,16 +114,18 @@ const PersonalInfo = ({ stepper }) => {
     value: null,
     label: t("CourseLvlSelectPlaceholder"),
   });
-  const courseLevelList = courseAdd?.data?.courseLevelDtos?.map((value) => ({
-    value: value.id,
-    label: value.levelName,
-  }));
+  const courseLevelList = courseAdd?.data?.data?.courseLevelDtos?.map(
+    (value) => ({
+      value: value.id,
+      label: value.levelName,
+    }),
+  );
 
   const [courseLassRoom, setCourseLassRoom] = useState({
     value: null,
     label: t("CourseClassSelectPlaceholder"),
   });
-  const classRoomlList = courseAdd?.data?.classRoomDtos?.map((value) => ({
+  const classRoomlList = courseAdd?.data?.data?.classRoomDtos?.map((value) => ({
     value: value.id,
     label: value.classRoomName,
   }));
@@ -130,7 +134,7 @@ const PersonalInfo = ({ stepper }) => {
     value: null,
     label: t("CourseTeacherSelectPlaceholder"),
   });
-  const teachersList = courseAdd?.data?.teachers?.map((value) => ({
+  const teachersList = courseAdd?.data?.data?.teachers?.map((value) => ({
     value: value.teacherId,
     label: value.fullName,
   }));
@@ -139,7 +143,7 @@ const PersonalInfo = ({ stepper }) => {
     value: null,
     label: t("CourseTremSelectPlaceholder"),
   });
-  const termList = courseAdd?.data?.termDtos?.map((value) => ({
+  const termList = courseAdd?.data?.data?.termDtos?.map((value) => ({
     value: value.id,
     label: value.termName,
   }));
@@ -160,8 +164,9 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${errors.CourseTypeId ? "is-invalid" : ""
-                    }`}
+                  className={`react-select ${
+                    errors.CourseTypeId ? "is-invalid" : ""
+                  }`}
                   classNamePrefix="select"
                   value={currentCourseType}
                   options={courseTypeList}
@@ -190,8 +195,9 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${errors.CourseStatusId ? "is-invalid" : ""
-                    }`}
+                  className={`react-select ${
+                    errors.CourseStatusId ? "is-invalid" : ""
+                  }`}
                   classNamePrefix="select"
                   value={currentStatus}
                   options={statusList}
@@ -220,8 +226,9 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${errors.CourseLvlId ? "is-invalid" : ""
-                    }`}
+                  className={`react-select ${
+                    errors.CourseLvlId ? "is-invalid" : ""
+                  }`}
                   classNamePrefix="select"
                   value={courseLevel}
                   options={courseLevelList}
@@ -250,8 +257,9 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${errors.ClassId ? "is-invalid" : ""
-                    }`}
+                  className={`react-select ${
+                    errors.ClassId ? "is-invalid" : ""
+                  }`}
                   classNamePrefix="select"
                   value={courseLassRoom}
                   options={classRoomlList}
@@ -280,8 +288,9 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${errors.TeacherId ? "is-invalid" : ""
-                    }`}
+                  className={`react-select ${
+                    errors.TeacherId ? "is-invalid" : ""
+                  }`}
                   classNamePrefix="select"
                   value={courseTeachers}
                   options={teachersList}
@@ -310,8 +319,9 @@ const PersonalInfo = ({ stepper }) => {
                 <Select
                   theme={selectThemeColors}
                   isClearable={false}
-                  className={`react-select ${errors.TremId ? "is-invalid" : ""
-                    }`}
+                  className={`react-select ${
+                    errors.TremId ? "is-invalid" : ""
+                  }`}
                   classNamePrefix="select"
                   value={courseTerm}
                   options={termList}

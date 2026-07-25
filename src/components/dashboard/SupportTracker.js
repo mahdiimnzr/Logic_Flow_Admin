@@ -14,9 +14,6 @@ import {
   CardText,
   CardTitle,
   CardHeader,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
   UncontrolledDropdown
 } from 'reactstrap'
 
@@ -33,8 +30,13 @@ const SupportTracker = ({
   statCenterValue = 0,
   statLeftTitle = "",
   statLeftValue = 0,
-  series = [0] 
+  series = [0],
+  skin 
 }) => {
+  
+  const textColor = skin === 'dark' ? '#b4b7bd' : '#5e5873';
+  const trackBgColor = skin === 'dark' ? '#3b4253' : '#eaebed';
+
   const options = {
     plotOptions: {
       radialBar: {
@@ -46,19 +48,21 @@ const SupportTracker = ({
           size: '65%'
         },
         track: {
-          background: '#fff',
+          background: trackBgColor, 
           strokeWidth: '100%'
         },
         dataLabels: {
           name: {
             offsetY: -5,
             fontFamily: 'inherit',
-            fontSize: '1rem'
+            fontSize: '1rem',
+            color: textColor 
           },
           value: {
             offsetY: 15,
             fontFamily: 'inherit',
-            fontSize: '1.714rem'
+            fontSize: '1.714rem',
+            color: textColor 
           }
         }
       }
@@ -88,16 +92,6 @@ const SupportTracker = ({
       <CardHeader className='pb-0'>
         <CardTitle tag='h4'>{title}</CardTitle>
         <UncontrolledDropdown className='chart-dropdown'>
-          {/* <DropdownToggle color='' className='bg-transparent btn-sm border-0 p-50'>
-            {lastDays[0]}
-          </DropdownToggle> */}
-          {/* <DropdownMenu end>
-            {lastDays.map(item => (
-              <DropdownItem className='w-100' key={item}>
-                {item}
-              </DropdownItem>
-            ))}
-          </DropdownMenu> */}
         </UncontrolledDropdown>
       </CardHeader>
       <CardBody>

@@ -1,6 +1,6 @@
-import { Link, useParams } from "react-router-dom";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { ExternalLink } from "react-feather";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
 import {
   Button,
   Modal,
@@ -11,86 +11,69 @@ import {
   Col,
   Input,
 } from "reactstrap";
+import { Edit } from "react-feather";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useState } from "react";
-import { updateCourseSocialGroup } from "../../../../core/services/api/CourseList/courseList.service";
-import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { updateCourseSocialGroup } from "../../../../core/services/api/CourseList/courseList.service";
 
 const validationSchema = Yup.object({
-  groupName: Yup.string().required("SocialGroupNameRequired"),
+  groupName: Yup.string().trim().required("SocialGroupNameRequired"),
   groupLink: Yup.string()
     .url("SocialGroupLinkInvalid")
+    .trim()
     .required("SocialGroupLinkRequired"),
 });
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "SocialGroupName",
+    name: t("SocialGroupName"),
     sortable: true,
     minWidth: "150px",
     maxWidth: "400px",
     sortField: "groupName",
     selector: (row) => row.groupName,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <span
-          className="fw-bolder text-truncate d-block w-100"
-          style={{ minWidth: 0 }}
-        >
-          {row.groupName}
-        </span>
-      );
-    },
+    cell: (row) => <span className="fw-bolder text-truncate">{row.groupName}</span>,
   },
   {
-    name: "SocialGroupLink",
+    name: t("SocialGroupLink"),
     sortable: true,
     minWidth: "200px",
     maxWidth: "300px",
     sortField: "groupLink",
     selector: (row) => row.groupLink,
     cell: (row) => (
-      <Link
-        to={row.groupLink}
+      <a
+        href={row.groupLink}
         target="_blank"
-        className="d-flex align-items-center gap-50 text-primary w-100"
-        style={{ minWidth: 0 }}
+        rel="noopener noreferrer"
+        className="d-flex align-items-center gap-50 text-primary"
       >
-        <ExternalLink size={14} style={{ flexShrink: 0 }} />
-        <span className="text-truncate" style={{ minWidth: 0 }}>
-          {row.groupLink}
-        </span>
-      </Link>
+        <span className="text-truncate">{row.groupLink}</span>
+      </a>
     ),
   },
   {
-    name: "CourseTitle",
+    name: t("CourseTitle"),
     sortable: true,
     minWidth: "150px",
     maxWidth: "300px",
     sortField: "courseTitle",
     selector: (row) => row.course?.title,
     cell: (row) => (
-      <span
-        className="fw-bolder text-truncate d-block w-100"
-        style={{ minWidth: 0 }}
-      >
-        {row.course?.title ?? "-"}
-      </span>
+      <span className="fw-bolder text-truncate">{row.course?.title ?? "-"}</span>
     ),
   },
   {
-    name: "Actions",
+    name: t("Actions"),
     minWidth: "100px",
     cell: (row) => {
       const { t } = useTranslation();
       const { courseId } = useParams();
       const queryClient = useQueryClient();
-      const [centeredModal, setCenteredModal] = useState(false);
+      const [editModal, setEditModal] = useState(false);
 
       const defaultValues = {
         id: row.id ?? "",
@@ -103,7 +86,10 @@ export const columns = [
         control,
         handleSubmit,
         formState: { errors },
-      } = useForm({ defaultValues, resolver: yupResolver(validationSchema) });
+      } = useForm({
+        defaultValues,
+        resolver: yupResolver(validationSchema),
+      });
 
       const { mutate: updateSocialGroupMutate } = useMutation({
         mutationFn: updateCourseSocialGroup,
@@ -115,13 +101,13 @@ export const columns = [
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
             queryClient.invalidateQueries({ queryKey: ["CourseSocialGroups"] });
-            setCenteredModal(false);
+            setEditModal(false);
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
 
@@ -129,22 +115,22 @@ export const columns = [
         updateSocialGroupMutate(data);
       };
 
-      const handleToggle = () => setCenteredModal(!centeredModal);
-
       return (
         <div className="d-flex align-items-center gap-1">
-          <Button.Ripple onClick={handleToggle} color="primary" size="sm">
-            {t("Edit")}
-          </Button.Ripple>
+          <Edit
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setEditModal(true)}
+          />
 
           <Modal
-            unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={handleToggle}
+            unmountOnClose
+            isOpen={editModal}
+            toggle={() => setEditModal(!editModal)}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader toggle={handleToggle}>
+            <ModalHeader toggle={() => setEditModal(!editModal)}>
               {t("EditSocialGroup")}
             </ModalHeader>
             <ModalBody>
@@ -157,22 +143,21 @@ export const columns = [
                     name="groupName"
                     control={control}
                     render={({ field }) => (
-                      <>
-                        <Input
-                          id="groupName"
-                          placeholder={t("SocialGroupNamePlaceholder")}
-                          invalid={!!errors.groupName}
-                          {...field}
-                        />
-                        {errors.groupName && (
-                          <div className="invalid-feedback d-block">
-                            {t(errors.groupName.message)}
-                          </div>
-                        )}
-                      </>
+                      <Input
+                        id="groupName"
+                        placeholder={t("SocialGroupNamePlaceholder")}
+                        invalid={!!errors.groupName}
+                        {...field}
+                      />
                     )}
                   />
+                  {errors.groupName && (
+                    <div className="invalid-feedback d-block">
+                      {t(errors.groupName.message)}
+                    </div>
+                  )}
                 </Col>
+
                 <Col sm="12">
                   <Label className="form-label" for="groupLink">
                     {t("SocialGroupLink")}
@@ -181,30 +166,28 @@ export const columns = [
                     name="groupLink"
                     control={control}
                     render={({ field }) => (
-                      <>
-                        <Input
-                          id="groupLink"
-                          placeholder={t("SocialGroupLinkPlaceholder")}
-                          invalid={!!errors.groupLink}
-                          {...field}
-                        />
-                        {errors.groupLink && (
-                          <div className="invalid-feedback d-block">
-                            {t(errors.groupLink.message)}
-                          </div>
-                        )}
-                      </>
+                      <Input
+                        id="groupLink"
+                        placeholder={t("SocialGroupLinkPlaceholder")}
+                        invalid={!!errors.groupLink}
+                        {...field}
+                      />
                     )}
                   />
+                  {errors.groupLink && (
+                    <div className="invalid-feedback d-block">
+                      {t(errors.groupLink.message)}
+                    </div>
+                  )}
                 </Col>
               </form>
             </ModalBody>
-            <ModalFooter className="d-flex justify-content-between">
-              <Button color="secondary" outline onClick={handleToggle}>
+            <ModalFooter>
+              <Button color="secondary" outline onClick={() => setEditModal(false)}>
                 {t("Cancel")}
               </Button>
               <Button color="primary" onClick={handleSubmit(onSubmit)}>
-                {t("ApplyStatus")}
+                {t("SaveChanges")}
               </Button>
             </ModalFooter>
           </Modal>

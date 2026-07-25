@@ -14,6 +14,7 @@ import {
   Row,
   Col,
   FormFeedback,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +58,8 @@ export const columns = (t) => [
   {
     name: t("Technology"),
     sortable: true,
-    minWidth: "200px",
+    minWidth: "50px",
+    maxWidth: "200px",
     sortField: "techName",
     selector: (row) => row.techName,
     cell: (row) => (
@@ -72,6 +74,7 @@ export const columns = (t) => [
   {
     name: t("TechDescribe"),
     minWidth: "80px",
+    maxWidth: "800px",
     sortable: true,
     sortField: "describe",
     selector: (row) => row.describe,
@@ -82,6 +85,7 @@ export const columns = (t) => [
   {
     name: t("Actions"),
     minWidth: "50px",
+    maxWidth: "100px",
     cell: (row) => {
       const { t } = useTranslation();
       const queryClient = useQueryClient();
@@ -113,7 +117,9 @@ export const columns = (t) => [
           return { toastId };
         },
         onSuccess: (response, _, context) => {
-          toast.success(response.data.message || t("TechnologyUpdated"), { id: context.toastId });
+          toast.success(response.data.message || t("TechnologyUpdated"), {
+            id: context.toastId,
+          });
           queryClient.invalidateQueries({ queryKey: ["Technology"] });
           setEditModal(false);
         },
@@ -129,10 +135,17 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1 align-items-center">
           <Eye
+            id={`EyeTechnology-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={() => setDetailModal(true)}
           />
+          <UncontrolledTooltip
+            placement="top"
+            target={`EyeTechnology-${row.id}`}
+          >
+            جزئیات تکنولوژی
+          </UncontrolledTooltip>
 
           <Modal
             unmountOnClose
@@ -164,7 +177,11 @@ export const columns = (t) => [
               >
                 {t("Edit")}
               </Button>
-              <Button color="secondary" outline onClick={() => setDetailModal(false)}>
+              <Button
+                color="secondary"
+                outline
+                onClick={() => setDetailModal(false)}
+              >
                 {t("Cancel")}
               </Button>
             </ModalFooter>
@@ -180,7 +197,11 @@ export const columns = (t) => [
               {t("EditTechnology")}
             </ModalHeader>
             <ModalBody className="px-sm-5 mx-50 pb-5">
-              <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
+              <Row
+                tag="form"
+                className="gy-1 pt-75"
+                onSubmit={handleSubmit(onSubmit)}
+              >
                 <Col xs={12}>
                   <Label className="form-label" for="techName">
                     {t("TechName")}
@@ -197,7 +218,9 @@ export const columns = (t) => [
                       />
                     )}
                   />
-                  {errors.techName && <FormFeedback>{t(errors.techName.message)}</FormFeedback>}
+                  {errors.techName && (
+                    <FormFeedback>{t(errors.techName.message)}</FormFeedback>
+                  )}
                 </Col>
 
                 <Col xs={12}>
@@ -216,16 +239,22 @@ export const columns = (t) => [
                       />
                     )}
                   />
-                  {errors.describe && <FormFeedback>{t(errors.describe.message)}</FormFeedback>}
+                  {errors.describe && (
+                    <FormFeedback>{t(errors.describe.message)}</FormFeedback>
+                  )}
                 </Col>
 
                 <Col xs={12}>
                   <ImageDropZone
                     currentImage={row?.iconAddress}
-                    error={errors.iconAddress ? t(errors.iconAddress.message) : null}
+                    error={
+                      errors.iconAddress ? t(errors.iconAddress.message) : null
+                    }
                     onChange={(files) => {
                       if (files.length > 0) {
-                        setValue("iconAddress", URL.createObjectURL(files[0]), { shouldValidate: true });
+                        setValue("iconAddress", URL.createObjectURL(files[0]), {
+                          shouldValidate: true,
+                        });
                       } else {
                         setValue("iconAddress", "", { shouldValidate: true });
                       }
@@ -233,11 +262,18 @@ export const columns = (t) => [
                   />
                 </Col>
 
-                <Col xs={12} className="text-center mt-2 pt-50 d-flex justify-content-between">
+                <Col
+                  xs={12}
+                  className="text-center mt-2 pt-50 d-flex justify-content-between"
+                >
                   <Button type="submit" className="me-1" color="primary">
                     {t("SaveChanges")}
                   </Button>
-                  <Button color="secondary" outline onClick={() => setEditModal(false)}>
+                  <Button
+                    color="secondary"
+                    outline
+                    onClick={() => setEditModal(false)}
+                  >
                     {t("Cancel")}
                   </Button>
                 </Col>

@@ -14,6 +14,7 @@ const Comments = () => {
     isLoading,
     data: courseCommentsList,
     refetch,
+    isFetching,
   } = useGetCourseCommentsList(params);
   const { isLoading: usersLoading, data: usersList } = useGetUserList({
     RowsOfPage: 1000,
@@ -32,6 +33,7 @@ const Comments = () => {
         <Table
           commentsList={courseCommentsList?.data}
           usersList={usersList?.data}
+          isFetching={isFetching}
         />
       </div>
     </Fragment>

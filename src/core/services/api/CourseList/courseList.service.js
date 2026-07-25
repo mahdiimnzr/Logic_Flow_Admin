@@ -4,7 +4,7 @@ import putParams from "../../common/putParams";
 import useGetQuery from "../../common/useGetQuery";
 
 export const useGetCourseList = (params) =>
-  useGetQuery("CourseList", "Course/CourseList", params);
+  useGetQuery("CourseList", "Course/CourseList", params, null, false);
 
 export const activeCourse = (body) =>
   putParams("Course/ActiveAndDeactiveCourse", body);

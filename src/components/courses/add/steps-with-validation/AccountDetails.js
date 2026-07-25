@@ -21,6 +21,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateAddCourseSliceParams } from "../../../../redux/actions";
 import { useTranslation } from "react-i18next";
 import Editor from "../../../common/Editor";
+import { getDescribe } from "../../../../core/services/api/AI/ai.service";
+import toast from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
 
 const defaultValues = {
   Title: "",
@@ -38,13 +41,30 @@ const AccountDetails = ({ stepper }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
+  const [editorData, setEditorData] = useState({});
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: getDescribe,
+    onSuccess: (response) => {
+      setEditorData(response.data);
+      setValue("Describe", JSON.stringify(response.data));
+    },
+
+    onError: () => {
+      toast.error("خطا در دریافت پاسخ");
+    },
+  });
+
   const SignupSchema = yup.object().shape({
-    Title: yup.string().required(t("CourseTitleRequired")),
-    Cost: yup.string().required(t("CourseCostRequired")),
-    Capacity: yup.string().required(t("CourseCapacityRequired")),
-    SessionNumber: yup.string().required(t("CourseSessionNumberRequired")),
-    Describe: yup.string().required(t("CourseDescribeRequired")),
-    MiniDescribe: yup.string().required(t("CourseMiniDescribeRequired")),
+    Title: yup.string().trim().required(t("CourseTitleRequired")),
+    Cost: yup.string().trim().required(t("CourseCostRequired")),
+    Capacity: yup.string().trim().required(t("CourseCapacityRequired")),
+    SessionNumber: yup
+      .string()
+      .trim()
+      .required(t("CourseSessionNumberRequired")),
+    Describe: yup.string().trim().required(t("CourseDescribeRequired")),
+    MiniDescribe: yup.string().trim().required(t("CourseMiniDescribeRequired")),
     StartTime: yup.date().nullable().required(t("CourseStartTimeRequired")),
     EndTime: yup
       .date()
@@ -53,6 +73,7 @@ const AccountDetails = ({ stepper }) => {
       .required(t("CourseEndTimeRequired")),
     CurrentCoursePaymentNumber: yup
       .string()
+      .trim()
       .required(t("CourseCurrentPaymentNumberRequired")),
   });
 
@@ -65,6 +86,7 @@ const AccountDetails = ({ stepper }) => {
     control,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues,
@@ -168,8 +190,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.Cost ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.Cost ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseCostPlaceholder")}
                     options={numericOptions}
                     id="Cost"
@@ -198,8 +221,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.CurrentCoursePaymentNumber ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseCurrentPaymentNumberPlaceholder")}
                     options={numericOptions}
                     id="CurrentCoursePaymentNumber"
@@ -228,8 +252,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.Capacity ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.Capacity ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseCapacityPlaceholder")}
                     options={numericOptions}
                     id="Capacity"
@@ -258,8 +283,9 @@ const AccountDetails = ({ stepper }) => {
                 <InputGroup className="input-group-merge">
                   <Cleave
                     {...field}
-                    className={`form-control ${errors.SessionNumber ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.SessionNumber ? "is-invalid" : ""
+                    }`}
                     placeholder={t("CourseSessionNumberPlaceholder")}
                     options={numericOptions}
                     id="SessionNumber"
@@ -278,7 +304,28 @@ const AccountDetails = ({ stepper }) => {
 
           <Col md="12" className="mb-1">
             <Label className="form-label" for="Describe">
-              {t("CourseDescribe")}
+              {t("CourseDescribe")}{" "}
+              <Button
+                size="sm"
+                color="primary"
+                className="btn-prev mx-2"
+                disabled={isPending}
+                onClick={() =>
+                  getValues("Title") &&
+                  getValues("MiniDescribe") &&
+                  mutate([
+                    {
+                      role: "user",
+                      content:
+                        getValues("Title").trim() +
+                        ", " +
+                        getValues("MiniDescribe").trim(),
+                    },
+                  ])
+                }
+              >
+                {isPending ? t("Generating") : t("createWithAi")}
+              </Button>
             </Label>
             <Controller
               control={control}
@@ -286,12 +333,15 @@ const AccountDetails = ({ stepper }) => {
               name="Describe"
               render={({ field }) => (
                 <Editor
+                  data={editorData}
                   placeholder={t("CourseDescribePlaceholder")}
                   onChange={async (data) => {
-                    field.onChange(JSON.stringify((await data).blocks));
+                    field.onChange(JSON.stringify(await data));
+                    setEditorData(await data);
                   }}
                   error={errors.Describe && true}
                   editorBlock={"editorJs-container"}
+                  isAI={isPending}
                 />
               )}
             />
@@ -324,8 +374,9 @@ const AccountDetails = ({ stepper }) => {
                         field.onChange(null);
                       }
                     }}
-                    inputClass={`form-control ${errors.StartTime ? "is-invalid" : ""
-                      }`}
+                    inputClass={`form-control ${
+                      errors.StartTime ? "is-invalid" : ""
+                    }`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.StartTime && (
@@ -362,8 +413,9 @@ const AccountDetails = ({ stepper }) => {
                         field.onChange(null);
                       }
                     }}
-                    inputClass={`form-control ${errors.EndTime ? "is-invalid" : ""
-                      }`}
+                    inputClass={`form-control ${
+                      errors.EndTime ? "is-invalid" : ""
+                    }`}
                     containerStyle={{ width: "100%" }}
                   />
                   {errors.EndTime && (

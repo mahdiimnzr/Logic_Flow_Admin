@@ -6,7 +6,7 @@ import useGetQueries from "../../common/useGetQueries";
 export const useGetUserList = (params) =>
   useGetQuery("UsersList", "User/UserMannage", params);
 export const useGetUsers = (params) =>
-  useGetQuery("Users", "User/UserMannage", params);
+  useGetQuery("Users", "User/UserMannage", params, null, false);
 
 export const createUser = (body) => postParams("User/CreateUser", body);
 export const useGetUserDetail = (params) =>
@@ -33,4 +33,5 @@ export const useGetCourseGroupCourses = (items, enabled) =>
       enabled,
     })),
   );
-export const addNotifForUser = (body) => postParams("v2/notification/alert/add", body)
+export const addNotifForUser = (body) =>
+  postParams("v2/notification/alert/add", body);

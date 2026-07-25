@@ -2,7 +2,6 @@ import { Fragment, useState } from "react";
 import { Row, Col } from "reactstrap";
 import Spinner from "@components/spinner/Fallback-spinner";
 import Breadcrumbs from "@components/breadcrumbs";
-import EditInformation from "../components/courses/EditCourse/EditInformation";
 import "@styles/react/libs/flatpickr/flatpickr.scss";
 import "@styles/react/pages/page-account-settings.scss";
 import { useParams } from "react-router-dom";
@@ -16,6 +15,7 @@ import {
   useGetStatus,
 } from "../core/services/api/CourseList/courseList.service";
 import { useGetUserList } from "../core/services/api/Users/users.service";
+import EditCourse from "../components/courses/EditCourse/EditCourse";
 
 const CoursesEdit = () => {
   const { t } = useTranslation();
@@ -50,10 +50,7 @@ const CoursesEdit = () => {
       />
       <Row>
         <Col xs={12}>
-          <EditInformation
-            data={courseDetail?.data}
-            usersList={usersList?.data}
-          />
+          <EditCourse data={courseDetail?.data} usersList={usersList?.data} />
         </Col>
       </Row>
     </Fragment>

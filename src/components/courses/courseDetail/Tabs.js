@@ -33,15 +33,15 @@ const CourseDetailTabs = ({ activeTab, toggleTab }) => {
         </NavLink>
       </NavItem>
       <NavItem>
-        <NavLink active={activeTab === "4"} onClick={() => toggleTab("4")}>
-          <Package size={18} className="me-50" />
-          <span className="fw-bold">{t("Groups")}</span>
-        </NavLink>
-      </NavItem>
-      <NavItem>
         <NavLink active={activeTab === "5"} onClick={() => toggleTab("5")}>
           <CreditCard size={18} className="me-50" />
           <span className="fw-bold">{t("Payments")}</span>
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink active={activeTab === "4"} onClick={() => toggleTab("4")}>
+          <Package size={18} className="me-50" />
+          <span className="fw-bold">{t("Groups")}</span>
         </NavLink>
       </NavItem>
       <NavItem>

@@ -13,6 +13,7 @@ import {
   Input,
   Row,
   Col,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -47,7 +48,9 @@ const renderClient = (row) => {
       initials
       className="me-1"
       color={row.avatarColor || "light-primary"}
-      content={row?.fName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"}
+      content={
+        row?.fName?.toUpperCase() + row?.lName?.toUpperCase() || "Unknown"
+      }
     />
   );
 };
@@ -116,7 +119,8 @@ export const columns = (t) => [
       const [centeredModal, setCenteredModal] = useState(false);
       const [updateCloseDateModal, setUpdateCloseDateModal] = useState(false);
 
-      const toggleUpdateCloseDate = () => setUpdateCloseDateModal(!updateCloseDateModal);
+      const toggleUpdateCloseDate = () =>
+        setUpdateCloseDateModal(!updateCloseDateModal);
 
       const validationSchema = Yup.object({
         termName: Yup.string().required("TermNameRequired"),
@@ -182,16 +186,23 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1">
           <Edit
+            id={`EditTerm-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={() => setCenteredModal(true)}
           />
+          <UncontrolledTooltip placement="top" target={`EditTerm-${row.id}`}>
+            ویرایش اطلاعات ترم
+          </UncontrolledTooltip>
           <Clock
+            id={`ClockTerm-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={toggleUpdateCloseDate}
           />
-
+          <UncontrolledTooltip placement="top" target={`ClockTerm-${row.id}`}>
+            ویرایش زمان بسته بودن
+          </UncontrolledTooltip>
           <Modal
             style={{ fontFamily: "IRANYekanXFaNum" }}
             isOpen={centeredModal}
@@ -202,7 +213,11 @@ export const columns = (t) => [
               {t("EditTerm")}
             </ModalHeader>
             <ModalBody className="px-sm-5 mx-50 pb-5">
-              <Row tag="form" className="gy-1 pt-75" onSubmit={handleSubmit(onSubmit)}>
+              <Row
+                tag="form"
+                className="gy-1 pt-75"
+                onSubmit={handleSubmit(onSubmit)}
+              >
                 <Col xs={12}>
                   <Label className="form-label" for="termName">
                     {t("TermName")}
@@ -242,9 +257,13 @@ export const columns = (t) => [
                           editable={false}
                           placeholder={t("DatePlaceholder")}
                           onChange={(date) =>
-                            field.onChange(date ? date.toDate().toISOString() : null)
+                            field.onChange(
+                              date ? date.toDate().toISOString() : null,
+                            )
                           }
-                          inputClass={`form-control ${errors.startDate ? "is-invalid" : ""}`}
+                          inputClass={`form-control ${
+                            errors.startDate ? "is-invalid" : ""
+                          }`}
                           containerStyle={{ width: "100%" }}
                         />
                         {errors.startDate && (
@@ -273,9 +292,13 @@ export const columns = (t) => [
                           editable={false}
                           placeholder={t("DatePlaceholder")}
                           onChange={(date) =>
-                            field.onChange(date ? date.toDate().toISOString() : null)
+                            field.onChange(
+                              date ? date.toDate().toISOString() : null,
+                            )
                           }
-                          inputClass={`form-control ${errors.endDate ? "is-invalid" : ""}`}
+                          inputClass={`form-control ${
+                            errors.endDate ? "is-invalid" : ""
+                          }`}
                           containerStyle={{ width: "100%" }}
                         />
                         {errors.endDate && (
@@ -304,7 +327,10 @@ export const columns = (t) => [
                   />
                 </Col>
 
-                <Col xs={12} className="text-center mt-2 pt-50 d-flex align-items-center justify-content-between">
+                <Col
+                  xs={12}
+                  className="text-center mt-2 pt-50 d-flex align-items-center justify-content-between"
+                >
                   <Button type="submit" className="me-1" color="primary">
                     {t("SaveChanges")}
                   </Button>

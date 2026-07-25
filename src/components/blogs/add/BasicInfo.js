@@ -97,7 +97,6 @@ const BasicInfo = ({ stepper, control, errors, trigger }) => {
                         }}
                     />
                     {errors.categoryId && <FormFeedback className='d-block'>{errors.categoryId.message}</FormFeedback>}
-                    {errors.categoryId && <FormFeedback className='d-block'>{errors.categoryId.message}</FormFeedback>}
                 </Col>
 
                 <Col md='6' className='mb-1'>

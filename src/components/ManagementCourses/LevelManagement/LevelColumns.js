@@ -8,6 +8,7 @@ import {
   ModalBody,
   ModalFooter,
   Label,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -47,8 +48,7 @@ export const columns = (t) => [
     minWidth: "200px",
     sortField: "levelName",
     selector: (row) => row.levelName,
-    cell: (row) => renderClient(row)
-
+    cell: (row) => renderClient(row),
   },
   {
     name: t("LevelName"),
@@ -72,10 +72,14 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1">
           <Eye
+            id={`EyeLevel-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={() => setShow(true)}
           />
+          <UncontrolledTooltip placement="top" target={`EyeLevel-${row.id}`}>
+            جزئیات سطح
+          </UncontrolledTooltip>
 
           <Modal
             unmountOnClose

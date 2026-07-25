@@ -1,11 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../interceptor/interceptor.service";
 
-const useGetQuery = (queryKey, pathUrl, params, options = {}) =>
+const useGetQuery = (
+  queryKey,
+  pathUrl,
+  params,
+  options = {},
+  setParams = true,
+) =>
   useQuery({
-    queryKey: [queryKey],
+    queryKey: params && setParams == true ? [queryKey, params] : [queryKey],
     queryFn: async () => {
-      const result = await apiClient(pathUrl, { params: params });
+      const result = await apiClient(pathUrl, { params });
       return result;
     },
     ...options,

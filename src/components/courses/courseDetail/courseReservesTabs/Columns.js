@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
-import Select from "react-select";
-import { selectThemeColors } from "@utils";
+import { useState } from "react";
+import { Check } from "react-feather";
 import {
   Badge,
   Button,
@@ -10,17 +10,18 @@ import {
   ModalFooter,
   Label,
 } from "reactstrap";
+import Select from "react-select";
+import { selectThemeColors } from "@utils";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useState } from "react";
-import { acceptCourseReserve } from "../../../../core/services/api/Users/users.service";
 import ImageFallback from "../../../common/ImageFallback";
 import courseImage from "../../../../assets/images/coursePng.png";
+import { acceptCourseReserve } from "../../../../core/services/api/Users/users.service";
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "Student",
+    name: t("Student"),
     sortable: true,
     minWidth: "100px",
     maxWidth: "300px",
@@ -44,60 +45,47 @@ export const columns = [
     ),
   },
   {
-    name: "Student Email",
+    name: t("StudentEmail"),
     sortable: true,
     minWidth: "200px",
     maxWidth: "300px",
     sortField: "studentEmail",
     selector: (row) => row.studentEmail,
-    cell: (row) => (
-      <div className="d-flex flex-column">
-        <span className="fw-bolder">{row.studentEmail}</span>
-      </div>
-    ),
+    cell: (row) => <span className="fw-bolder">{row.studentEmail}</span>,
   },
   {
-    name: "ReserveStatus",
+    name: t("ReserveStatus"),
     minWidth: "100px",
     maxWidth: "200px",
     sortable: true,
-    sortField: "status",
+    sortField: "accept",
     selector: (row) => row.accept,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <Badge
-          className="text-capitalize"
-          color={row.accept ? "light-success" : "light-secondary"}
-          pill
-        >
-          {row.accept ? t("Accept") : t("NotAccept")}
-        </Badge>
-      );
-    },
+    cell: (row) => (
+      <Badge
+        className="text-capitalize"
+        color={row.accept ? "light-success" : "light-secondary"}
+        pill
+      >
+        {row.accept ? t("Accept") : t("NotAccept")}
+      </Badge>
+    ),
   },
   {
-    name: "Actions",
-    sortable: true,
+    name: t("Actions"),
     minWidth: "20px",
     maxWidth: "130px",
-    sortField: "capacity",
-    selector: (row) => row.capacity,
     cell: (row) => {
       const { t } = useTranslation();
       const { courseId } = useParams();
       const queryClient = useQueryClient();
-      const [centeredModal, setCenteredModal] = useState(false);
+      const [modalOpen, setModalOpen] = useState(false);
+      const [selectedGroup, setSelectedGroup] = useState(null);
       const [groupError, setGroupError] = useState("");
-      const [currentRole, setCurrentRole] = useState({
-        value: null,
-        label: t("SelectGroup"),
-      });
 
-      const rolesList = row?.groupId?.map((value) => ({
-        value: value.groupId,
-        label: value.groupName + ` (ظرفیت دوره :${value.groupCapacity})`,
-      }));
+      const groupOptions = row?.groupId?.map((g) => ({
+        value: g.groupId,
+        label: `${g.groupName} (ظرفیت: ${g.groupCapacity})`,
+      })) || [];
 
       const { mutate: acceptReserveMutate } = useMutation({
         mutationFn: acceptCourseReserve,
@@ -108,71 +96,70 @@ export const columns = [
         onSuccess: (response, _, context) => {
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
-            queryClient.invalidateQueries({
-              queryKey: [`CourseReserve-${courseId}`],
-            });
-            queryClient.invalidateQueries({
-              queryKey: [`CourseDetail-${courseId}`],
-            });
-            setCenteredModal(false);
+            queryClient.invalidateQueries({ queryKey: [`CourseReserve-${courseId}`] });
+            queryClient.invalidateQueries({ queryKey: [`CourseDetail-${courseId}`] });
+            setModalOpen(false);
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
 
-      const handleRoleChange = (data) => {
-        setCurrentRole(data);
-        if (data?.value) setGroupError("");
-      };
-
-      const handleSubmit = (data) => {
-        if (!currentRole.value) {
+      const handleAccept = () => {
+        if (!selectedGroup) {
           setGroupError(t("GroupRequired"));
           return;
         }
+
         acceptReserveMutate({
           courseId: courseId,
-          courseGroupId: currentRole.value ? currentRole.value : "",
+          courseGroupId: selectedGroup,
           studentId: row.studentId,
         });
       };
 
-      const handleToggle = () => {
-        setCenteredModal(!centeredModal);
+      const handleOpenModal = () => {
+        setModalOpen(true);
+        setSelectedGroup(null);
         setGroupError("");
-        setCurrentRole({ value: null, label: t("SelectGroup") });
       };
 
       return (
         <div className="d-flex align-items-center gap-1">
           {!row.accept && (
-            <Button.Ripple onClick={handleToggle} color="warning" size="sm">
-              {t("AcceptComment")}
-            </Button.Ripple>
+            <Check
+              size={17}
+              className="cursor-pointer"
+              onClick={handleOpenModal}
+            />
           )}
 
           <Modal
-            unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={handleToggle}
+            unmountOnClose
+            isOpen={modalOpen}
+            toggle={() => setModalOpen(!modalOpen)}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader toggle={handleToggle}>{t("CourseGroups")}</ModalHeader>
+            <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
+              {t("CourseGroups")}
+            </ModalHeader>
             <ModalBody>
-              <Label for="role-select">{t("SelectGroup")}</Label>
+              <Label for="group-select">{t("SelectGroup")}</Label>
               <Select
                 isClearable={false}
-                value={currentRole}
-                options={rolesList}
+                value={groupOptions.find((g) => g.value === selectedGroup) || null}
+                options={groupOptions}
                 className={`react-select ${groupError ? "is-invalid" : ""}`}
                 classNamePrefix="select"
                 theme={selectThemeColors}
-                onChange={handleRoleChange}
+                onChange={(option) => {
+                  setSelectedGroup(option?.value);
+                  setGroupError("");
+                }}
               />
               {groupError && (
                 <div className="invalid-feedback d-block mt-25">
@@ -180,11 +167,11 @@ export const columns = [
                 </div>
               )}
             </ModalBody>
-            <ModalFooter className="d-flex justify-content-between">
-              <Button color="secondary" outline onClick={handleToggle}>
+            <ModalFooter>
+              <Button color="secondary" outline onClick={() => setModalOpen(false)}>
                 {t("Cancel")}
               </Button>
-              <Button color="primary" onClick={handleSubmit}>
+              <Button color="primary" onClick={handleAccept}>
                 {t("ApplyStatus")}
               </Button>
             </ModalFooter>

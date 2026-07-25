@@ -20,20 +20,21 @@ import {
 } from "reactstrap";
 import { isAction } from "@reduxjs/toolkit";
 import { useNavbarColor } from "./../../utility/hooks/useNavbarColor";
-import { useSkin } from '@hooks/useSkin';
+import { useSkin } from "@hooks/useSkin";
+import { useTranslation } from "react-i18next";
 
 const DataTableServerSide = ({ statusFilter }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const { skin } = useSkin()
+  const { skin } = useSkin();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState("")
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-
       setDebouncedSearchValue(searchValue);
     }, 1000);
 
@@ -107,57 +108,62 @@ const DataTableServerSide = ({ statusFilter }) => {
   const customStyles = {
     table: {
       style: {
-        backgroundColor: 'transparent',
-      }
+        backgroundColor: "transparent",
+      },
     },
     headRow: {
       style: {
-        backgroundColor: skin === 'dark' ? '#343d55' : '#f3f2f7',
-        color: skin === 'dark' ? '#d0d2d6' : '#5e5873',
-        borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
-      }
+        backgroundColor: skin === "dark" ? "#343d55" : "#f3f2f7",
+        color: skin === "dark" ? "#d0d2d6" : "#5e5873",
+        borderBottomColor: skin === "dark" ? "#3b4253" : "#ebe9f1",
+      },
     },
     rows: {
       style: {
-        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
-        color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
-        borderBottomColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
-        '&:hover': {
-          backgroundColor: skin === 'dark' ? '#343d55' : '#f8f8f8',
-        }
-      }
+        backgroundColor: skin === "dark" ? "#283046" : "#ffffff",
+        color: skin === "dark" ? "#d0d2d6" : "#6e6b7b",
+        borderBottomColor: skin === "dark" ? "#3b4253" : "#ebe9f1",
+        "&:hover": {
+          backgroundColor: skin === "dark" ? "#343d55" : "#f8f8f8",
+        },
+      },
     },
     pagination: {
       style: {
-        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
-        color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
-        borderTopColor: skin === 'dark' ? '#3b4253' : '#ebe9f1',
-      }
+        backgroundColor: skin === "dark" ? "#283046" : "#ffffff",
+        color: skin === "dark" ? "#d0d2d6" : "#6e6b7b",
+        borderTopColor: skin === "dark" ? "#3b4253" : "#ebe9f1",
+      },
     },
     noData: {
       style: {
-        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
-        color: skin === 'dark' ? '#d0d2d6' : '#6e6b7b',
-      }
+        backgroundColor: skin === "dark" ? "#283046" : "#ffffff",
+        color: skin === "dark" ? "#d0d2d6" : "#6e6b7b",
+      },
     },
     tableWrapper: {
       style: {
-        backgroundColor: skin === 'dark' ? '#283046' : '#ffffff',
-      }
-    }
+        backgroundColor: skin === "dark" ? "#283046" : "#ffffff",
+      },
+    },
   };
 
   return (
     <Fragment>
-      <Card >
+      <Card>
         <CardHeader className="border-bottom">
-          <CardTitle tag="h4">لیست مقالات </CardTitle>
+          <CardTitle tag="h4">{t("BlogsList")}</CardTitle>
         </CardHeader>
         <Row className="mx-0 mt-1 mb-50 align-items-center">
-          <Col sm="12" md="7" className="d-flex align-items-center flex-wrap gap-2 mb-1 mb-sm-0">
-
+          <Col
+            sm="12"
+            md="7"
+            className="d-flex align-items-center flex-wrap gap-2 mb-1 mb-sm-0"
+          >
             <div className="d-flex align-items-center">
-              <Label for="sort-select" className="me-1 mb-0">نمایش</Label>
+              <Label for="sort-select" className="me-1 mb-0">
+                {t("Show")}
+              </Label>
               <Input
                 className="dataTable-select mx-1"
                 type="select"
@@ -170,17 +176,22 @@ const DataTableServerSide = ({ statusFilter }) => {
                 <option value={25}>25</option>
                 <option value={50}>50</option>
               </Input>
-              <Label for="sort-select" className="mb-0">رکورد</Label>
+              <Label for="sort-select" className="mb-0">
+                {t("Records")}
+              </Label>
             </div>
 
             <Button color="primary" onClick={() => navigate("/blogs/add")}>
-              ساخت مقاله جدید
+              {t("CreateNewArticle")}
             </Button>
-
           </Col>
-          <Col sm="12" md="5" className="d-flex align-items-center justify-content-sm-end">
+          <Col
+            sm="12"
+            md="5"
+            className="d-flex align-items-center justify-content-sm-end"
+          >
             <Label className="me-1 mb-0 text-nowrap" for="search-input">
-              جستجو
+              {t("Search")}
             </Label>
             <Input
               className="dataTable-filter"
@@ -189,7 +200,7 @@ const DataTableServerSide = ({ statusFilter }) => {
               id="search-input"
               value={searchValue}
               onChange={handleFilter}
-              placeholder="عنوان مقاله ..."
+              placeholder={t("SearchPlaceholder")}
             />
           </Col>
         </Row>
@@ -199,8 +210,12 @@ const DataTableServerSide = ({ statusFilter }) => {
             <div
               className=" d-flex justify-content-center position-absolute w-100 h-100 align-items-center"
               style={{
-                zIndex: 1, backgroundColor: skin === 'dark' ? "rgba(40, 48, 70, 0.8)" : "rgba(255,255,255,0.6)",
-                borderRadius: "0.5rem"
+                zIndex: 1,
+                backgroundColor:
+                  skin === "dark"
+                    ? "rgba(40, 48, 70, 0.8)"
+                    : "rgba(255,255,255,0.6)",
+                borderRadius: "0.5rem",
               }}
             >
               <Spinner color="primary" />
@@ -212,7 +227,7 @@ const DataTableServerSide = ({ statusFilter }) => {
             pagination
             paginationServer
             className="react-dataTable"
-            columns={BlogsColumns}
+            columns={BlogsColumns(t)}
             sortIcon={<ChevronDown size={10} />}
             paginationComponent={CustomPagination}
             data={blogsData}

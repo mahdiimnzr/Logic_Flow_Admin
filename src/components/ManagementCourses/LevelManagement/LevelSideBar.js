@@ -46,6 +46,7 @@ const LevelSideBar = ({ open, toggleSidebar }) => {
       toast.success(response.data.message || t("LevelCreated"), { id: context.toastId });
       queryClient.invalidateQueries({ queryKey: ["CourseLevel"] });
       toggleSidebar();
+      
     },
     onError: (_, context) => {
       toast.error(t("ErrorOccurred"), { id: context.toastId });

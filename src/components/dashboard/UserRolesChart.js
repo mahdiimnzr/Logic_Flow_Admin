@@ -1,0 +1,70 @@
+import React from "react";
+import Chart from "react-apexcharts";
+import { useTranslation } from "react-i18next";
+import { Card, CardHeader, CardTitle, CardBody } from "reactstrap";
+
+const UserRolesChart = ({ dataSeries = [0, 0, 0, 0], skin }) => {
+  const { t } = useTranslation();
+
+  const textColor = skin === "dark" ? "#b4b7bd" : "#5e5873";
+
+  const options = {
+    colors: ["#7367f0", "#ff9f43", "#28c76f", "#ea5455"],
+    chart: {
+      type: "donut",
+    },
+    stroke: { width: 0 },
+    labels: [" Admin", " Teacher", " Student", " GOD"],
+    dataLabels: { enabled: false },
+    legend: {
+      position: "bottom",
+      fontFamily: "IRANYekanXFaNum",
+      labels: { useSeriesColors: true },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            name: {
+              fontSize: "14px",
+              fontFamily: "IRANSans",
+              color: textColor,
+            },
+            value: {
+              fontSize: "16px",
+              color: textColor,
+              formatter: (val) => `${val} ${t("dashboardPeople")}`,
+            },
+            total: {
+              show: true,
+              label: t("DashboardsAllRoles"),
+              color: textColor,
+              formatter: (w) =>
+                w.globals.seriesTotals.reduce((a, b) => a + b, 0),
+            },
+          },
+        },
+      },
+    },
+  };
+
+  return (
+    <Card className="h-100">
+      <CardHeader>
+        <CardTitle tag="h4">{t("DashboardsUserRoles")}</CardTitle>
+      </CardHeader>
+      <CardBody className="d-flex align-items-center justify-content-center">
+        <Chart
+          options={options}
+          series={dataSeries}
+          type="donut"
+          height={280}
+          width="100%"
+        />
+      </CardBody>
+    </Card>
+  );
+};
+
+export default UserRolesChart;

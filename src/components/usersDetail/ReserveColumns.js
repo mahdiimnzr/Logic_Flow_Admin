@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import Select from "react-select";
 import { selectThemeColors } from "@utils";
-import { Eye } from "react-feather";
+import { Check, Eye } from "react-feather";
 import {
   Badge,
   Button,
@@ -20,15 +20,16 @@ import formatPrice from "../../core/utils/formatPrice";
 import ImageFallback from "../common/ImageFallback";
 import courseImage from "../../assets/images/coursePng.png";
 
-export const columns = [
+export const columns = (t) => [
   {
-    name: "CourseTitle",
+    name: t("CourseTitle"),
     sortable: true,
     minWidth: "300px",
     sortField: "title",
     selector: (row) => row.title,
     cell: (row) => {
       const { t } = useTranslation();
+
       return (
         <div className="d-flex align-items-center gap-1 text-truncate">
           <ImageFallback
@@ -37,6 +38,7 @@ export const columns = [
             fallback={courseImage}
             src={row.imageAddress}
           />
+
           <Link
             to={`/Courses/Detail/${row.courseId}`}
             className="user_name text-body text-truncate"
@@ -48,7 +50,7 @@ export const columns = [
     },
   },
   {
-    name: "Teacher",
+    name: t("Teacher"),
     sortable: true,
     minWidth: "200px",
     sortField: "teacher",
@@ -65,13 +67,14 @@ export const columns = [
     ),
   },
   {
-    name: "CourseCost",
+    name: t("CourseCost"),
     sortable: true,
     minWidth: "200px",
     sortField: "cost",
     selector: (row) => row.cost,
     cell: (row) => {
       const { t } = useTranslation();
+
       return (
         <div className="d-flex flex-column">
           <span className="fw-bolder">
@@ -82,7 +85,7 @@ export const columns = [
     },
   },
   {
-    name: "CourseCapacity",
+    name: t("CourseCapacity"),
     sortable: true,
     minWidth: "200px",
     sortField: "capacity",
@@ -94,7 +97,7 @@ export const columns = [
     ),
   },
   {
-    name: "CourseStatus",
+    name: t("CourseStatus"),
     sortable: true,
     minWidth: "200px",
     sortField: "courseStatusName",
@@ -106,13 +109,14 @@ export const columns = [
     ),
   },
   {
-    name: "ReserveStatus",
+    name: t("ReserveStatus"),
     minWidth: "60px",
     sortable: true,
     sortField: "status",
     selector: (row) => row.accept,
     cell: (row) => {
       const { t } = useTranslation();
+
       return (
         <Badge
           className="text-capitalize"
@@ -125,7 +129,7 @@ export const columns = [
     },
   },
   {
-    name: "Actions",
+    name: t("Actions"),
     sortable: true,
     minWidth: "20px",
     sortField: "capacity",
@@ -136,6 +140,7 @@ export const columns = [
       const queryClient = useQueryClient();
       const [centeredModal, setCenteredModal] = useState(false);
       const [groupError, setGroupError] = useState("");
+
       const [currentRole, setCurrentRole] = useState({
         value: null,
         label: t("SelectGroup"),
@@ -143,26 +148,33 @@ export const columns = [
 
       const rolesList = row?.groupId?.map((value) => ({
         value: value.groupId,
-        label: value.groupName + ` (ظرفیت دوره :${value.groupCapacity})`,
+        label: `${value.groupName} (${t("CourseCapacity")} : ${
+          value.groupCapacity
+        })`,
       }));
 
       const { mutate: acceptReserveMutate } = useMutation({
         mutationFn: acceptCourseReserve,
+
         onMutate: () => {
           const toastId = toast.loading(t("Loading"));
           return { toastId };
         },
+
         onSuccess: (response, _, context) => {
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
+
             queryClient.invalidateQueries({
               queryKey: [`UserDetail-${userId}`],
             });
+
             setCenteredModal(false);
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
+
         onError: (response, _, context) => {
           toast.error(response.data.message, { id: context.toastId });
         },
@@ -170,17 +182,19 @@ export const columns = [
 
       const handleRoleChange = (data) => {
         setCurrentRole(data);
+
         if (data?.value) setGroupError("");
       };
 
-      const handleSubmit = (data) => {
+      const handleSubmit = () => {
         if (!currentRole.value) {
           setGroupError(t("GroupRequired"));
           return;
         }
+
         acceptReserveMutate({
           courseId: row.courseId,
-          courseGroupId: currentRole.value ? currentRole.value : "",
+          courseGroupId: currentRole.value,
           studentId: userId,
         });
       };
@@ -188,34 +202,41 @@ export const columns = [
       const handleToggle = () => {
         setCenteredModal(!centeredModal);
         setGroupError("");
-        setCurrentRole({ value: null, label: t("SelectGroup") });
+        setCurrentRole({
+          value: null,
+          label: t("SelectGroup"),
+        });
       };
 
       return (
         <div className="d-flex align-items-center gap-1">
           <Link
+            className="d-flex align-items-center"
             to={`/Courses/Detail/${row?.courseId}`}
-            id={`pw-tooltip-${row?.courseId}`}
           >
-            <Eye size={17} className="mx-1" />
+            <Eye size={17} />
           </Link>
 
           {!row.accept && (
-            <Button.Ripple onClick={handleToggle} color="warning" size="sm">
-              {t("AcceptComment")}
-            </Button.Ripple>
+            <Check
+              className="cursor-pointer"
+              size={17}
+              onClick={handleToggle}
+            />
           )}
 
           <Modal
-            unmountOnClose={true}
+            unmountOnClose
             isOpen={centeredModal}
             toggle={handleToggle}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
             <ModalHeader toggle={handleToggle}>{t("CourseGroups")}</ModalHeader>
+
             <ModalBody>
               <Label for="role-select">{t("SelectGroup")}</Label>
+
               <Select
                 isClearable={false}
                 value={currentRole}
@@ -225,16 +246,19 @@ export const columns = [
                 theme={selectThemeColors}
                 onChange={handleRoleChange}
               />
+
               {groupError && (
                 <div className="invalid-feedback d-block mt-25">
                   {groupError}
                 </div>
               )}
             </ModalBody>
+
             <ModalFooter className="d-flex justify-content-between">
               <Button color="secondary" outline onClick={handleToggle}>
                 {t("Cancel")}
               </Button>
+
               <Button color="primary" onClick={handleSubmit}>
                 {t("ApplyStatus")}
               </Button>

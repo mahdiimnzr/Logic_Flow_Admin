@@ -1,33 +1,7 @@
-// ** React Imports
-import { Link, useNavigate } from "react-router-dom";
-
-// ** Custom Components
-import Avatar from "@components/avatar";
-import Select from "react-select";
-
-// ** Utils
-import { selectThemeColors } from "@utils";
-
-// ** Icons Imports
-import {
-  Slack,
-  User,
-  Settings,
-  Database,
-  Edit2,
-  MoreVertical,
-  FileText,
-  Trash2,
-  Archive,
-} from "react-feather";
-
-// ** Reactstrap Imports
+import { Link } from "react-router-dom";
+import { Eye, Check, Send } from "react-feather";
 import {
   Badge,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Button,
   Modal,
   ModalHeader,
@@ -35,111 +9,106 @@ import {
   ModalFooter,
   Label,
   Input,
+  Col,
+  Row,
+  FormFeedback,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
-import formatDate from "../../core/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import {
-  addUserAccess,
-  useGetUserList,
-} from "../../core/services/api/Users/users.service";
-import { useSelector } from "react-redux";
-import profile from "/public/Profile.png";
-import { acceptCourseComment } from "../../core/services/api/Comments/comments.service";
+  acceptCourseComment,
+  addReplyComment,
+} from "../../core/services/api/Comments/comments.service";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import formDataConverter from "../../core/utils/formDataConvertor";
 
 const statusObj = {
   active: "light-success",
   deActive: "light-secondary",
 };
 
-export const columns = [
+const validationSchema = Yup.object({
+  Title: Yup.string().trim().required("TitleRequired"),
+  Describe: Yup.string().trim().required("DescribeRequired"),
+});
+
+export const columns = (t) => [
   {
-    name: "Course",
-    sortable: true,
-    minWidth: "150px",
-    sortField: "fullName",
-    selector: (row) => row.courseTitle,
+    name: t("Writer"),
+    minWidth: "50px",
     cell: (row) => (
-      <div className="d-flex flex-column text-truncate">
+      <div className="d-flex flex-column">
         <Link
-          to={`/Courses/Detail/${row.courseId}`}
+          to={`/Users/Detail/${row.userId}`}
           className="user_name text-truncate text-body"
         >
-          <span className="fw-bolder">{row.courseTitle}</span>
+          <span className="fw-bolder">{row.author}</span>
         </Link>
       </div>
     ),
   },
   {
-    name: "Writer",
+    name: t("CommentTitle"),
     minWidth: "80px",
-    sortable: true,
-    sortField: "writer",
-    selector: (row) => row.userFullName,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <div className="d-flex flex-column">
-          <Link
-            to={`/Users/Detail/${row.userId}`}
-            className="user_name text-truncate text-body"
-          >
-            <span className="fw-bolder">{row.userFullName}</span>
-          </Link>
-        </div>
-      );
-    },
-  },
-  {
-    name: "Comment Title",
-    minWidth: "150px",
-    sortable: true,
-    sortField: "title",
-    selector: (row) => row.commentTitle,
     cell: (row) => (
       <span className="fw-bolder text-truncate">{row.commentTitle}</span>
     ),
   },
   {
-    name: "Comment Describe",
-    minWidth: "300px",
-    sortable: true,
-    sortField: "title",
-    selector: (row) => row.describe,
+    name: t("CommentDescribe"),
+    minWidth: "200px",
+    maxWidth: "320px",
     cell: (row) => (
       <span className="text-truncate text-muted mb-0">{row.describe}</span>
     ),
   },
   {
-    name: "Status",
-    minWidth: "80px",
+    name: t("Status"),
+    minWidth: "50px",
     sortable: true,
-    sortField: "status",
-    selector: (row) => row.active,
-    cell: (row) => {
-      const { t } = useTranslation();
-      return (
-        <Badge
-          className="text-capitalize"
-          color={row.accept ? statusObj.active : statusObj.deActive}
-          pill
-        >
-          {row.accept ? t("Accept") : t("NotAccept")}
-        </Badge>
-      );
-    },
+    sortField: "accept",
+    selector: (row) => row.accept,
+    cell: (row) => (
+      <Badge
+        className="text-capitalize"
+        color={row.accept ? statusObj.active : statusObj.deActive}
+        pill
+      >
+        {row.accept ? t("Accept") : t("NotAccept")}
+      </Badge>
+    ),
   },
   {
-    name: "Actions",
+    name: t("Actions"),
     minWidth: "150px",
     cell: (row) => {
-      const params = useSelector((state) => state.usersSlice.params);
       const { t } = useTranslation();
-      const navigate = useNavigate();
       const queryClient = useQueryClient();
-      const [centeredModal, setCenteredModal] = useState(false);
+      const [detailModal, setDetailModal] = useState(false);
+      const [replyModal, setReplyModal] = useState(false);
+
+      const defaultValues = {
+        CommentId: row.id,
+        CourseId: row.courseId,
+        Title: "",
+        Describe: "",
+      };
+
+      const {
+        control,
+        setValue,
+        handleSubmit,
+        formState: { errors },
+      } = useForm({
+        defaultValues,
+        resolver: yupResolver(validationSchema),
+      });
+
       const { mutate: acceptCommentMutate } = useMutation({
         mutationFn: acceptCourseComment,
         onMutate: () => {
@@ -149,63 +118,181 @@ export const columns = [
         onSuccess: (response, _, context) => {
           if (response.data.success) {
             toast.success(response.data.message, { id: context.toastId });
-            queryClient.invalidateQueries({
-              queryKey: [`CourseCommentsList`],
-            });
+            queryClient.invalidateQueries({ queryKey: ["CourseCommentsList"] });
           } else {
             toast.error(response.data.message, { id: context.toastId });
           }
         },
-        onError: (response, _, context) => {
-          toast.error(response.data.message, { id: context.toastId });
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
         },
       });
+      const { mutate: addReplyMutate } = useMutation({
+        mutationFn: addReplyComment,
+        onMutate: () => {
+          const toastId = toast.loading(t("Loading"));
+          return { toastId };
+        },
+        onSuccess: (response, _, context) => {
+          if (response.data.success) {
+            toast.success(response.data.message, { id: context.toastId });
+            setReplyModal(false);
+            queryClient.invalidateQueries({ queryKey: ["CourseCommentsList"] });
+            setValue("Title", "");
+            setValue("Describe", "");
+          } else {
+            toast.error(response.data.message, { id: context.toastId });
+          }
+        },
+        onError: (_, context) => {
+          toast.error(t("ErrorOccurred"), { id: context.toastId });
+        },
+      });
+
+      const onSubmit = (data) => {
+        const formData = formDataConverter(data);
+        addReplyMutate(formData);
+      };
+
       return (
         <div className="column-action d-flex gap-1">
-          <Button.Ripple
-            onClick={() => setCenteredModal(!centeredModal)}
-            color="info"
-            size="sm"
-          >
-            {t("Detail")}
-          </Button.Ripple>
+          <Eye
+            id={`Eye-${row.id}`}
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setDetailModal(true)}
+          />
+          <UncontrolledTooltip placement="top" target={`Eye-${row.id}`}>
+            جزئیات دیدگاه
+          </UncontrolledTooltip>
+
+          <Send
+            id={`AddComment-${row.id}`}
+            size={17}
+            className="me-50 cursor-pointer"
+            onClick={() => setReplyModal(true)}
+          />
+          <UncontrolledTooltip placement="top" target={`AddComment-${row.id}`}>
+            افزودن دیدگاه
+          </UncontrolledTooltip>
+
           {!row.accept && (
-            <Button.Ripple
-              onClick={() => acceptCommentMutate(row.commentId)}
-              color="warning"
-              size="sm"
-            >
-              {t("AcceptComment")}
-            </Button.Ripple>
+            <>
+              <Check
+                id={`Approve-${row.commentId}`}
+                size={17}
+                className="me-50 cursor-pointer"
+                onClick={() => acceptCommentMutate(row.commentId)}
+              />
+              <UncontrolledTooltip
+                placement="top"
+                target={`Approve-${row.commentId}`}
+              >
+                تأیید دیدگاه
+              </UncontrolledTooltip>
+            </>
           )}
           <Modal
-            unmountOnClose={true}
-            isOpen={centeredModal}
-            toggle={() => setCenteredModal(!centeredModal)}
+            unmountOnClose
+            isOpen={replyModal}
+            toggle={() => setReplyModal(!replyModal)}
             className="modal-dialog-centered"
             style={{ fontFamily: "IRANYekanXFaNum" }}
           >
-            <ModalHeader toggle={() => setCenteredModal(!centeredModal)}>
+            <ModalHeader toggle={() => setReplyModal(!replyModal)}>
+              {t("Comments")}
+            </ModalHeader>
+            <ModalBody className="px-sm-5 mx-50 pb-5">
+              <Row
+                tag="form"
+                className="gy-1 pt-75"
+                onSubmit={handleSubmit(onSubmit)}
+              >
+                <Col xs={12}>
+                  <Label className="form-label" for="Title">
+                    {t("CommentTitle")}
+                  </Label>
+                  <Controller
+                    name="Title"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="Title"
+                        placeholder={t("CommentTitle")}
+                        invalid={!!errors.Title}
+                      />
+                    )}
+                  />
+                  {errors.Title && (
+                    <FormFeedback>{t(errors.Title.message)}</FormFeedback>
+                  )}
+                </Col>
+                <Col xs={12}>
+                  <Label className="form-label" for="Describe">
+                    {t("CommentDescribe")}
+                  </Label>
+                  <Controller
+                    name="Describe"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="Describe"
+                        type="textarea"
+                        placeholder={t("CommentDescribe")}
+                        invalid={!!errors.Describe}
+                        style={{ minHeight: "100px" }}
+                      />
+                    )}
+                  />
+                  {errors.Describe && (
+                    <FormFeedback>{t(errors.Describe.message)}</FormFeedback>
+                  )}
+                </Col>
+                <Col
+                  xs={12}
+                  className="text-center d-flex justify-content-between mt-2 pt-50"
+                >
+                  <Button type="submit" className="me-1" color="primary">
+                    {t("SendReply")}
+                  </Button>
+                  <Button
+                    color="secondary"
+                    outline
+                    onClick={() => setReplyModal(!replyModal)}
+                  >
+                    {t("Cancel")}
+                  </Button>
+                </Col>
+              </Row>
+            </ModalBody>
+          </Modal>
+          <Modal
+            unmountOnClose
+            isOpen={detailModal}
+            toggle={() => setDetailModal(!detailModal)}
+            className="modal-dialog-centered"
+            style={{ fontFamily: "IRANYekanXFaNum" }}
+          >
+            <ModalHeader toggle={() => setDetailModal(!detailModal)}>
               {t("Comments")}
             </ModalHeader>
             <ModalBody>
               <div className="mb-1 d-flex flex-column">
                 <Label>{t("CommentTitle")}</Label>
-                <span className="text-muted mb-0">
-                  {row.commentTitle}
-                </span>
+                <span className="text-muted mb-0">{row.commentTitle}</span>
               </div>
               <div className="mb-1 d-flex flex-column">
                 <Label>{t("CommentDescribe")}</Label>
-                <span className="text-muted mb-0">
-                  {row.describe}
-                </span>
+                <span className="text-muted mb-0">{row.describe}</span>
               </div>
             </ModalBody>
             <ModalFooter>
               <Button
-                color="primary"
-                onClick={() => setCenteredModal(!centeredModal)}
+                color="secondary"
+                outline
+                onClick={() => setDetailModal(false)}
               >
                 {t("Cancel")}
               </Button>

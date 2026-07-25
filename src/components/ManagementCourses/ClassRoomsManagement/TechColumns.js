@@ -14,6 +14,7 @@ import {
   Col,
   FormFeedback,
   InputGroup,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -160,10 +161,17 @@ export const columns = (t) => [
       return (
         <div className="column-action d-flex gap-1 align-items-center">
           <Eye
+            id={`EyeClassRoom-${row.id}`}
             size={17}
             className="me-50 cursor-pointer"
             onClick={toggleDetailModal}
           />
+          <UncontrolledTooltip
+            placement="top"
+            target={`EyeClassRoom-${row.id}`}
+          >
+            جزئیات کلاس
+          </UncontrolledTooltip>
 
           <Modal
             unmountOnClose={true}
