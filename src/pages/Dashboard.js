@@ -26,11 +26,10 @@ import {
   getAdminCourseList,
   getAdminUserList,
 } from "./../core/services/api/dashboard/dashboard.service";
-import { getAdminBlogsList } from './../core/services/api/blogs/blogs.service';
+import { getAdminBlogsList } from "./../core/services/api/blogs/blogs.service";
 import toast from "react-hot-toast";
 
 const Dashboard = () => {
-
   const { skin } = useSkin();
 
   const [dashboardReport, setDashboardReport] = useState(null);
@@ -44,15 +43,25 @@ const Dashboard = () => {
   const [userMetrics, setUserMetrics] = useState([0, 0]);
   const [userRoles, setUserRoles] = useState([0, 0, 0, 0]);
   const [usersCount, setUsersCount] = useState(0);
-  const { isLoading: userLoading, data } = useGetCurrentUserDetail();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [dashboardRes, teachersRes, coursesRes, techRes, blogsRes, usersRes] = await Promise.all([
+        const [
+          dashboardRes,
+          teachersRes,
+          coursesRes,
+          techRes,
+          blogsRes,
+          usersRes,
+        ] = await Promise.all([
           getDashboardAdminReport(),
           getAllTeachers(),
-          getAdminCourseList({ PageNumber: 1, RowsOfPage: 500, SortingCol: "DESC" }),
+          getAdminCourseList({
+            PageNumber: 1,
+            RowsOfPage: 500,
+            SortingCol: "DESC",
+          }),
           getTechnologyReport(),
           getAdminBlogsList({ RowsoFPage: 200 }),
           getAdminUserList({ PageNumber: 1, RowsOfPage: 500 }),
@@ -62,7 +71,11 @@ const Dashboard = () => {
         const teachersData = teachersRes?.data ? teachersRes.data : teachersRes;
         const coursesData = coursesRes?.data ? coursesRes.data : coursesRes;
         const technologyData = techRes?.data ? techRes.data : techRes;
-        const blogsData = blogsRes?.news ? blogsRes.news : (blogsRes?.data?.news ? blogsRes.data.news : []);
+        const blogsData = blogsRes?.news
+          ? blogsRes.news
+          : blogsRes?.data?.news
+          ? blogsRes.data.news
+          : [];
         const usersRootData = usersRes?.data ? usersRes.data : usersRes;
         const usersData = usersRootData?.listUser ? usersRootData.listUser : [];
 
@@ -76,14 +89,18 @@ const Dashboard = () => {
         if (coursesData && coursesData.courseDtos) {
           const allCourses = coursesData.courseDtos;
 
-          setCoursesCount(coursesData.totalCount !== undefined ? coursesData.totalCount : allCourses.length);
+          setCoursesCount(
+            coursesData.totalCount !== undefined
+              ? coursesData.totalCount
+              : allCourses.length,
+          );
           setLatestCourses(allCourses.slice(0, 5));
 
           let active = 0;
           let inactive = 0;
           let expired = 0;
 
-          allCourses.forEach(course => {
+          allCourses.forEach((course) => {
             if (course.isExpire) {
               expired++;
             } else if (course.isActive) {
@@ -104,22 +121,28 @@ const Dashboard = () => {
 
         if (Array.isArray(usersData) && usersData.length > 0) {
           const totalUsers = usersData.length;
-          const activeUsers = usersData.filter(u => u.active).length;
+          const activeUsers = usersData.filter((u) => u.active).length;
           const activePercent = Math.round((activeUsers / totalUsers) * 100);
 
-          const totalCompletion = usersData.reduce((sum, u) => sum + (u.profileCompletionPercentage || 0), 0);
+          const totalCompletion = usersData.reduce(
+            (sum, u) => sum + (u.profileCompletionPercentage || 0),
+            0,
+          );
           const avgCompletion = Math.round(totalCompletion / totalUsers);
 
           setUserMetrics([activePercent, avgCompletion]);
 
-          let admin = 0, teacher = 0, student = 0, god = 0;
-          usersData.forEach(user => {
+          let admin = 0,
+            teacher = 0,
+            student = 0,
+            god = 0;
+          usersData.forEach((user) => {
             if (user.roles) {
-              user.roles.forEach(role => {
-                if (role === 'admin') admin++;
-                else if (role === 'teacher') teacher++;
-                else if (role === 'student') student++;
-                else if (role === 'GOD') god++;
+              user.roles.forEach((role) => {
+                if (role === "admin") admin++;
+                else if (role === "teacher") teacher++;
+                else if (role === "student") student++;
+                else if (role === "GOD") god++;
               });
             }
           });
@@ -131,7 +154,6 @@ const Dashboard = () => {
         } else if (usersData.length > 0) {
           setUsersCount(usersData.length);
         }
-
       } catch (error) {
         console.error("Error loading dashboard data:", error);
       } finally {
@@ -151,19 +173,26 @@ const Dashboard = () => {
     return num.toLocaleString("fa-IR");
   };
 
-  return isLoading || userLoading ? (
+  return isLoading ? (
     <div className="d-flex justify-content-center mt-5">
       <Spinner color="primary" />
     </div>
   ) : (
-    <div id="dashboard-analytics" className={skin === 'dark' ? 'text-white' : 'text-body'}>
+    <div
+      id="dashboard-analytics"
+      className={skin === "dark" ? "text-white" : "text-body"}
+    >
       <Row className="match-height">
         <Col lg="3" sm="6" className="mb-2">
           <StatsHorizontal
             color="primary"
             icon={<Users size={21} />}
             stats={usersCount ? usersCount.toLocaleString("fa-IR") : "0"}
-            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>کل کاربران</span>}
+            statTitle={
+              <span className={skin === "dark" ? "text-light" : "text-body"}>
+                کل کاربران
+              </span>
+            }
           />
         </Col>
         <Col lg="3" sm="6" className="mb-2">
@@ -171,7 +200,11 @@ const Dashboard = () => {
             color="success"
             icon={<UserCheck size={21} />}
             stats={teachersCount.toString()}
-            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>تعداد اساتید</span>}
+            statTitle={
+              <span className={skin === "dark" ? "text-light" : "text-body"}>
+                تعداد اساتید
+              </span>
+            }
           />
         </Col>
         <Col lg="3" sm="6" className="mb-2">
@@ -179,7 +212,11 @@ const Dashboard = () => {
             color="info"
             icon={<BookOpen size={21} />}
             stats={coursesCount.toString()}
-            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>کل دوره‌ها</span>}
+            statTitle={
+              <span className={skin === "dark" ? "text-light" : "text-body"}>
+                کل دوره‌ها
+              </span>
+            }
           />
         </Col>
         <Col lg="3" sm="6" className="mb-2">
@@ -191,7 +228,11 @@ const Dashboard = () => {
                 ? `${formatLargeNumber(dashboardReport.allPaymentCost)} تومان`
                 : "0 تومان"
             }
-            statTitle={<span className={skin === 'dark' ? 'text-light' : 'text-body'}>مجموع پرداختی‌ها</span>}
+            statTitle={
+              <span className={skin === "dark" ? "text-light" : "text-body"}>
+                مجموع پرداختی‌ها
+              </span>
+            }
           />
         </Col>
       </Row>
@@ -216,7 +257,8 @@ const Dashboard = () => {
             series={[dashboardReport?.reserveAcceptPercent || 0]}
             statRightTitle="در انتظار"
             statRightValue={
-              (dashboardReport?.allReserve || 0) - (dashboardReport?.allReserveAccept || 0)
+              (dashboardReport?.allReserve || 0) -
+              (dashboardReport?.allReserveAccept || 0)
             }
             statCenterTitle="تایید شده"
             statCenterValue={dashboardReport?.allReserveAccept || 0}
