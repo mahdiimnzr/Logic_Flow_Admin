@@ -1,18 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge, Spinner, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 import { Eye, Edit, MoreVertical, Power } from 'react-feather';
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { toggleBlogStatus } from "../../core/services/api/blogs/blogs.service";
+import { useQueryClient } from "@tanstack/react-query";
 
 const baseURL = import.meta.env.VITE_BASE_URL || "";
 import defaultIMG from "../../assets/images/coursePng.png"
 
 const ActionsCell = ({ row }) => {
 
+    const queryClient = useQueryClient();
     const initStatus = row.isActive === true || row.active === true;
     const [isActive, setIsActive] = useState(initStatus);
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        setIsActive(row.isActive === true || row.active === true);
+    }, [row.isActive, row.active]);
 
     const handleToggleStatus = async () => {
         const newsStatus = !isActive;
@@ -26,9 +32,20 @@ const ActionsCell = ({ row }) => {
             const result = await toggleBlogStatus(formData);
             if (result) {
                 setIsActive(newsStatus);
-                row.active = newsStatus;
-                row.isActive = newsStatus;
                 toast.success(`مقاله با موفقیت ${newsStatus ? 'فعال' : 'غیرفعال'} شد!`);
+                queryClient.setQueriesData(["adminBlogs"], (oldData) => {
+                    if (!oldData || !oldData.news) return oldData;
+                    return {
+                        ...oldData,
+                        news: oldData.news.map(blog =>
+                            blog.id === row.id
+                                ? { ...blog, active: newsStatus, isActive: newsStatus } 
+                                : blog
+                        )
+                    };
+                });
+                queryClient.invalidateQueries(["adminBlogs"]);
+
             } else {
                 toast.error("خطا در بروزرسانی وضعیت");
             }
