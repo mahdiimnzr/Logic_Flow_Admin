@@ -448,5 +448,10 @@
   "dashboardMoney": "Toman",
   "dashboardItems": "Items",
   "dashboardPeople": "Users",
-  "dashboardCourses": "Courses"
+  "dashboardCourses": "Courses",
+  "editTermInfo": "Edit Term Information",
+  "editTermCloseTime": "Edit Closing Time",
+  "totalTerms": "Total Terms",
+  "activeTerms": "Active Terms",
+  "expiredTerms": "Expired Terms"
 }

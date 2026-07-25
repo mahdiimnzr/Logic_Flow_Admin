@@ -48,7 +48,7 @@ const Terms = () => {
           <Col lg="4" sm="7">
             <StatsHorizontal
               color="primary"
-              statTitle="کل ترم ها"
+              statTitle={t("totalTerms")}
               icon={<Globe size={20} />}
               renderStats={
                 <h3 className="fw-bolder mb-75">{termList?.data?.length}</h3>
@@ -58,7 +58,7 @@ const Terms = () => {
           <Col lg="4" sm="6">
             <StatsHorizontal
               color="success"
-              statTitle="ترم های منقضی نشده"
+              statTitle={t("activeTerms")}
               icon={<Activity size={20} />}
               renderStats={
                 <h3 className="fw-bolder mb-75">{totalUnExpire?.length}</h3>
@@ -68,7 +68,7 @@ const Terms = () => {
           <Col lg="4" sm="6">
             <StatsHorizontal
               color="danger"
-              statTitle="ترم های منقضی شده"
+              statTitle={t("expiredTerms")}
               icon={<Slash size={20} />}
               renderStats={
                 <h3 className="fw-bolder mb-75">{totalExpire?.length}</h3>

@@ -192,7 +192,7 @@ export const columns = (t) => [
             onClick={() => setCenteredModal(true)}
           />
           <UncontrolledTooltip placement="top" target={`EditTerm-${row.id}`}>
-            ویرایش اطلاعات ترم
+            {t("editTermInfo")}
           </UncontrolledTooltip>
           <Clock
             id={`ClockTerm-${row.id}`}
@@ -201,7 +201,7 @@ export const columns = (t) => [
             onClick={toggleUpdateCloseDate}
           />
           <UncontrolledTooltip placement="top" target={`ClockTerm-${row.id}`}>
-            ویرایش زمان بسته بودن
+            {t("editTermCloseTime")}
           </UncontrolledTooltip>
           <Modal
             style={{ fontFamily: "IRANYekanXFaNum" }}

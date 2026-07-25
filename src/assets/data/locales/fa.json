@@ -607,5 +607,10 @@
   "dashboardMoney": "تومان",
   "dashboardItems": "مورد",
   "dashboardPeople": "نفر",
-  "dashboardCourses": "دوره"
+  "dashboardCourses": "دوره",
+  "editTermInfo": "ویرایش اطلاعات ترم",
+  "editTermCloseTime": "ویرایش زمان بسته بودن",
+  "totalTerms": "کل ترم‌ها",
+  "activeTerms": "ترم‌های منقضی‌نشده",
+  "expiredTerms": "ترم‌های منقضی‌شده"
 }
