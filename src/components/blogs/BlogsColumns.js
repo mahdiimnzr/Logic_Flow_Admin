@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Badge, Spinner, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
-import { Eye, Edit, MoreVertical, Power } from 'react-feather';
+import React, { useState, useEffect } from "react";
+import {
+  Badge,
+  Spinner,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  UncontrolledTooltip,
+} from "reactstrap";
+import { Eye, Edit, MoreVertical, Power } from "react-feather";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { toggleBlogStatus } from "../../core/services/api/blogs/blogs.service";
@@ -12,32 +20,42 @@ import { useTranslation } from "react-i18next";
 
 const ActionsCell = ({ row }) => {
   const { t } = useTranslation();
+
+  const queryClient = useQueryClient();
   const initStatus = row.isActive === true || row.active === true;
   const [isActive, setIsActive] = useState(initStatus);
   const [isLoading, setIsLoading] = useState(false);
 
-    const queryClient = useQueryClient();
-    const initStatus = row.isActive === true || row.active === true;
-    const [isActive, setIsActive] = useState(initStatus);
-    const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    setIsActive(row.isActive === true || row.active === true);
+  }, [row.isActive, row.active]);
 
-    useEffect(() => {
-        setIsActive(row.isActive === true || row.active === true);
-    }, [row.isActive, row.active]);
-
-    const handleToggleStatus = async () => {
-        const newsStatus = !isActive;
-        setIsLoading(true);
+  const handleToggleStatus = async () => {
+    const newsStatus = !isActive;
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("Active", newsStatus);
+    formData.append("Id", row.id);
 
     try {
       const result = await toggleBlogStatus(formData);
       if (result) {
         setIsActive(newsStatus);
-        row.active = newsStatus;
-        row.isActive = newsStatus;
         toast.success(
           newsStatus ? t("StatusUpdateSuccess") : t("StatusUpdateSuccessNot"),
         );
+        queryClient.setQueriesData(["adminBlogs"], (oldData) => {
+          if (!oldData || !oldData.news) return oldData;
+          return {
+            ...oldData,
+            news: oldData.news.map((blog) =>
+              blog.id === row.id
+                ? { ...blog, active: newsStatus, isActive: newsStatus }
+                : blog,
+            ),
+          };
+        });
+        queryClient.invalidateQueries(["adminBlogs"]);
       } else {
         toast.error(t("StatusUpdateError"));
       }
@@ -47,35 +65,14 @@ const ActionsCell = ({ row }) => {
       setIsLoading(false);
     }
   };
-
-        try {
-            const result = await toggleBlogStatus(formData);
-            if (result) {
-                setIsActive(newsStatus);
-                toast.success(`مقاله با موفقیت ${newsStatus ? 'فعال' : 'غیرفعال'} شد!`);
-                queryClient.setQueriesData(["adminBlogs"], (oldData) => {
-                    if (!oldData || !oldData.news) return oldData;
-                    return {
-                        ...oldData,
-                        news: oldData.news.map(blog =>
-                            blog.id === row.id
-                                ? { ...blog, active: newsStatus, isActive: newsStatus } 
-                                : blog
-                        )
-                    };
-                });
-                queryClient.invalidateQueries(["adminBlogs"]);
-
-            } else {
-                toast.error("خطا در بروزرسانی وضعیت");
-            }
-        } catch (error) {
-            toast.error("مشکلی در برقراری ارتباط با سرور پیش آمد!");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
+  return (
+    <div className="d-flex align-items-center">
+      <Link to={`/blogs/view/${row.id}`} className="text-body me-1">
+        <Eye size={18} id={`blog-view-${row.id}`} />
+        <UncontrolledTooltip placement="top" target={`blog-view-${row.id}`}>
+          {t("BlogDetails")}
+        </UncontrolledTooltip>
+      </Link>
       <Link to={`/blogs/edit/${row.id}`} className="text-body me-1">
         <Edit size={18} id={`blog-edit-${row.id}`} />
         <UncontrolledTooltip placement="top" target={`blog-edit-${row.id}`}>
