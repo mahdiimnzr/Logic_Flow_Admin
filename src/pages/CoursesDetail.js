@@ -32,34 +32,56 @@ const CoursesDetail = () => {
 
   const { isLoading: statusLoading } = useGetStatus();
   const { isLoading: categoryLoading } = useGetTechnology();
-  const { isLoading, data: courseDetail, isFetching } = useGetCourseDetail(courseId);
+  const {
+    isLoading,
+    data: courseDetail,
+    isFetching,
+  } = useGetCourseDetail(courseId);
   const { isLoading: usersLoading } = useGetUserList({ RowsOfPage: 1000 });
 
-  const { isLoading: commentsLoading, data: courseComments, isFetching: commentsFetching } =
-    useGetCourseCommentsList({ RowsOfPage: "1000" });
+  const {
+    isLoading: commentsLoading,
+    data: courseComments,
+    isFetching: commentsFetching,
+  } = useGetCourseCommentsList({ RowsOfPage: "1000" });
 
-  const { isLoading: reservesLoading, data: courseReserves, isFetching: reserveFetching } =
-    useGetCourseReserve(courseId);
+  const {
+    isLoading: reservesLoading,
+    data: courseReserves,
+    isFetching: reserveFetching,
+  } = useGetCourseReserve(courseId);
 
-  const { isLoading: courseGroupLoading, data: courseGroup, isFetching: groupsFetching } =
-    useGetCourseGroup(
-      {
-        TeacherId: courseDetail?.data?.teacherId,
-        CourseId: courseId,
-      },
-      {
-        enabled: !!courseDetail?.data?.teacherId,
-      },
-    );
+  const {
+    isLoading: courseGroupLoading,
+    data: courseGroup,
+    isFetching: groupsFetching,
+  } = useGetCourseGroup(
+    {
+      TeacherId: courseDetail?.data?.teacherId,
+      CourseId: courseId,
+    },
+    {
+      enabled: !!courseDetail?.data?.teacherId,
+    },
+  );
 
-  const { isLoading: courseSocialGroupLoading, data: courseSocialGroup, isFetching: socialGroupsFetching } =
-    useGetCourseSocialMedias();
+  const {
+    isLoading: courseSocialGroupLoading,
+    data: courseSocialGroup,
+    isFetching: socialGroupsFetching,
+  } = useGetCourseSocialMedias();
 
-  const { isLoading: courseMentorsLoading, data: courseMentors, isFetching: mentorsFetching } =
-    useGetCourseAssistance();
+  const {
+    isLoading: courseMentorsLoading,
+    data: courseMentors,
+    isFetching: mentorsFetching,
+  } = useGetCourseAssistance();
 
-  const { isLoading: assistanceWorkLoading, data: assistanceWork, isFetching: assistanceWorksFetching } =
-    useGetAssistanceWork();
+  const {
+    isLoading: assistanceWorkLoading,
+    data: assistanceWork,
+    isFetching: assistanceWorksFetching,
+  } = useGetAssistanceWork();
 
   const reserveCourseWithGroup = courseReserves?.data?.map((value) => ({
     ...value,
@@ -98,7 +120,15 @@ const CoursesDetail = () => {
     <div className="invoice-preview-wrapper">
       <Row className="invoice-preview">
         <Col xl={3} sm={12}>
-          <PreviewCard courseDetail={courseDetail?.data} />
+          <PreviewCard
+            courseDetail={courseDetail?.data}
+            comments={thisCourseComments}
+            reserves={reserveCourseWithGroup}
+            groups={courseGroupWithTeacher}
+            socialGroup={courseSocialGroup?.data}
+            mentors={courseMentors?.data}
+            assistance={assistanceWork?.data}
+          />
         </Col>
         <Col xl={9} sm={12}>
           <CourseDetailTabs
@@ -114,42 +144,60 @@ const CoursesDetail = () => {
           <TabContent activeTab={activeTab}>
             <TabPane tabId="2">
               <div className="app-user-list">
-                <CommentsList data={thisCourseComments} isFetching={commentsFetching} />
+                <CommentsList
+                  data={thisCourseComments}
+                  isFetching={commentsFetching}
+                />
               </div>
             </TabPane>
           </TabContent>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="3">
               <div className="app-user-list">
-                <ReserveTabs data={reserveCourseWithGroup} isFetching={reserveFetching} />
+                <ReserveTabs
+                  data={reserveCourseWithGroup}
+                  isFetching={reserveFetching}
+                />
               </div>
             </TabPane>
           </TabContent>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="4">
               <div className="app-user-list">
-                <GroupsList data={courseGroupWithTeacher} isFetching={groupsFetching} />
+                <GroupsList
+                  data={courseGroupWithTeacher}
+                  isFetching={groupsFetching}
+                />
               </div>
             </TabPane>
           </TabContent>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="5">
               <div className="app-user-list">
-                <PaymentList data={courseDetail?.data} isFetching={isFetching} />
+                <PaymentList
+                  data={courseDetail?.data}
+                  isFetching={isFetching}
+                />
               </div>
             </TabPane>
           </TabContent>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="6">
               <div className="app-user-list">
-                <SocialGroupList data={courseSocialGroup?.data} isFetching={socialGroupsFetching} />
+                <SocialGroupList
+                  data={courseSocialGroup?.data}
+                  isFetching={socialGroupsFetching}
+                />
               </div>
             </TabPane>
           </TabContent>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="7">
               <div className="app-user-list">
-                <MentorList data={courseMentors?.data} isFetching={mentorsFetching} />
+                <MentorList
+                  data={courseMentors?.data}
+                  isFetching={mentorsFetching}
+                />
               </div>
             </TabPane>
           </TabContent>

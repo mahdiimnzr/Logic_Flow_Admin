@@ -20,7 +20,10 @@ const SidebarNewMentor = ({ open, toggleSidebar }) => {
   const { courseId } = useParams();
   const queryClient = useQueryClient();
 
-  const usersData = queryClient.getQueryState(["UsersList"]);
+  const usersData = queryClient.getQueryState([
+    "UsersList",
+    { RowsOfPage: 1000 },
+  ]);
 
   const [currentUser, setCurrentUser] = useState({
     value: null,

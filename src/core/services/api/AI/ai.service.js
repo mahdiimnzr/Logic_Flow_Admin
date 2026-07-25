@@ -22,3 +22,14 @@ export const generateImage = async (data) => {
 
   return response;
 };
+
+export const getCourseRecommended = async (messages) => {
+  const response = await axios.post(
+    "https://hidden-unit-ba14.mahdi7813nazarzadeh-c44.workers.dev",
+    {
+      messages,
+    },
+  );
+
+  return response;
+};
