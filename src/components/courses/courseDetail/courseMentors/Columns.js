@@ -32,9 +32,7 @@ export const columns = (t) => [
     maxWidth: "250px",
     sortField: "assistanceName",
     selector: (row) => row.assistanceName,
-    cell: (row) => (
-      <span className="fw-bolder">{row.assistanceName}</span>
-    ),
+    cell: (row) => <span className="fw-bolder">{row.assistanceName}</span>,
   },
   {
     name: t("MentorCourseName"),
@@ -72,7 +70,10 @@ export const columns = (t) => [
       const queryClient = useQueryClient();
       const [editModal, setEditModal] = useState(false);
 
-      const usersData = queryClient.getQueryState(["UsersList"]);
+      const usersData = queryClient.getQueryState([
+        "UsersList",
+        { RowsOfPage: 1000 },
+      ]);
 
       const userOptions = useMemo(
         () =>
@@ -80,7 +81,7 @@ export const columns = (t) => [
             value: user.id,
             label: `${user.fName} ${user.lName}`,
           })),
-        [usersData]
+        [usersData],
       );
 
       const defaultValues = {
@@ -152,12 +153,17 @@ export const columns = (t) => [
                     render={({ field }) => (
                       <Select
                         options={userOptions}
-                        className={`react-select ${errors.userId ? "is-invalid" : ""}`}
+                        className={`react-select ${
+                          errors.userId ? "is-invalid" : ""
+                        }`}
                         classNamePrefix="select"
                         id="userId"
                         name="userId"
                         theme={selectThemeColors}
-                        value={userOptions.find((u) => u.value === field.value) || null}
+                        value={
+                          userOptions.find((u) => u.value === field.value) ||
+                          null
+                        }
                         onChange={(selected) => field.onChange(selected?.value)}
                       />
                     )}
@@ -171,7 +177,11 @@ export const columns = (t) => [
               </form>
             </ModalBody>
             <ModalFooter>
-              <Button color="secondary" outline onClick={() => setEditModal(false)}>
+              <Button
+                color="secondary"
+                outline
+                onClick={() => setEditModal(false)}
+              >
                 {t("Cancel")}
               </Button>
               <Button color="primary" onClick={handleSubmit(onSubmit)}>

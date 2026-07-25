@@ -54,8 +54,17 @@ import formDataConverter from "../../../core/utils/formDataConvertor";
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { getCourseRecommended } from "../../../core/services/api/AI/ai.service";
 
-const PreviewCard = ({ courseDetail }) => {
+const PreviewCard = ({
+  courseDetail,
+  comments,
+  reserves,
+  groups,
+  socialGroup,
+  mentors,
+  assistance,
+}) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { courseId } = useParams();
@@ -85,6 +94,8 @@ const PreviewCard = ({ courseDetail }) => {
 
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [aiModal, setAiModal] = useState(false);
+  const [aiText, setAiText] = useState("");
 
   const [selectedCategory, setSelectedCategory] = useState(
     orderOptions(
@@ -113,6 +124,7 @@ const PreviewCard = ({ courseDetail }) => {
 
   const toggleCategoryModal = () => setCategoryModalOpen((prev) => !prev);
   const toggleStatusModal = () => setStatusModalOpen((prev) => !prev);
+  const toggleAiModal = () => setAiModal((prev) => !prev);
 
   const { mutate: activeCourseMutate } = useMutation({
     mutationFn: activeCourse,
@@ -179,6 +191,25 @@ const PreviewCard = ({ courseDetail }) => {
     },
     onError: (response, _, context) => {
       toast.error(response?.data?.message ?? t("ErrorOccurred"), {
+        id: context.toastId,
+      });
+    },
+  });
+  const { mutate: aiMutate } = useMutation({
+    mutationFn: getCourseRecommended,
+    onMutate: () => {
+      const toastId = toast.loading(t("Loading"));
+      return { toastId };
+    },
+    onSuccess: (response, _, context) => {
+      toast.success(t("AIIsReady"), {
+        id: context.toastId,
+      });
+      setAiText(response.data.choices[0].message.content);
+      toggleAiModal();
+    },
+    onError: (response, _, context) => {
+      toast.error(t("ErrorOccurred"), {
         id: context.toastId,
       });
     },
@@ -353,6 +384,31 @@ const PreviewCard = ({ courseDetail }) => {
                 {t("CourseStatus")}
               </Button>
             </Col>
+            <Col xs="12">
+              <Button
+                color="success"
+                block
+                className="d-flex align-items-center justify-content-center gap-1"
+                onClick={() => {
+                  aiMutate([
+                    {
+                      role: "user",
+                      content: `من ادمینم اطلاعات ${JSON.stringify(
+                        courseDetail ?? "[]",
+                      )} کامنت ها ${JSON.stringify(
+                        comments ?? "[]",
+                      )}گروه ها ${JSON.stringify(
+                        groups ?? "[]",
+                      )} منتور ها ${JSON.stringify(
+                        socialGroup ?? "[]",
+                      )} وظایف منتور ها ${JSON.stringify(assistance ?? "[]")}`,
+                    },
+                  ]);
+                }}
+              >
+                {t("AIAnalystic")}
+              </Button>
+            </Col>
           </Row>
         </CardBody>
       </Card>
@@ -449,6 +505,26 @@ const PreviewCard = ({ courseDetail }) => {
             }}
           >
             {t("ApplyStatus")}
+          </Button>
+        </ModalFooter>
+      </Modal>
+      <Modal
+        unmountOnClose={true}
+        isOpen={aiModal}
+        toggle={toggleAiModal}
+        className="modal-dialog-centered"
+        style={{ fontFamily: "IRANYekanXFaNum" }}
+      >
+        <ModalHeader toggle={toggleAiModal}>{t("AIAnalystic")}</ModalHeader>
+        <ModalBody>
+          <Label for="role-select">{t("AI")}</Label>
+          <p className="form-control-static" id="StaticInput">
+            {aiText}
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" outline onClick={toggleAiModal}>
+            {t("Cancel")}
           </Button>
         </ModalFooter>
       </Modal>
