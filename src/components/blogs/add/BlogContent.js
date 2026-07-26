@@ -31,7 +31,7 @@ const BlogContent = ({
     },
 
     onError: (error) => {
-      toast.error("خطا در دریافت پاسخ");
+      toast.error(t("generateError"));
     },
   });
 
@@ -81,13 +81,14 @@ const BlogContent = ({
   return (
     <Fragment>
       <div className="content-header">
-        <h5 className="mb-0">محتوای مقاله</h5>
-        <small className="text-muted">متن اصلی مقاله را اینجا بنویسید.</small>
+        <h5 className="mb-0">{t("blogContentTitle")}</h5>
+        <small className="text-muted"> {t("blogContentDescription")} </small>
       </div>
 
       <div className="mb-1">
         <Label className="form-label" for="describe">
-          بدنه مقاله <span className="text-danger">*</span>
+          {t("articleBody")}
+          <span className="text-danger">*</span>
           {!isEditMode && (
             <Button
               size="sm"
@@ -118,7 +119,7 @@ const BlogContent = ({
             render={({ field }) => (
               <Editor
                 data={editorData}
-                placeholder={"وارد کردن متن مقاله الزامی است"}
+                placeholder={t("articleBodyPlaceholder")}
                 onChange={async (data) => {
                   field.onChange(JSON.stringify(await data));
                   setEditorData(await data);
@@ -133,7 +134,7 @@ const BlogContent = ({
 
         {error && (
           <span className="text-danger fs-6 mt-1 d-block">
-            {t("CourseDescribeRequired")}
+            {t("generateError")}
           </span>
         )}
       </div>
@@ -145,10 +146,16 @@ const BlogContent = ({
           onClick={() => stepper.previous()}
         >
           <ArrowLeft size={14} className="align-middle me-sm-25 me-0" />
-          <span className="align-middle d-sm-inline-block d-none">قبلی</span>
+          <span className="align-middle d-sm-inline-block d-none">
+            {" "}
+            {t("previous")}
+          </span>
         </Button>
         <Button color="primary" className="btn-next" onClick={handleNext}>
-          <span className="align-middle d-sm-inline-block d-none">بعدی</span>
+          <span className="align-middle d-sm-inline-block d-none">
+            {" "}
+            {t("next")}
+          </span>
           <ArrowRight size={14} className="align-middle ms-sm-25 ms-0" />
         </Button>
       </div>

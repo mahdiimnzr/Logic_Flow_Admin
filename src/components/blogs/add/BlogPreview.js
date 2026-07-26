@@ -4,9 +4,11 @@ import { ArrowLeft, ArrowRight, Check } from "react-feather";
 
 import defaultIMG from "../../../assets/images/coursePng.png";
 import HandleIdentityEditorJs from "../../common/EditorDetailValidation";
+import { useTranslation } from "react-i18next";
 const baseURL = import.meta.env.VITE_BASE_URL || "";
 
 const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
+  const { t } = useTranslation();
   const data = watch();
   const getImageSrc = (image) => {
     if (!image) return null;
@@ -31,10 +33,8 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
   return (
     <Fragment>
       <div className="content-header">
-        <h5 className="mb-0">پیش‌نمایش نهایی</h5>
-        <small className="text-muted">
-          اطلاعات را با دقت بررسی کرده و سپس ثبت نهایی را بزنید.
-        </small>
+        <h5 className="mb-0">{t("blogPreviewTitle")} </h5>
+        <small className="text-muted">{t("blogPreviewDescription")}</small>
       </div>
 
       <Card className="border my-2 shadow-none">
@@ -42,30 +42,34 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
           <Row>
             <Col md="8">
               <h4 className="fw-bolder text-primary mb-1">
-                {data.title || "بدون عنوان"}
+                {data.title || t("noTitle")}
               </h4>
               <div className="mb-2">
                 <Badge color="light-secondary" className="me-1">
-                  آیدی دسته‌بندی: {data.categoryId || "انتخاب نشده"}
+                  {t("categoryId")}
+                  {data.categoryId || t("categoryNotSelected")}
                 </Badge>
                 {data.isSlider && (
-                  <Badge color="light-warning">نمایش در اسلایدر</Badge>
+                  <Badge color="light-warning">{t("showInSliders")} </Badge>
                 )}
               </div>
 
-              <p className="text-muted fw-bold mb-50">چکیده:</p>
-              <p>{data.miniDescribe || "بدون چکیده"}</p>
+              <p className="text-muted fw-bold mb-50"> {t("summary")} </p>
+              <p>{data.miniDescribe || t("noSummary")}</p>
 
               <hr />
 
-              <p className="text-muted fw-bold mb-50">اطلاعات سئو:</p>
+              <p className="text-muted fw-bold mb-50">
+                {" "}
+                {t("seoInformation")}{" "}
+              </p>
               <ul className="list-unstyled mb-0">
                 <li>
-                  <span className="fw-bold">عنوان گوگل:</span>{" "}
+                  <span className="fw-bold"> {t("googleTitles")}</span>{" "}
                   {data.googleTitle || "-"}
                 </li>
                 <li>
-                  <span className="fw-bold">کلمات کلیدی:</span>{" "}
+                  <span className="fw-bold"> {t("keywords")}</span>{" "}
                   {data.keyword || "-"}
                 </li>
               </ul>
@@ -78,7 +82,7 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
               {data.image ? (
                 <img
                   src={getImageSrc(data.image)}
-                  alt="کاور مقاله"
+                  alt={t("articleCover")}
                   className="img-fluid rounded shadow-sm"
                   style={{
                     maxHeight: "220px",
@@ -95,7 +99,7 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
                   className="bg-light d-flex justify-content-center align-items-center rounded w-100"
                   style={{ height: "200px" }}
                 >
-                  <span className="text-muted">عکسی انتخاب نشده</span>
+                  <span className="text-muted"> {t("noImageSelected")}</span>
                 </div>
               )}
             </Col>
@@ -103,7 +107,7 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
 
           <Row className="mt-3">
             <Col sm="12">
-              <p className="text-muted fw-bold mb-50">محتوای اصلی مقاله:</p>
+              <p className="text-muted fw-bold mb-50"> {t("articleContent")}</p>
               <HandleIdentityEditorJs desc={data.describe} />
             </Col>
           </Row>
@@ -117,12 +121,14 @@ const BlogPreview = ({ stepper, watch, onSubmit, isEditMode }) => {
           onClick={() => stepper.previous()}
         >
           <ArrowLeft size={14} className="align-middle me-sm-25 me-0" />
-          <span className="align-middle d-sm-inline-block d-none">قبلی</span>
+          <span className="align-middle d-sm-inline-block d-none">
+            {t("previous")}
+          </span>
         </Button>
         <Button color="success" className="btn-submit" onClick={onSubmit}>
           <Check size={14} className="align-middle me-sm-25 me-0" />
           <span className="align-middle d-sm-inline-block d-none">
-            {isEditMode ? "اعمال تغییرات" : "ایجاد  مقاله"}
+            {isEditMode ? t("applyChanges") : t("createArticle")}
           </span>
         </Button>
       </div>

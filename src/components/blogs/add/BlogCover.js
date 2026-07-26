@@ -10,9 +10,7 @@ import toast from "react-hot-toast";
 
 const BlogCover = ({ stepper, control, setValue, trigger, getValues }) => {
   const { t } = useTranslation();
-
   const [aiImage, setAiImage] = useState(null);
-
   const { mutate, isPending } = useMutation({
     mutationFn: generateImage,
     onSuccess: (response) => {
@@ -25,7 +23,7 @@ const BlogCover = ({ stepper, control, setValue, trigger, getValues }) => {
       });
     },
     onError: () => {
-      toast.error("خطا در ساخت تصویر");
+      toast.error(t("imageGenerateError"));
     },
   });
 
@@ -84,10 +82,10 @@ const BlogCover = ({ stepper, control, setValue, trigger, getValues }) => {
   return (
     <Fragment>
       <div className="content-header">
-        <h5 className="mb-0">کاور مقاله</h5>
+        <h5 className="mb-0"> {t("blogCoverTitle")}</h5>
         <small className="text-muted">
           {" "}
-          یک عکس انتخاب کنید.{" "}
+          {t("blogCoverDescription")}
           <Button
             size="sm"
             color="primary"
@@ -109,7 +107,7 @@ const BlogCover = ({ stepper, control, setValue, trigger, getValues }) => {
         <Controller
           name="image"
           control={control}
-          rules={{ required: "آپلود عکس کاور الزامی است" }}
+          rules={{ required: t("coverImageRequired") }}
           render={({ field, fieldState: { error } }) => (
             <Fragment>
               <div
@@ -125,10 +123,8 @@ const BlogCover = ({ stepper, control, setValue, trigger, getValues }) => {
                   style={{ padding: "2rem", border: "2px dashed #ebe9f1" }}
                 >
                   <DownloadCloud size={64} className="mb-1" />
-                  <h5>فایل را اینجا رها کنید یا برای آپلود کلیک کنید</h5>
-                  <p className="text-secondary">
-                    فقط فایل‌های تصویری مجاز هستند
-                  </p>
+                  <h5>{t("dropImageTitle")}</h5>
+                  <p className="text-secondary">{t("dropImageDescription")}</p>
                 </div>
               </div>
               {error && (
@@ -146,7 +142,7 @@ const BlogCover = ({ stepper, control, setValue, trigger, getValues }) => {
                 </div>
                 <div>
                   <p className="file-name mb-0 text-success">
-                    کاور با موفقیت انتخاب شد
+                    {t("coverSelected")}
                   </p>
                 </div>
               </div>
@@ -171,10 +167,16 @@ const BlogCover = ({ stepper, control, setValue, trigger, getValues }) => {
           onClick={() => stepper.previous()}
         >
           <ArrowLeft size={14} className="align-middle me-sm-25 me-0" />
-          <span className="align-middle d-sm-inline-block d-none">قبلی</span>
+          <span className="align-middle d-sm-inline-block d-none">
+            {" "}
+            {t("previous")}
+          </span>
         </Button>
         <Button color="primary" className="btn-next" onClick={handleNext}>
-          <span className="align-middle d-sm-inline-block d-none">بعدی</span>
+          <span className="align-middle d-sm-inline-block d-none">
+            {" "}
+            {t("next")}
+          </span>
           <ArrowRight size={14} className="align-middle ms-sm-25 ms-0" />
         </Button>
       </div>

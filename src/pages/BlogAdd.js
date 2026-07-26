@@ -18,9 +18,11 @@ import {
 import BreadCrumbs from "@components/breadcrumbs";
 import defaultIMG from "../assets/images/coursePng.png";
 import Spinner from "@components/spinner/Fallback-spinner";
+import { useTranslation } from "react-i18next";
 const baseURL = import.meta.env.VITE_BASE_URL || "";
 
 const BlogAdd = () => {
+  const { t } = useTranslation();
   const ref = useRef(null);
 
   const [stepper, setStepper] = useState(null);
@@ -80,7 +82,7 @@ const BlogAdd = () => {
             });
           }
         } catch (error) {
-          toast.error("خطا در دریافت اطلاعات مقاله!");
+          toast.error(t("blogLoadError"));
         }
       };
       fetchArticleData();
@@ -125,11 +127,11 @@ const BlogAdd = () => {
         }
 
         if (textUpdateResult) {
-          toast.success("مقاله با موفقیت ویرایش شد!");
+          toast.success(t("blogUpdateSuccess"));
           navigate("/blogs/list");
         }
       } catch (error) {
-        toast.error("خطا در ویرایش مقاله!");
+        toast.error(t("blogUpdateError"));
         console.error(error);
       }
     } else {
@@ -153,14 +155,14 @@ const BlogAdd = () => {
       try {
         const result = await createNewsBlog(formData);
         if (result && result.success) {
-          toast.success("مقاله با موفقیت ایجاد شد!");
+          toast.success(t("blogUpdateError"));
           navigate("/blogs/list");
         } else {
-          toast.error("خطا در ساخت مقاله! لطفا دوباره تلاش کنید!");
+          toast.error(t("blogCreateSuccess"));
           console.error("Error creating News!", result);
         }
       } catch (error) {
-        toast.error("مشکلی در ارتباط با سرور پیش آمد!");
+        toast.error(t("serverConnectionError"));
         console.error("Error API!", error);
       }
     }
@@ -169,8 +171,8 @@ const BlogAdd = () => {
   const steps = [
     {
       id: "basic-info",
-      title: "اطلاعات پایه",
-      subtitle: "عنوان و دسته بندی مقاله",
+      title: t("blogBasicInfo"),
+      subtitle: t("blogBasicInfoDescription"),
       icon: <Type size={18} />,
       content: (
         <BasicInfo
@@ -184,8 +186,8 @@ const BlogAdd = () => {
     },
     {
       id: "blog-content",
-      title: "محتوای مقاله",
-      subtitle: "متن اصلی مقاله",
+      title: t("blogContent"),
+      subtitle: t("blogContentDescription"),
       icon: <FileText size={18} />,
       content: (
         <BlogContent
@@ -201,8 +203,8 @@ const BlogAdd = () => {
     },
     {
       id: "blog-cover",
-      title: "کاور مقاله",
-      subtitle: "آپلود عکس مقاله",
+      title: t("articleCover"),
+      subtitle: t("blogCoverDescriptiones"),
       icon: <Image size={18} />,
       content: (
         <BlogCover
@@ -216,8 +218,8 @@ const BlogAdd = () => {
     },
     {
       id: "blog-preview",
-      title: " پیش نمایش",
-      subtitle: " تایید نهایی اطلاعات",
+      title: t("blogPreview"),
+      subtitle: t("blogPreviewDescriptiones"),
       icon: <Eye size={18} />,
       content: (
         <BlogPreview
@@ -235,10 +237,10 @@ const BlogAdd = () => {
   ) : (
     <Fragment>
       <BreadCrumbs
-        title=" ساخت مقاله جدید"
+        title={t("createNewArticle")}
         data={[
-          { title: " مقالات", link: "/blogs/list" },
-          { title: "  افزودن مقاله " },
+          { title: t("articles"), link: "/blogs/list" },
+          { title: t("addArticle") },
         ]}
       />
       <div className="horizontal-wizard">
