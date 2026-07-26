@@ -8,6 +8,7 @@ import {
   Spinner,
   Button,
   Input,
+  UncontrolledTooltip,
 } from "reactstrap";
 import {
   ThumbsUp,
@@ -215,6 +216,7 @@ const CommentItem = ({
 };
 
 const BlogCommentsList = ({ allComments, refetchComments }) => {
+  const { t } = useTranslation();
   const mainComments =
     allComments?.filter(
       (c) =>

@@ -17,7 +17,7 @@ const IntlDropdown = () => {
   // ** Vars
   const langObj = {
     en: "English",
-    fa: "Persian",
+    fa: "فارسی",
   };
 
   // ** Function to switch Language
@@ -60,7 +60,7 @@ const IntlDropdown = () => {
           onClick={(e) => handleLangUpdate(e, "fa")}
         >
           <ReactCountryFlag className="country-flag" countryCode="ir" svg />
-          <span className="ms-1">Persian</span>
+          <span className="ms-1">فارسی</span>
         </DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>
