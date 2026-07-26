@@ -142,7 +142,6 @@ const HomeWorkModal = ({ isOpen, setIsOpen, sessionDetailProp }) => {
                 responsive
                 columns={columns(t)}
                 className="react-dataTable"
-                theme="dark"
                 data={data?.data || []}
               />
             </div>
