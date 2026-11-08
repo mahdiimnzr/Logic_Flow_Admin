@@ -75,6 +75,7 @@ export const columns = (t) => [
     name: t("CourseTitle"),
     sortable: true,
     minWidth: "200px",
+    maxWidth: "600px",
     sortField: "client.name",
     cell: (row) => {
       return (
@@ -100,6 +101,7 @@ export const columns = (t) => [
     sortable: true,
     sortField: "id",
     minWidth: "107px",
+    maxWidth: "150px",
     cell: (row) => (
       <Link to={`/Users/Detail/${row?.teacherId}`}>{row?.fullName}</Link>
     ),
@@ -108,6 +110,7 @@ export const columns = (t) => [
     name: t("CourseCost"),
     sortable: true,
     minWidth: "150px",
+    maxWidth: "200px",
     sortField: "total",
     cell: (row) => (
       <span>
@@ -118,6 +121,7 @@ export const columns = (t) => [
   {
     sortable: true,
     minWidth: "200px",
+    maxWidth: "250px",
     name: t("InsertDate"),
     sortField: "dueDate",
     cell: (row) => formatDate(row?.lastUpdate),
@@ -126,6 +130,7 @@ export const columns = (t) => [
     sortable: true,
     name: t("CourseStatus"),
     minWidth: "164px",
+    maxWidth: "200px",
     sortField: "balance",
     selector: (row) => row?.active,
     cell: (row) => (
